@@ -1,0 +1,100 @@
+---
+import { content, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = content[lang].philosophy;
+---
+
+<section id="philosophy" class="section-pad border-b border-line bg-surface">
+  <div class="container-page">
+    <div class="grid gap-6 border-t border-line pt-5 md:grid-cols-12 md:gap-8" data-reveal>
+      <div class="flex items-baseline gap-3 md:col-span-3">
+        <span class="label text-accent">{t.index}</span>
+        <span class="label text-muted">{t.label}</span>
+      </div>
+
+      <div class="md:col-span-9">
+        <div class="label flex flex-col gap-1 text-muted sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3">
+          <span>{t.meta}</span>
+          <span class="hidden h-1 w-1 flex-none bg-accent sm:block" aria-hidden="true"></span>
+          <span>{t.readingTime}</span>
+        </div>
+
+        <h2 class="mt-5 max-w-4xl font-serif text-4xl leading-[1.02] tracking-[-0.035em] md:text-6xl">
+          {t.title}
+        </h2>
+
+        <p class="mt-5 max-w-2xl text-lg leading-relaxed text-fg-soft md:text-xl">{t.deck}</p>
+      </div>
+    </div>
+
+    <div class="mt-12 grid gap-10 md:mt-16 md:grid-cols-12 md:gap-8">
+      <aside class="md:col-span-3" data-reveal>
+        <div class="border-t border-line pt-4">
+          <p class="label text-muted">{t.authorLabel}</p>
+          <p class="mt-2 font-serif text-xl">{t.author}</p>
+          <p class="mt-1 text-sm text-muted">{t.role}</p>
+        </div>
+
+        <div class="mt-6 border-t border-line pt-4">
+          <p class="label text-muted">{t.dateLabel}</p>
+          <p class="mt-2 text-sm text-fg-soft">{t.date}</p>
+        </div>
+
+        <div class="mt-6 border-t border-line pt-4">
+          <p class="label text-muted">{t.tagsLabel}</p>
+          <ul class="mt-3 flex flex-wrap gap-2">
+            {t.tags.map((tag) => (
+              <li class="chip">{tag}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="mt-8 h-16 w-1 bg-accent" aria-hidden="true"></div>
+      </aside>
+
+      <article class="md:col-span-8 md:col-start-5" data-reveal style="--reveal-delay:100ms">
+        <div class="space-y-5 text-[15px] leading-[1.8] text-fg-soft md:text-base">
+          {t.paragraphs.map((paragraph, index) => (
+            <p class={index === 0 ? 'drop-cap' : undefined}>{paragraph}</p>
+          ))}
+        </div>
+
+        <blockquote class="mt-10 border-l-2 border-accent pl-5">
+          <p class="max-w-xl font-serif text-2xl italic leading-snug text-fg md:text-3xl">
+            “{t.quote}”
+          </p>
+          <footer class="label mt-3 text-muted">— {t.quoteBy}</footer>
+        </blockquote>
+
+        <p class="mt-10 border-t border-line pt-6 font-serif text-xl leading-snug text-fg md:text-2xl">
+          {t.closing}
+        </p>
+      </article>
+    </div>
+
+    <div class="mt-14 border-t border-line pt-8" data-reveal>
+      <div class="grid gap-6 md:grid-cols-12 md:gap-8">
+        <div class="md:col-span-3">
+          <p class="label text-muted">{t.principlesLabel}</p>
+        </div>
+
+        <div class="grid gap-x-8 gap-y-8 sm:grid-cols-2 md:col-span-9">
+          {t.principles.map((principle, index) => (
+            <div class="border-t border-line pt-4">
+              <div class="flex items-baseline gap-3">
+                <span class="label text-accent">0{index + 1}</span>
+                <h3 class="font-serif text-xl leading-snug md:text-2xl">{principle.title}</h3>
+              </div>
+              <p class="mt-2 text-sm leading-relaxed text-muted">{principle.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

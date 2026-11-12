@@ -1,6 +1,6 @@
 # mcastillo.dev
 
-Sitio personal y hub de proyectos de **Marco Castillo**, software engineer en Barrie, Canadá. La landing principal presenta el perfil, la experiencia y los proyectos; cada proyecto vivirá en su propio subdominio.
+Sitio personal y hub de proyectos de **Marco Castillo**, software engineer en Barrie, Canadá. Incluye un manifiesto sobre ingeniería en la era de la IA, además del perfil, la experiencia y los proyectos; cada proyecto vivirá en su propio subdominio.
 
 - **Stack:** Astro 7, Tailwind CSS 4, TypeScript.
 - **Idiomas:** español en `/`, inglés en `/en/`.
@@ -56,6 +56,7 @@ Casi todo el contenido vive en `src/i18n/content.ts`:
 
 - `site`: nombre, email, GitHub, LinkedIn, ubicación.
 - `meta`: title y description por idioma.
+- `philosophy`: manifiesto, párrafos, cita y principios de trabajo.
 - `hero`, `work`, `about`, `stack`, `experience`, `contact`, `footer`: copy bilingüe.
 - `work.projects`: proyectos, dominio previsto, tags, estado y URL.
 

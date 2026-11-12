@@ -151,6 +151,16 @@
     background-color: var(--color-accent);
   }
 
+  .drop-cap::first-letter {
+    float: left;
+    margin-top: 0.35rem;
+    margin-right: 0.75rem;
+    font-family: var(--font-serif);
+    font-size: 4.5rem;
+    line-height: 0.72;
+    color: var(--color-accent);
+  }
+
   .btn {
     display: inline-flex;
     min-height: 2.875rem;

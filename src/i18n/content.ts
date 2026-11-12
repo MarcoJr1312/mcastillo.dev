@@ -37,6 +37,33 @@ export interface ExperienceItem {
   bullets: string[];
 }
 
+export interface PhilosophyPrinciple {
+  title: string;
+  description: string;
+}
+
+export interface Philosophy {
+  index: string;
+  label: string;
+  meta: string;
+  readingTime: string;
+  title: string;
+  deck: string;
+  authorLabel: string;
+  author: string;
+  role: string;
+  dateLabel: string;
+  date: string;
+  tagsLabel: string;
+  tags: string[];
+  paragraphs: string[];
+  quote: string;
+  quoteBy: string;
+  closing: string;
+  principlesLabel: string;
+  principles: PhilosophyPrinciple[];
+}
+
 export interface SiteContent {
   meta: {
     title: string;
@@ -63,6 +90,7 @@ export interface SiteContent {
     clockLabel: string;
   };
   ticker: string[];
+  philosophy: Philosophy;
   work: {
     index: string;
     label: string;
@@ -121,10 +149,11 @@ export const content: Record<Lang, SiteContent> = {
     meta: {
       title: 'Marco Castillo — Software Engineer',
       description:
-        'Portafolio de Marco Castillo, software engineer en Barrie, Canadá. Infraestructura, APIs y productos que llegan a producción.',
+        'Portafolio y manifiesto de Marco Castillo, software engineer en Barrie, Canadá. Sistemas, APIs e infraestructura en la era de la IA.',
     },
     header: {
       nav: [
+        { label: 'Filosofía', href: '#philosophy' },
         { label: 'Proyectos', href: '#work' },
         { label: 'Perfil', href: '#about' },
         { label: 'Stack', href: '#stack' },
@@ -142,8 +171,8 @@ export const content: Record<Lang, SiteContent> = {
       titleLines: ['Sistemas que', 'llegan a', 'producción.'],
       intro:
         'Soy Marco Castillo. Construyo infraestructura, APIs y productos que se despliegan solos y se mantienen de pie.',
-      primaryCta: 'Ver proyectos',
-      secondaryCta: 'Hablemos',
+      primaryCta: 'Leer el manifiesto',
+      secondaryCta: 'Ver proyectos',
       cardLabel: 'Actualmente',
       cardVersion: 'v.2026',
       rows: [
@@ -165,8 +194,51 @@ export const content: Record<Lang, SiteContent> = {
       'Python',
       'Terraform',
     ],
-    work: {
+    philosophy: {
       index: '01',
+      label: 'Filosofía',
+      meta: 'Notas de ingeniería · Manifiesto v1',
+      readingTime: '4 min de lectura',
+      title: 'El código nunca fue el trabajo.',
+      deck: 'Estudiar software hoy es fácil y difícil al mismo tiempo. La IA escribe cada vez mejor; eso no vuelve menos importante el criterio de quien diseña el sistema.',
+      authorLabel: 'Escrito por',
+      author: 'Marco Castillo',
+      role: 'Software Engineer',
+      dateLabel: 'Publicado',
+      date: 'Nov 2026',
+      tagsLabel: 'Temas',
+      tags: ['IA', 'Sistemas', 'Arquitectura', 'Criterio'],
+      paragraphs: [
+        'Me dijeron que no iba a conseguir trabajo. Que aprender un lenguaje nuevo no servía. Que la IA ya hace todo. Y es difícil negar una parte: la IA escribe código mejor cada día.',
+        'Pero mi experiencia en QA y DevOps me enseñó otra cosa. La parte crítica del software nunca fue teclear. Fue diseñar sistemas, APIs y arquitecturas que resuelven problemas reales. El código es una consecuencia de esas decisiones, no el punto de partida.',
+        'La diferencia entre una demo y un sistema seguro en producción está entre la pantalla y la IA: tú. Elegir Python o TypeScript. Express, Hono o Next. Node o Bun. REST o GraphQL. Decidir cómo modelar los datos, dónde poner los límites y qué no construir. Esas preguntas son el trabajo.',
+        'Por eso uso IA para construir, pero el diseño y las decisiones son míos. Soy el diseñador. Soy el arquitecto. Aprender a planear una feature, entender su ciclo de vida y dirigir la IA hacia un objetivo es la habilidad de mi generación. No se trata de delegar el criterio; se trata de amplificarlo.',
+      ],
+      quote: 'La IA puede escribir el código. No puede decidir por qué existe.',
+      quoteBy: 'Marco Castillo',
+      closing: 'Esa es mi ventaja: no escribir más código, sino diseñar mejores sistemas.',
+      principlesLabel: 'Cómo trabajo',
+      principles: [
+        {
+          title: 'Diseñar antes de generar',
+          description: 'Problema, límites y modelo primero. La IA viene después.',
+        },
+        {
+          title: 'Elegir con contexto',
+          description: 'No hay balas de plata: hay trade-offs, restricciones y consecuencias.',
+        },
+        {
+          title: 'Entender cada línea',
+          description: 'Si no puedo explicar por qué está ahí, no está terminado.',
+        },
+        {
+          title: 'Guiar, no delegar',
+          description: 'La IA acelera la ejecución; el criterio sigue siendo humano.',
+        },
+      ],
+    },
+    work: {
+      index: '02',
       label: 'Trabajo seleccionado',
       title: 'Cosas que ya están en pie.',
       note: 'Tres proyectos. Del frontend a la infraestructura.',
@@ -209,7 +281,7 @@ export const content: Record<Lang, SiteContent> = {
       ],
     },
     about: {
-      index: '02',
+      index: '03',
       label: 'Perfil',
       title: 'Curiosidad de QA, mentalidad de infraestructura.',
       note: 'Cómo pienso el software.',
@@ -227,7 +299,7 @@ export const content: Record<Lang, SiteContent> = {
       portraitMeta: 'Barrie, ON · 44.3894° N',
     },
     stack: {
-      index: '03',
+      index: '04',
       label: 'Stack',
       title: 'Herramientas, no logos.',
       note: 'Lo que uso para llevar código a producción.',
@@ -244,7 +316,7 @@ export const content: Record<Lang, SiteContent> = {
       ],
     },
     experience: {
-      index: '04',
+      index: '05',
       label: 'Trayectoria',
       title: 'Dónde he construido.',
       note: 'Experiencia y formación.',
@@ -284,7 +356,7 @@ export const content: Record<Lang, SiteContent> = {
       ],
     },
     contact: {
-      index: '05',
+      index: '06',
       label: 'Contacto',
       titleLines: ['Hablemos de', 'lo que sigue.'],
       intro:
@@ -306,10 +378,11 @@ export const content: Record<Lang, SiteContent> = {
     meta: {
       title: 'Marco Castillo — Software Engineer',
       description:
-        'Portfolio of Marco Castillo, a software engineer based in Barrie, Canada. Infrastructure, APIs, and products that make it to production.',
+        'Portfolio and manifesto of Marco Castillo, a software engineer based in Barrie, Canada. Systems, APIs, and infrastructure in the age of AI.',
     },
     header: {
       nav: [
+        { label: 'Philosophy', href: '#philosophy' },
         { label: 'Work', href: '#work' },
         { label: 'About', href: '#about' },
         { label: 'Stack', href: '#stack' },
@@ -327,8 +400,8 @@ export const content: Record<Lang, SiteContent> = {
       titleLines: ['Systems that', 'make it to', 'production.'],
       intro:
         "I'm Marco Castillo. I build infrastructure, APIs, and products that deploy themselves and stay up.",
-      primaryCta: 'Selected work',
-      secondaryCta: "Let's talk",
+      primaryCta: 'Read the manifesto',
+      secondaryCta: 'See selected work',
       cardLabel: 'Currently',
       cardVersion: 'v.2026',
       rows: [
@@ -350,8 +423,51 @@ export const content: Record<Lang, SiteContent> = {
       'Python',
       'Terraform',
     ],
-    work: {
+    philosophy: {
       index: '01',
+      label: 'Philosophy',
+      meta: 'Engineering notes · Manifesto v1',
+      readingTime: '4 min read',
+      title: 'The code was never the job.',
+      deck: 'Learning software today is easy and hard at the same time. AI writes better code every day; that does not make the judgment of the person designing the system less important.',
+      authorLabel: 'Written by',
+      author: 'Marco Castillo',
+      role: 'Software Engineer',
+      dateLabel: 'Published',
+      date: 'Nov 2026',
+      tagsLabel: 'Topics',
+      tags: ['AI', 'Systems', 'Architecture', 'Judgment'],
+      paragraphs: [
+        "People told me I wouldn't get the job. That learning a new language was useless. That AI does everything now. And part of that is hard to deny: AI writes better code every day.",
+        'But my experience in QA and DevOps taught me something else. The critical part of software was never typing. It was designing systems, APIs, and architectures that solve real problems. Code is a consequence of those decisions, not the starting point.',
+        'The difference between a demo and a secure production system sits between the screen and the AI: you. Choosing Python or TypeScript. Express, Hono, or Next. Node or Bun. REST or GraphQL. Deciding how to model data, where to draw boundaries, and what not to build. Those questions are the job.',
+        "That's why I use AI to build, but the design and the decisions are mine. I am the designer. I am the architect. Learning to plan a feature, understand its lifecycle, and direct AI toward a goal is the skill of my generation. It's not about delegating judgment; it's about amplifying it.",
+      ],
+      quote: "AI can write the code. It can't decide why it exists.",
+      quoteBy: 'Marco Castillo',
+      closing: "That's my edge: not writing more code, but designing better systems.",
+      principlesLabel: 'How I work',
+      principles: [
+        {
+          title: 'Design before generating',
+          description: 'Problem, boundaries, and model first. AI comes after.',
+        },
+        {
+          title: 'Choose with context',
+          description: 'No silver bullets: only trade-offs, constraints, and consequences.',
+        },
+        {
+          title: 'Understand every line',
+          description: "If I can't explain why it's there, it isn't finished.",
+        },
+        {
+          title: "Guide, don't delegate",
+          description: 'AI accelerates execution; judgment stays human.',
+        },
+      ],
+    },
+    work: {
+      index: '02',
       label: 'Selected work',
       title: 'Things already standing.',
       note: 'Three projects. From frontend to infrastructure.',
@@ -394,7 +510,7 @@ export const content: Record<Lang, SiteContent> = {
       ],
     },
     about: {
-      index: '02',
+      index: '03',
       label: 'About',
       title: 'A QA mindset, an infrastructure habit.',
       note: 'How I think about software.',
@@ -412,7 +528,7 @@ export const content: Record<Lang, SiteContent> = {
       portraitMeta: 'Barrie, ON · 44.3894° N',
     },
     stack: {
-      index: '03',
+      index: '04',
       label: 'Stack',
       title: 'Tools, not logos.',
       note: 'What I use to get code into production.',
@@ -429,7 +545,7 @@ export const content: Record<Lang, SiteContent> = {
       ],
     },
     experience: {
-      index: '04',
+      index: '05',
       label: 'Experience',
       title: "Where I've built.",
       note: 'Experience and education.',
@@ -469,7 +585,7 @@ export const content: Record<Lang, SiteContent> = {
       ],
     },
     contact: {
-      index: '05',
+      index: '06',
       label: 'Contact',
       titleLines: ["Let's talk about", "what's next."],
       intro:
