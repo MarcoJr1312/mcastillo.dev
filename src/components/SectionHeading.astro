@@ -1,0 +1,30 @@
+---
+interface Props {
+  index: string;
+  label: string;
+  title: string;
+  note?: string;
+}
+
+const { index, label, title, note } = Astro.props;
+---
+
+<div
+  class="grid gap-5 border-t border-line pt-5 md:grid-cols-12 md:items-start md:gap-8"
+  data-reveal
+>
+  <div class="flex items-baseline gap-3 md:col-span-3">
+    <span class="label text-accent">{index}</span>
+    <span class="label text-muted">{label}</span>
+  </div>
+
+  <div class="md:col-span-6">
+    <h2 class="max-w-2xl font-serif text-3xl leading-[1.05] tracking-[-0.025em] md:text-5xl">
+      {title}
+    </h2>
+  </div>
+
+  {note && (
+    <p class="max-w-xs text-xs leading-relaxed text-muted md:col-span-3 md:text-right">{note}</p>
+  )}
+</div>

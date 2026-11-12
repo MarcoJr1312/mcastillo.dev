@@ -1,0 +1,15 @@
+# mcastillo.dev — project configuration for Orkai
+# Workflow: FrontendDev
+project:
+  name: mcastillo.dev
+  category_id: 71732804c3018b24de97815d479ce199
+index:
+  type: all
+  path: .
+  code:
+    skip_tests: true
+  documents:
+    extensions:
+      - .md
+  analytics:
+    enabled: false

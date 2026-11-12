@@ -1,0 +1,57 @@
+---
+import { content, type Lang } from '../i18n/content';
+import SectionHeading from './SectionHeading.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = content[lang];
+---
+
+<section id="experience" class="section-pad border-y border-line bg-paper-deep">
+  <div class="container-page">
+    <SectionHeading
+      index={t.experience.index}
+      label={t.experience.label}
+      title={t.experience.title}
+      note={t.experience.note}
+    />
+
+    <ol class="mt-8 border-b border-line md:mt-12">
+      {t.experience.items.map((item, index) => (
+        <li
+          class="grid gap-5 border-t border-line py-8 md:grid-cols-12 md:gap-8 md:py-10"
+          data-reveal
+          style={`--reveal-delay:${index * 60}ms`}
+        >
+          <div class="md:col-span-3">
+            <p class="label text-accent">{item.period}</p>
+          </div>
+
+          <div class="md:col-span-9">
+            <h3 class="font-serif text-2xl leading-tight tracking-[-0.02em] md:text-4xl">
+              {item.role}
+            </h3>
+
+            <p class="mt-2 flex flex-wrap gap-x-2 gap-y-1 text-sm text-muted">
+              <span>{item.org}</span>
+              <span aria-hidden="true">·</span>
+              <span>{item.location}</span>
+            </p>
+
+            <ul class="mt-5 space-y-2.5">
+              {item.bullets.map((bullet) => (
+                <li class="flex gap-3 text-[15px] leading-relaxed text-ink-soft">
+                  <span class="mt-2.5 h-1 w-1 flex-none bg-accent" aria-hidden="true"></span>
+                  <span>{bullet}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout lang="es" title="404 — Marco Castillo" description="Esta página no existe. Todavía.">
+  <section class="container-page section-pad">
+    <p class="label text-accent">404 / Not found</p>
+
+    <h1 class="mt-6 font-serif text-[clamp(4rem,14vw,11rem)] leading-none tracking-[-0.05em]">
+      404<span class="text-accent">.</span>
+    </h1>
+
+    <p class="mt-6 max-w-lg font-serif text-2xl italic leading-snug">
+      Esta página no existe. Todavía.
+    </p>
+    <p class="mt-3 max-w-lg text-sm text-muted">This page doesn't exist. Yet.</p>
+
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href="/" class="btn btn-primary">
+        Volver al inicio
+        <span aria-hidden="true">↗</span>
+      </a>
+      <a href="/en/" class="btn" hreflang="en" lang="en">
+        Go to the English site
+        <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

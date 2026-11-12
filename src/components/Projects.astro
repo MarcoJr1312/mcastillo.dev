@@ -1,0 +1,29 @@
+---
+import { content, type Lang } from '../i18n/content';
+import ProjectRow from './ProjectRow.astro';
+import SectionHeading from './SectionHeading.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = content[lang];
+---
+
+<section id="work" class="section-pad">
+  <div class="container-page">
+    <SectionHeading
+      index={t.work.index}
+      label={t.work.label}
+      title={t.work.title}
+      note={t.work.note}
+    />
+
+    <div class="mt-8 border-b border-line md:mt-12">
+      {t.work.projects.map((project, index) => (
+        <ProjectRow project={project} lang={lang} delay={index * 70} />
+      ))}
+    </div>
+  </div>
+</section>

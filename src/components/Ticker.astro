@@ -1,0 +1,25 @@
+---
+import { content, type Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = content[lang];
+---
+
+<div class="overflow-hidden border-y border-ink bg-ink py-3 text-paper" aria-hidden="true">
+  <div class="marquee">
+    {[0, 1].map(() => (
+      <ul class="flex shrink-0 items-center">
+        {t.ticker.map((item) => (
+          <li class="label flex items-center gap-5 whitespace-nowrap pr-5">
+            <span>{item}</span>
+            <span class="text-accent-light/80">✳</span>
+          </li>
+        ))}
+      </ul>
+    ))}
+  </div>
+</div>

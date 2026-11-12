@@ -1,0 +1,24 @@
+---
+import Hero from './Hero.astro';
+import Ticker from './Ticker.astro';
+import Projects from './Projects.astro';
+import About from './About.astro';
+import Stack from './Stack.astro';
+import Experience from './Experience.astro';
+import Contact from './Contact.astro';
+import type { Lang } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<Hero lang={lang} />
+<Ticker lang={lang} />
+<Projects lang={lang} />
+<About lang={lang} />
+<Stack lang={lang} />
+<Experience lang={lang} />
+<Contact lang={lang} />

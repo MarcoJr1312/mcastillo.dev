@@ -1,0 +1,79 @@
+---
+import { content, type Lang } from '../i18n/content';
+import SectionHeading from './SectionHeading.astro';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = content[lang];
+---
+
+<section id="about" class="section-pad border-y border-line bg-paper-deep">
+  <div class="container-page">
+    <SectionHeading
+      index={t.about.index}
+      label={t.about.label}
+      title={t.about.title}
+      note={t.about.note}
+    />
+
+    <div class="mt-10 grid gap-10 md:mt-14 lg:grid-cols-12 lg:gap-12">
+      <div class="lg:col-span-5" data-reveal>
+        <div class="relative aspect-[4/5] overflow-hidden border border-ink bg-ink text-paper">
+          <div class="portrait-grid absolute inset-0 opacity-50" aria-hidden="true"></div>
+
+          <div class="label absolute inset-x-5 top-5 flex justify-between text-paper/50">
+            <span>Portrait / 001</span>
+            <span>2026</span>
+          </div>
+
+          <div
+            class="absolute left-5 top-1/2 h-16 w-1 -translate-y-1/2 bg-accent-light"
+            aria-hidden="true"
+          ></div>
+
+          <span
+            class="absolute bottom-16 left-1/2 -translate-x-1/2 font-serif text-[clamp(8rem,20vw,14rem)] leading-none tracking-[-0.08em] text-paper"
+            aria-hidden="true"
+          >
+            MC
+          </span>
+
+          <div class="absolute inset-x-0 bottom-0 border-t border-white/15 bg-ink/80 px-5 py-4 backdrop-blur-sm">
+            <p class="label text-paper/70">{t.about.portraitCaption}</p>
+            <p class="label mt-1 text-paper/50">{t.about.portraitMeta}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-7" data-reveal style="--reveal-delay:120ms">
+        <p class="max-w-2xl font-serif text-2xl leading-snug tracking-[-0.01em] md:text-3xl">
+          {t.about.lead}
+        </p>
+
+        <p class="mt-6 max-w-2xl text-[15px] leading-relaxed text-ink-soft md:text-base">
+          {t.about.body}
+        </p>
+
+        <blockquote class="mt-10 border-l-2 border-accent pl-5">
+          <p class="max-w-xl font-serif text-2xl italic leading-snug">“{t.about.quote}”</p>
+          <footer class="label mt-3 text-muted">— {t.about.quoteBy}</footer>
+        </blockquote>
+      </div>
+    </div>
+
+    <dl
+      class="mt-12 grid gap-x-8 gap-y-6 border-t border-line pt-6 sm:grid-cols-2 lg:grid-cols-4"
+      data-reveal
+    >
+      {t.about.facts.map((fact) => (
+        <div class="border-t border-line/70 pt-3 sm:border-0 sm:pt-0">
+          <dt class="label text-muted">{fact.label}</dt>
+          <dd class="mt-1.5 text-sm leading-snug text-ink-soft">{fact.value}</dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+</section>
