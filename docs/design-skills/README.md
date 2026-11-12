@@ -2,7 +2,7 @@
 
 Estas skills vienen de [awesome-design-skills](https://github.com/bergside/awesome-design-skills), un registry de **Bergside / typeui.sh** publicado bajo licencia MIT.
 
-Se usan como referencia para la dirección visual **Quiet Editorial** de mcastillo.dev:
+Se usan como referencia para la dirección visual **Noir Red** de mcastillo.dev:
 
 - [Editorial](https://github.com/bergside/awesome-design-skills/blob/main/skills/editorial/SKILL.md) — tipografía serif refinada, retícula y lectura.
 - [Minimal](https://github.com/bergside/awesome-design-skills/blob/main/skills/minimal/SKILL.md) — whitespace, jerarquía y color restringido.

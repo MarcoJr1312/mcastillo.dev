@@ -67,8 +67,8 @@ const personSchema = {
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
-    <meta name="theme-color" content="#f3efe6" />
-    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#09090a" />
+    <meta name="color-scheme" content="dark" />
     <meta name="author" content={site.name} />
     <meta name="robots" content="index, follow, max-image-preview:large" />
 
@@ -95,7 +95,7 @@ const personSchema = {
     <script type="application/ld+json" is:inline set:html={JSON.stringify(personSchema)} />
   </head>
 
-  <body id="top" class="bg-paper text-ink antialiased">
+  <body id="top" class="bg-canvas text-fg antialiased">
     <a class="skip-link" href="#main">
       {lang === 'es' ? 'Saltar al contenido' : 'Skip to content'}
     </a>

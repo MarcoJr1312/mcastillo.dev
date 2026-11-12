@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Marco Castillo">
-  <rect width="64" height="64" rx="8" fill="#17150f"/>
-  <path d="M14 47V17h5.5L32 37.5 44.5 17H50v30h-5.5V27.5L32 47 19.5 27.5V47H14Z" fill="#f3efe6"/>
-  <rect x="50" y="10" width="4" height="4" fill="#e8836b"/>
+  <rect width="64" height="64" rx="8" fill="#ff4d3f"/>
+  <path d="M14 47V17h5.5L32 37.5 44.5 17H50v30h-5.5V27.5L32 47 19.5 27.5V47H14Z" fill="#09090a"/>
+  <rect x="50" y="10" width="4" height="4" fill="#09090a"/>
 </svg>

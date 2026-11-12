@@ -18,7 +18,7 @@ const Tag = isLink ? 'a' : 'div';
   rel={isLink ? 'noopener noreferrer' : undefined}
   class:list={[
     'group relative -mx-4 grid gap-6 border-t border-line px-4 py-8 transition-colors md:-mx-6 md:grid-cols-12 md:gap-8 md:px-6 md:py-10',
-    isLink ? 'hover:bg-paper-deep/55' : '',
+    isLink ? 'hover:bg-surface' : '',
   ]}
   data-reveal
   style={`--reveal-delay:${delay}ms`}
@@ -35,7 +35,7 @@ const Tag = isLink ? 'a' : 'div';
       <span class="label text-muted">{project.year}</span>
     </div>
 
-    <p class="mt-4 font-serif text-lg italic text-ink-soft md:text-xl">{project.tagline}</p>
+    <p class="mt-4 font-serif text-lg italic text-fg-soft md:text-xl">{project.tagline}</p>
 
     <p class="mt-4 max-w-2xl text-sm leading-relaxed text-muted">{project.description}</p>
 
@@ -49,14 +49,14 @@ const Tag = isLink ? 'a' : 'div';
   <div class="flex min-w-0 flex-row flex-wrap items-end justify-between gap-4 md:col-span-4 md:flex-col md:items-end">
     <div class="text-left md:text-right">
       <p class="label text-muted">{project.domain}</p>
-      <p class="label mt-3 flex items-center gap-2 text-ink-soft">
+      <p class="label mt-3 flex items-center gap-2 text-fg-soft">
         <span class="h-1.5 w-1.5 flex-none bg-accent"></span>
         {project.status}
       </p>
     </div>
 
     {isLink && project.linkLabel && (
-      <span class="label inline-flex items-center gap-2 border border-line px-3 py-2 text-ink-soft transition-all group-hover:border-ink group-hover:bg-ink group-hover:text-paper">
+      <span class="label inline-flex items-center gap-2 border border-line px-3 py-2 text-fg-soft transition-all group-hover:border-accent group-hover:bg-accent group-hover:text-canvas">
         {project.linkLabel}
         <span aria-hidden="true">↗</span>
         <span class="sr-only">

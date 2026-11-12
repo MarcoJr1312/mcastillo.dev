@@ -10,7 +10,7 @@ const { lang } = Astro.props;
 const t = content[lang];
 ---
 
-<section id="about" class="section-pad border-y border-line bg-paper-deep">
+<section id="about" class="section-pad border-y border-line bg-surface">
   <div class="container-page">
     <SectionHeading
       index={t.about.index}
@@ -21,29 +21,29 @@ const t = content[lang];
 
     <div class="mt-10 grid gap-10 md:mt-14 lg:grid-cols-12 lg:gap-12">
       <div class="lg:col-span-5" data-reveal>
-        <div class="relative aspect-[4/5] overflow-hidden border border-ink bg-ink text-paper">
+        <div class="relative aspect-[4/5] overflow-hidden border border-line bg-elevated text-fg">
           <div class="portrait-grid absolute inset-0 opacity-50" aria-hidden="true"></div>
 
-          <div class="label absolute inset-x-5 top-5 flex justify-between text-paper/50">
+          <div class="label absolute inset-x-5 top-5 flex justify-between text-fg/50">
             <span>Portrait / 001</span>
             <span>2026</span>
           </div>
 
           <div
-            class="absolute left-5 top-1/2 h-16 w-1 -translate-y-1/2 bg-accent-light"
+            class="absolute left-5 top-1/2 h-16 w-1 -translate-y-1/2 bg-accent"
             aria-hidden="true"
           ></div>
 
           <span
-            class="absolute bottom-16 left-1/2 -translate-x-1/2 font-serif text-[clamp(8rem,20vw,14rem)] leading-none tracking-[-0.08em] text-paper"
+            class="absolute bottom-16 left-1/2 -translate-x-1/2 font-serif text-[clamp(8rem,20vw,14rem)] leading-none tracking-[-0.08em] text-fg"
             aria-hidden="true"
           >
             MC
           </span>
 
-          <div class="absolute inset-x-0 bottom-0 border-t border-white/15 bg-ink/80 px-5 py-4 backdrop-blur-sm">
-            <p class="label text-paper/70">{t.about.portraitCaption}</p>
-            <p class="label mt-1 text-paper/50">{t.about.portraitMeta}</p>
+          <div class="absolute inset-x-0 bottom-0 border-t border-white/10 bg-elevated/90 px-5 py-4 backdrop-blur-sm">
+            <p class="label text-fg/70">{t.about.portraitCaption}</p>
+            <p class="label mt-1 text-fg/50">{t.about.portraitMeta}</p>
           </div>
         </div>
       </div>
@@ -53,7 +53,7 @@ const t = content[lang];
           {t.about.lead}
         </p>
 
-        <p class="mt-6 max-w-2xl text-[15px] leading-relaxed text-ink-soft md:text-base">
+        <p class="mt-6 max-w-2xl text-[15px] leading-relaxed text-fg-soft md:text-base">
           {t.about.body}
         </p>
 
@@ -71,7 +71,7 @@ const t = content[lang];
       {t.about.facts.map((fact) => (
         <div class="border-t border-line/70 pt-3 sm:border-0 sm:pt-0">
           <dt class="label text-muted">{fact.label}</dt>
-          <dd class="mt-1.5 text-sm leading-snug text-ink-soft">{fact.value}</dd>
+          <dd class="mt-1.5 text-sm leading-snug text-fg-soft">{fact.value}</dd>
         </div>
       ))}
     </dl>

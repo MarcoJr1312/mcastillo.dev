@@ -1,22 +1,26 @@
 # mcastillo.dev — Design System
 
-Dirección visual: **Quiet Editorial**. La tipografía y el contenido hacen el trabajo; los efectos decorativos no. La primera impresión debe ser “este ingeniero tiene criterio”, no “esta plantilla es moderna”.
+Dirección visual: **Noir Red**. Negro, gris y rojo como única familia cromática, con una estructura editorial: tipografía serif grande, retícula visible y mucho aire. La primera impresión debe ser “este ingeniero tiene criterio”, no “esta plantilla es moderna”.
 
 ## Foundations
 
 ### Color
 
-| Token          | Valor     | Uso                                             |
-| -------------- | --------- | ----------------------------------------------- |
-| `paper`        | `#f3efe6` | Fondo principal                                 |
-| `paper-deep`   | `#e9e2d4` | Secciones alternas                              |
-| `ink`          | `#17150f` | Texto y superficies oscuras                     |
-| `ink-soft`     | `#4c4739` | Texto secundario                                |
-| `muted`        | `#665f50` | Labels y metadata (AA sobre paper y paper-deep) |
-| `line`         | `#d9d1c1` | Bordes hairline                                 |
-| `accent`       | `#b23a22` | Acento, foco, énfasis                           |
-| `accent-light` | `#e8836b` | Acento sobre fondo oscuro                       |
-| `night`        | `#12110d` | Sección de contacto y footer                    |
+| Token         | Valor     | Uso                                                     |
+| ------------- | --------- | ------------------------------------------------------- |
+| `canvas`      | `#09090a` | Fondo principal                                         |
+| `surface`     | `#111113` | Secciones alternas                                      |
+| `elevated`    | `#19191c` | Tarjetas y superficies elevadas                         |
+| `fg`          | `#f2f1ee` | Texto principal                                         |
+| `fg-soft`     | `#c9c7c1` | Texto secundario                                        |
+| `muted`       | `#8f8d87` | Labels y metadata (AA sobre canvas, surface y elevated) |
+| `line`        | `#2a2a2f` | Bordes hairline                                         |
+| `accent`      | `#ff4d3f` | Rojo de marca, foco y énfasis                           |
+| `accent-soft` | `#ff8a80` | Rojo claro para texto sobre negro                       |
+| `accent-deep` | `#c62318` | Rojo profundo para hover y bordes                       |
+| `night`       | `#050506` | Contacto y footer                                       |
+
+Contrastes comprobados: `muted` 6.0:1 sobre `canvas` y 5.3:1 sobre `elevated`; `accent` 6.05:1 sobre `canvas`; `fg` 17.6:1. El texto negro sobre `accent` también cumple AA.
 
 ### Tipografía
 
@@ -29,19 +33,20 @@ Escala display: `clamp(3rem, 8.6vw, 7.25rem)`, line-height `0.93`, tracking `-0.
 ### Layout y ritmo
 
 - Ancho máximo `80rem` (1280 px), padding lateral `20/32/40 px`.
-- Retícula de 12 columnas en desktop.
+- Retícula de 12 columnas en desktop y líneas verticales sutiles en el hero.
 - Secciones con `padding-block: clamp(4.5rem, 9vw, 7.5rem)`.
 - Bordes de 1 px; esquinas rectas. Los tags son la única excepción tipo “pill”.
-- Alternancia: paper → paper-deep → paper → paper-deep → night.
+- Alternancia: canvas → surface → canvas → surface → night.
 
 ## Componentes
 
-- **Header:** sticky, paper/90 con blur, monograma, nav mono, switch ES/EN, CTA. En móvil usa `<details>` accesible.
-- **Botones:** rectangulares, borde de 1 px, label mono. Primario ink/paper; hover accent. Secundario transparente; hover ink. Altura mínima 46 px.
-- **Project row:** número, título serif, tagline itálica, descripción, tags, dominio y estado. Toda la fila es enlace cuando hay URL.
-- **Section heading:** índice + label a la izquierda, título serif, nota a la derecha.
-- **Chips:** borde line, fondo transparente, mono 11 px.
-- **Contact:** fondo night, título enorme, email como acción principal, redes y hora local.
+- **Header:** sticky, canvas/90 con blur, monograma rojo con “M” negra, nav mono, switch ES/EN, CTA rojo. En móvil usa `<details>` accesible.
+- **Botones:** rectangulares, borde de 1 px, label mono. Primario rojo/negro; hover rojo profundo/texto claro. Secundario transparente; hover blanco/negro. Altura mínima 46 px.
+- **Ticker:** banda roja con texto negro y separadores negros translúcidos. Es el momento de color más intenso de la página.
+- **Project row:** número, título serif, tagline itálica, descripción, tags, dominio y estado. Hover sobre `surface`; el CTA se vuelve rojo. Toda la fila es enlace cuando hay URL.
+- **Section heading:** índice rojo + label gris a la izquierda, título serif, nota a la derecha.
+- **Chips:** borde `line`, fondo transparente, mono 11 px; hover rojo con texto negro.
+- **Contact:** fondo `night`, borde superior rojo, título enorme, email como acción principal, redes y hora local.
 
 ## Motion
 
@@ -53,7 +58,7 @@ Escala display: `clamp(3rem, 8.6vw, 7.25rem)`, line-height `0.93`, tracking `-0.
 ## Accesibilidad
 
 - WCAG 2.2 AA: texto normal ≥ 4.5:1; display ≥ 3:1.
-- Un solo `h1`, landmarks semánticos, skip link, foco visible.
+- Un solo `h1`, landmarks semánticos, skip link, foco visible rojo.
 - Touch targets ≥ 44 px.
 - `lang` correcto por página y `hreflang` ES/EN/x-default.
 - Nada se comunica solo por color.
@@ -61,7 +66,8 @@ Escala display: `clamp(3rem, 8.6vw, 7.25rem)`, line-height `0.93`, tracking `-0.
 
 ## Anti-patrones
 
-- Toggle de dark mode: el sitio es editorial claro por decisión; la sección night es composición.
+- Añadir verdes, azules, amarillos o morados como acentos: la paleta se limita a negro, gris, blanco y rojo.
+- Toggle de light mode: el sitio es dark-first por decisión; `night` es una variación más profunda, no un tema alternativo.
 - Gradientes, glassmorphism, blobs 3D, parallax, autoplay, carruseles.
 - Hex sueltos en componentes; usa tokens.
 - Copy genérico de agencia (“innovative solutions”, “passionate developer”).

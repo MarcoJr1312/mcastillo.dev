@@ -11,12 +11,15 @@ const home = lang === 'es' ? '/' : '/en/';
 const navLabel = lang === 'es' ? 'Navegación principal' : 'Main navigation';
 ---
 
-<header class="sticky top-0 z-50 border-b border-line/80 bg-paper/90 backdrop-blur-md">
+<header class="sticky top-0 z-50 border-b border-line/80 bg-canvas/90 backdrop-blur-md">
   <div class="container-page flex h-16 items-center justify-between gap-4 md:h-20">
     <a href={home} class="group flex items-center gap-3">
-      <span class="relative grid h-10 w-10 place-items-center bg-ink text-paper" aria-hidden="true">
+      <span
+        class="relative grid h-10 w-10 place-items-center bg-accent text-canvas"
+        aria-hidden="true"
+      >
         <span class="font-serif text-xl leading-none">M</span>
-        <span class="absolute right-1 top-1 h-1 w-1 bg-accent-light"></span>
+        <span class="absolute right-1 top-1 h-1 w-1 bg-canvas"></span>
       </span>
       <span class="hidden sm:block">
         <span class="block font-serif text-lg leading-none tracking-tight">Marco Castillo</span>
@@ -30,7 +33,7 @@ const navLabel = lang === 'es' ? 'Navegación principal' : 'Main navigation';
     <nav class="hidden items-center gap-6 lg:flex xl:gap-7" aria-label={navLabel}>
       {t.header.nav.map((item) => (
         <a
-          class="label link-underline text-ink-soft transition-colors hover:text-ink"
+          class="label link-underline text-fg-soft transition-colors hover:text-fg"
           href={item.href}
         >
           {item.label}
@@ -51,7 +54,7 @@ const navLabel = lang === 'es' ? 'Navegación principal' : 'Main navigation';
           aria-current={lang === 'es' ? 'page' : undefined}
           class:list={[
             'label inline-flex h-full min-w-9 items-center justify-center px-2.5 transition-colors',
-            lang === 'es' ? 'bg-ink text-paper' : 'text-muted hover:text-ink',
+            lang === 'es' ? 'bg-fg text-canvas' : 'text-muted hover:text-fg',
           ]}
         >
           ES
@@ -63,7 +66,7 @@ const navLabel = lang === 'es' ? 'Navegación principal' : 'Main navigation';
           aria-current={lang === 'en' ? 'page' : undefined}
           class:list={[
             'label inline-flex h-full min-w-9 items-center justify-center px-2.5 transition-colors',
-            lang === 'en' ? 'bg-ink text-paper' : 'text-muted hover:text-ink',
+            lang === 'en' ? 'bg-fg text-canvas' : 'text-muted hover:text-fg',
           ]}
         >
           EN
@@ -77,7 +80,7 @@ const navLabel = lang === 'es' ? 'Navegación principal' : 'Main navigation';
 
       <details class="group relative lg:hidden" data-mobile-menu>
         <summary
-          class="label flex h-10 cursor-pointer list-none items-center gap-2 border border-line px-3 transition-colors hover:border-ink [&::-webkit-details-marker]:hidden"
+          class="label flex h-10 cursor-pointer list-none items-center gap-2 border border-line px-3 transition-colors hover:border-fg [&::-webkit-details-marker]:hidden"
           aria-label={t.header.menuLabel}
         >
           {t.header.menu}
@@ -89,7 +92,7 @@ const navLabel = lang === 'es' ? 'Navegación principal' : 'Main navigation';
           </span>
         </summary>
 
-        <div class="absolute right-0 top-[calc(100%+0.6rem)] z-50 w-[min(18rem,calc(100vw-2.5rem))] border border-line bg-paper p-2 shadow-[0_24px_70px_rgba(23,21,15,0.18)]">
+        <div class="absolute right-0 top-[calc(100%+0.6rem)] z-50 w-[min(18rem,calc(100vw-2.5rem))] border border-line bg-surface p-2 shadow-[0_24px_70px_rgba(0,0,0,0.55)]">
           <nav aria-label={navLabel}>
             <ul>
               {t.header.nav.map((item, index) => (

@@ -10,7 +10,7 @@ const { lang } = Astro.props;
 const t = content[lang];
 ---
 
-<section id="experience" class="section-pad border-y border-line bg-paper-deep">
+<section id="experience" class="section-pad border-y border-line bg-surface">
   <div class="container-page">
     <SectionHeading
       index={t.experience.index}
@@ -43,7 +43,7 @@ const t = content[lang];
 
             <ul class="mt-5 space-y-2.5">
               {item.bullets.map((bullet) => (
-                <li class="flex gap-3 text-[15px] leading-relaxed text-ink-soft">
+                <li class="flex gap-3 text-[15px] leading-relaxed text-fg-soft">
                   <span class="mt-2.5 h-1 w-1 flex-none bg-accent" aria-hidden="true"></span>
                   <span>{bullet}</span>
                 </li>

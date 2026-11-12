@@ -4,7 +4,7 @@ Sitio personal y hub de proyectos de **Marco Castillo**, software engineer en Ba
 
 - **Stack:** Astro 7, Tailwind CSS 4, TypeScript.
 - **Idiomas:** español en `/`, inglés en `/en/`.
-- **Diseño:** “Quiet Editorial” — papel cálido, tinta, acento bermellón, Fraunces + Inter + JetBrains Mono.
+- **Diseño:** “Noir Red” — negro, gris y rojo, con Fraunces + Inter + JetBrains Mono.
 - **Deploy previsto:** estático en Vercel o Cloudflare Pages.
 
 ## Requisitos
@@ -83,7 +83,8 @@ La dirección visual y las reglas de implementación están documentadas en:
 
 Reglas rápidas:
 
-- Usa tokens semánticos (`paper`, `ink`, `accent`, `line`); no hex sueltos en componentes.
+- Usa tokens semánticos (`canvas`, `surface`, `fg`, `accent`, `line`); no hex sueltos en componentes.
+- El rojo (`accent`) es el único acento cromático; el resto es negro, gris y blanco.
 - Fraunces para display, Inter para cuerpo, JetBrains Mono para etiquetas y metadata.
 - Sin gradientes, glassmorphism, blobs 3D ni carruseles.
 - Respeta `prefers-reduced-motion` y los contrastes WCAG AA.
