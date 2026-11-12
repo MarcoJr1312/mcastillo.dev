@@ -123,6 +123,12 @@ export interface SiteContent {
     label: string;
     title: string;
     note: string;
+    nowLabel: string;
+    nowMeta: string;
+    nowTitle: string;
+    nowDescription: string;
+    nowHref: string;
+    nowLinkLabel: string;
     items: ExperienceItem[];
   };
   contact: {
@@ -178,6 +184,7 @@ export const content: Record<Lang, SiteContent> = {
       rows: [
         { label: 'Rol', value: 'DevOps & Infrastructure Co-op' },
         { label: 'Empresa', value: 'Deskree Inc.' },
+        { label: 'Producto', value: 'Woky · implementación de pilotos' },
         { label: 'Base', value: 'Barrie, ON · Canadá' },
         { label: 'Estudiando', value: 'Computer Systems Technician' },
       ],
@@ -286,7 +293,7 @@ export const content: Record<Lang, SiteContent> = {
       title: 'Curiosidad de QA, mentalidad de infraestructura.',
       note: 'Cómo pienso el software.',
       lead: 'Empecé en QA automatizando lo que nadie quería repetir. Esa costumbre me llevó a pipelines, a Terraform y a diseñar sistemas completos.',
-      body: 'Hoy trabajo en Deskree construyendo CI/CD, aprovisionando infraestructura y automatizando despliegues containerizados. Estudio Computer Systems Technician – Networking en Georgian College y me interesa el punto exacto donde el software, la nube y las operaciones se tocan. Me gustan los sistemas que se explican solos: pocos pasos, buenos límites y nada de magia.',
+      body: 'Hoy trabajo en Deskree construyendo CI/CD, aprovisionando infraestructura y automatizando despliegues containerizados. También formo parte de la implementación de Woky, un producto de ingeniería asistida por IA, donde instalo y preparo el software en los entornos de desarrollo de clientes para sus pilotos. Estudio Computer Systems Technician – Networking en Georgian College y me interesa el punto exacto donde el software, la nube y las operaciones se tocan. Me gustan los sistemas que se explican solos: pocos pasos, buenos límites y nada de magia.',
       quote: 'La mejor infraestructura es la que no tienes que pensar.',
       quoteBy: 'Mi regla de trabajo',
       facts: [
@@ -320,6 +327,13 @@ export const content: Record<Lang, SiteContent> = {
       label: 'Trayectoria',
       title: 'Dónde he construido.',
       note: 'Experiencia y formación.',
+      nowLabel: 'Ahora',
+      nowMeta: 'Woky × OrkAI',
+      nowTitle: 'Implementación de Woky',
+      nowDescription:
+        'Instalo y preparo Woky en los sistemas de desarrollo de clientes para sus pilotos: servidor, integraciones y proveedores de IA listos para evaluar.',
+      nowHref: 'https://woky.dev/es/',
+      nowLinkLabel: 'Conocer Woky',
       items: [
         {
           period: 'May 2026 — Presente',
@@ -407,6 +421,7 @@ export const content: Record<Lang, SiteContent> = {
       rows: [
         { label: 'Role', value: 'DevOps & Infrastructure Co-op' },
         { label: 'Company', value: 'Deskree Inc.' },
+        { label: 'Product', value: 'Woky · pilot implementation' },
         { label: 'Based in', value: 'Barrie, ON · Canada' },
         { label: 'Studying', value: 'Computer Systems Technician' },
       ],
@@ -515,7 +530,7 @@ export const content: Record<Lang, SiteContent> = {
       title: 'A QA mindset, an infrastructure habit.',
       note: 'How I think about software.',
       lead: 'I started in QA automating the work nobody wanted to repeat. That habit led me to pipelines, Terraform, and designing complete systems.',
-      body: "Today I work at Deskree building CI/CD, provisioning infrastructure, and automating containerized deployments. I'm studying Computer Systems Technician – Networking at Georgian College, and I care about the exact point where software, cloud, and operations meet. I like systems that explain themselves: few steps, clear boundaries, no magic.",
+      body: "Today I work at Deskree building CI/CD, provisioning infrastructure, and automating containerized deployments. I'm also part of the implementation work for Woky, an AI-assisted engineering product, where I install and prepare the software in client development environments for their pilots. I'm studying Computer Systems Technician – Networking at Georgian College, and I care about the exact point where software, cloud, and operations meet. I like systems that explain themselves: few steps, clear boundaries, no magic.",
       quote: "The best infrastructure is the one you don't have to think about.",
       quoteBy: 'My working rule',
       facts: [
@@ -549,6 +564,13 @@ export const content: Record<Lang, SiteContent> = {
       label: 'Experience',
       title: "Where I've built.",
       note: 'Experience and education.',
+      nowLabel: 'Now',
+      nowMeta: 'Woky × OrkAI',
+      nowTitle: 'Woky implementation',
+      nowDescription:
+        'I install and prepare Woky in client development environments for their pilots: server, integrations, and AI providers ready to evaluate.',
+      nowHref: 'https://woky.dev/',
+      nowLinkLabel: 'Explore Woky',
       items: [
         {
           period: 'May 2026 — Present',

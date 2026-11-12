@@ -45,6 +45,7 @@ Escala display: `clamp(3rem, 8.6vw, 7.25rem)`, line-height `0.93`, tracking `-0.
 - **Ticker:** banda roja con texto negro y separadores negros translúcidos. Es el momento de color más intenso de la página.
 - **Manifiesto:** artículo editorial con metadatos de autor, drop cap rojo, cita y grid de principios. Es la primera sección después del hero y el ticker.
 - **Project row:** número, título serif, tagline itálica, descripción, tags, dominio y estado. Hover sobre `surface`; el CTA se vuelve rojo. Toda la fila es enlace cuando hay URL.
+- **Now callout:** tarjeta elevada con borde izquierdo rojo para el producto actual; se usa en Experience con enlace externo y descripción breve.
 - **Section heading:** índice rojo + label gris a la izquierda, título serif, nota a la derecha.
 - **Chips:** borde `line`, fondo transparente, mono 11 px; hover rojo con texto negro.
 - **Contact:** fondo `night`, borde superior rojo, título enorme, email como acción principal, redes y hora local.
