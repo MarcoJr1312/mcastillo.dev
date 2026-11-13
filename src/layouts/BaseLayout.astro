@@ -13,14 +13,16 @@ interface Props {
   lang: Lang;
   title: string;
   description: string;
+  alternateEs?: string;
+  alternateEn?: string;
 }
 
-const { lang, title, description } = Astro.props;
+const { lang, title, description, alternateEs = '/', alternateEn = '/en/' } = Astro.props;
 
 const siteUrl = Astro.site ?? new URL('https://mcastillo.dev');
 const canonical = new URL(Astro.url.pathname, siteUrl);
-const alternateEs = new URL('/', siteUrl);
-const alternateEn = new URL('/en/', siteUrl);
+const alternateEsUrl = new URL(alternateEs, siteUrl);
+const alternateEnUrl = new URL(alternateEn, siteUrl);
 const ogImage = new URL('/og.png', siteUrl);
 
 const personSchema = {
@@ -54,9 +56,9 @@ const personSchema = {
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <link rel="alternate" hreflang="es" href={alternateEs} />
-    <link rel="alternate" hreflang="en" href={alternateEn} />
-    <link rel="alternate" hreflang="x-default" href={alternateEs} />
+    <link rel="alternate" hreflang="es" href={alternateEsUrl} />
+    <link rel="alternate" hreflang="en" href={alternateEnUrl} />
+    <link rel="alternate" hreflang="x-default" href={alternateEsUrl} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
@@ -96,7 +98,7 @@ const personSchema = {
       {lang === 'es' ? 'Saltar al contenido' : 'Skip to content'}
     </a>
 
-    <Header lang={lang} />
+    <Header lang={lang} esHref={alternateEs} enHref={alternateEn} />
 
     <main id="main">
       <slot />

@@ -1,0 +1,414 @@
+---
+import type { Lang } from '../../i18n/content';
+import type { ProjectCaseStudy } from '../../i18n/projects';
+
+interface Props {
+  lang: Lang;
+  study: ProjectCaseStudy;
+}
+
+const { lang, study } = Astro.props;
+
+const t =
+  lang === 'es'
+    ? {
+        browserTitle: 'NAVEGADOR',
+        browser: ['itinerario y calendario', 'presencia en vivo', 'i18n es / en'],
+        browserNote: 'solo habla con Next',
+        nextSub: 'único origen público',
+        nextRows: ['/api/graphql → API', '/api/agent/* → agente', '/uploads/* → storage'],
+        nextNote: ['claves solo en el servidor', 'sin secretos NEXT_PUBLIC_*'],
+        apiSub: 'Bun · graphql-yoga · :4000',
+        apiRows: [
+          'schema tipado',
+          'auth + membresía',
+          'trips · items · adjuntos',
+          'uploads · email',
+        ],
+        agentTitle: 'AGENTE',
+        agentSub: 'Python · FastAPI · :4100',
+        agentRows: ['Agno · solo lectura', 'contexto + pgvector', 'DeepSeek como LLM'],
+        headers: ['CLIENTE', 'ORIGEN PÚBLICO', 'SERVICIOS', 'DATOS Y EXTERNOS'],
+        https: 'HTTPS',
+        internal: 'internal token',
+        data: [
+          ['POSTGRES 17', 'pgvector · RDS', 'trips · users · archivos'],
+          ['DYNAMODB', 'catálogo de lugares'],
+          ['S3 / DISCO', 'adjuntos y avatares'],
+          ['FIREBASE AUTH', 'ID tokens'],
+          ['HASDATA', 'búsqueda de lugares'],
+          ['RESEND', 'emails de invitación'],
+          ['DEEPSEEK', 'LLM del agente'],
+        ],
+      }
+    : {
+        browserTitle: 'BROWSER',
+        browser: ['itinerary and calendar', 'live presence', 'i18n es / en'],
+        browserNote: 'only talks to Next',
+        nextSub: 'only public origin',
+        nextRows: ['/api/graphql → API', '/api/agent/* → agent', '/uploads/* → storage'],
+        nextNote: ['keys stay on the server', 'no secret NEXT_PUBLIC_*'],
+        apiSub: 'Bun · graphql-yoga · :4000',
+        apiRows: [
+          'typed schema',
+          'auth + membership',
+          'trips · items · attachments',
+          'uploads · email',
+        ],
+        agentTitle: 'AGENT',
+        agentSub: 'Python · FastAPI · :4100',
+        agentRows: ['Agno · read-only', 'context + pgvector', 'DeepSeek as the LLM'],
+        headers: ['CLIENT', 'PUBLIC ORIGIN', 'SERVICES', 'DATA & EXTERNAL'],
+        https: 'HTTPS',
+        internal: 'internal token',
+        data: [
+          ['POSTGRES 17', 'pgvector · RDS', 'trips · users · files'],
+          ['DYNAMODB', 'location catalogue'],
+          ['S3 / DISK', 'attachments and avatars'],
+          ['FIREBASE AUTH', 'ID tokens'],
+          ['HASDATA', 'place search'],
+          ['RESEND', 'invitation emails'],
+          ['DEEPSEEK', 'agent LLM'],
+        ],
+      };
+---
+
+<figure class="mt-10 border border-line bg-surface/40 p-4 md:p-6">
+  <div
+    class="overflow-x-auto"
+    tabindex="0"
+    role="region"
+    aria-label={study.architecture.diagramTitle}
+  >
+    <svg
+      viewBox="0 0 1000 590"
+      class="h-auto w-full min-w-[720px]"
+      role="img"
+      aria-labelledby={`sys-title-${lang}`}
+      aria-describedby={`sys-desc-${lang}`}
+    >
+      <title id={`sys-title-${lang}`}>{study.architecture.diagramTitle}</title>
+      <desc id={`sys-desc-${lang}`}>{study.architecture.diagramDesc}</desc>
+
+      <style>
+        .dgm-box {
+          fill: var(--color-surface);
+          stroke: var(--color-line);
+          stroke-width: 1;
+        }
+        .dgm-inner {
+          fill: var(--color-elevated);
+          stroke: var(--color-line);
+          stroke-width: 1;
+        }
+        .dgm-accent {
+          fill: var(--color-accent);
+        }
+        .dgm-title {
+          fill: var(--color-fg);
+          font-family: var(--font-mono);
+          font-size: 12.5px;
+          font-weight: 600;
+          letter-spacing: 1px;
+        }
+        .dgm-sub {
+          fill: var(--color-muted);
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 0.2px;
+        }
+        .dgm-text {
+          fill: var(--color-fg-soft);
+          font-family: var(--font-sans);
+          font-size: 11.5px;
+        }
+        .dgm-mono {
+          fill: var(--color-fg-soft);
+          font-family: var(--font-mono);
+          font-size: 10px;
+        }
+        .dgm-label {
+          fill: var(--color-muted);
+          font-family: var(--font-mono);
+          font-size: 9px;
+          letter-spacing: 0.7px;
+        }
+        .dgm-head {
+          fill: var(--color-muted);
+          font-family: var(--font-mono);
+          font-size: 9.5px;
+          letter-spacing: 2px;
+        }
+        .dgm-line {
+          stroke: var(--color-line);
+          stroke-width: 1;
+          fill: none;
+        }
+        .dgm-arrow {
+          stroke: var(--color-muted);
+          stroke-width: 1.1;
+          fill: none;
+        }
+        .dgm-arrow-accent {
+          stroke: var(--color-accent);
+          stroke-width: 1.1;
+          fill: none;
+        }
+        .dgm-junction {
+          fill: var(--color-line);
+        }
+      </style>
+
+      <defs>
+        <marker
+          id="sys-arrow"
+          viewBox="0 0 8 8"
+          refX="7"
+          refY="4"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L8,4 L0,8 z" fill="var(--color-muted)"></path>
+        </marker>
+        <marker
+          id="sys-arrow-accent"
+          viewBox="0 0 8 8"
+          refX="7"
+          refY="4"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L8,4 L0,8 z" fill="var(--color-accent)"></path>
+        </marker>
+      </defs>
+
+      <!-- Column headers -->
+      <text class="dgm-head" x="24" y="26">
+        {t.headers[0]}
+      </text>
+      <text class="dgm-head" x="250" y="26">
+        {t.headers[1]}
+      </text>
+      <text class="dgm-head" x="560" y="26">
+        {t.headers[2]}
+      </text>
+      <text class="dgm-head" x="828" y="26">
+        {t.headers[3]}
+      </text>
+
+      <!-- Browser -->
+      <g>
+        <rect class="dgm-box" x="24" y="190" width="180" height="170"></rect>
+        <rect class="dgm-accent" x="24" y="190" width="180" height="3"></rect>
+        <text class="dgm-title" x="42" y="220">
+          {t.browserTitle}
+        </text>
+        <text class="dgm-sub" x="42" y="238">
+          React 19 · App Router
+        </text>
+        <line class="dgm-line" x1="42" y1="250" x2="186" y2="250"></line>
+        <text class="dgm-text" x="42" y="272">
+          {t.browser[0]}
+        </text>
+        <text class="dgm-text" x="42" y="292">
+          {t.browser[1]}
+        </text>
+        <text class="dgm-text" x="42" y="312">
+          {t.browser[2]}
+        </text>
+        <text class="dgm-label" x="42" y="342">
+          {t.browserNote}
+        </text>
+      </g>
+
+      <!-- Next.js -->
+      <g>
+        <rect class="dgm-box" x="250" y="150" width="220" height="250"></rect>
+        <rect class="dgm-accent" x="250" y="150" width="220" height="3"></rect>
+        <text class="dgm-title" x="268" y="180">
+          NEXT.JS 15
+        </text>
+        <text class="dgm-sub" x="268" y="198">
+          {t.nextSub}
+        </text>
+        <line class="dgm-line" x1="268" y1="210" x2="452" y2="210"></line>
+        <rect class="dgm-inner" x="266" y="224" width="188" height="34"></rect>
+        <text class="dgm-mono" x="278" y="245">
+          {t.nextRows[0]}
+        </text>
+        <rect class="dgm-inner" x="266" y="266" width="188" height="34"></rect>
+        <text class="dgm-mono" x="278" y="287">
+          {t.nextRows[1]}
+        </text>
+        <rect class="dgm-inner" x="266" y="308" width="188" height="34"></rect>
+        <text class="dgm-mono" x="278" y="329">
+          {t.nextRows[2]}
+        </text>
+        <text class="dgm-text" x="268" y="366">
+          {t.nextNote[0]}
+        </text>
+        <text class="dgm-text" x="268" y="384">
+          {t.nextNote[1]}
+        </text>
+      </g>
+
+      <!-- GraphQL API -->
+      <g>
+        <rect class="dgm-box" x="560" y="60" width="210" height="160"></rect>
+        <rect class="dgm-accent" x="560" y="60" width="210" height="3"></rect>
+        <text class="dgm-title" x="578" y="90">
+          GRAPHQL API
+        </text>
+        <text class="dgm-sub" x="578" y="108">
+          {t.apiSub}
+        </text>
+        <line class="dgm-line" x1="578" y1="120" x2="752" y2="120"></line>
+        <text class="dgm-text" x="578" y="142">
+          {t.apiRows[0]}
+        </text>
+        <text class="dgm-text" x="578" y="162">
+          {t.apiRows[1]}
+        </text>
+        <text class="dgm-text" x="578" y="182">
+          {t.apiRows[2]}
+        </text>
+        <text class="dgm-text" x="578" y="202">
+          {t.apiRows[3]}
+        </text>
+      </g>
+
+      <!-- Agent -->
+      <g>
+        <rect class="dgm-box" x="560" y="330" width="210" height="160"></rect>
+        <rect class="dgm-accent" x="560" y="330" width="210" height="3"></rect>
+        <text class="dgm-title" x="578" y="360">
+          {t.agentTitle}
+        </text>
+        <text class="dgm-sub" x="578" y="378">
+          {t.agentSub}
+        </text>
+        <line class="dgm-line" x1="578" y1="390" x2="752" y2="390"></line>
+        <text class="dgm-text" x="578" y="412">
+          {t.agentRows[0]}
+        </text>
+        <text class="dgm-text" x="578" y="432">
+          {t.agentRows[1]}
+        </text>
+        <text class="dgm-text" x="578" y="452">
+          {t.agentRows[2]}
+        </text>
+      </g>
+
+      <!-- Data and external services -->
+      <g>
+        <rect class="dgm-box" x="828" y="50" width="152" height="70"></rect>
+        <text class="dgm-title" x="844" y="72">
+          {t.data[0][0]}
+        </text>
+        <text class="dgm-text" x="844" y="90">
+          {t.data[0][1]}
+        </text>
+        <text class="dgm-text" x="844" y="106">
+          {t.data[0][2]}
+        </text>
+
+        <rect class="dgm-box" x="828" y="132" width="152" height="60"></rect>
+        <text class="dgm-title" x="844" y="154">
+          {t.data[1][0]}
+        </text>
+        <text class="dgm-text" x="844" y="172">
+          {t.data[1][1]}
+        </text>
+
+        <rect class="dgm-box" x="828" y="204" width="152" height="60"></rect>
+        <text class="dgm-title" x="844" y="226">
+          {t.data[2][0]}
+        </text>
+        <text class="dgm-text" x="844" y="244">
+          {t.data[2][1]}
+        </text>
+
+        <rect class="dgm-box" x="828" y="276" width="152" height="60"></rect>
+        <text class="dgm-title" x="844" y="298">
+          {t.data[3][0]}
+        </text>
+        <text class="dgm-text" x="844" y="316">
+          {t.data[3][1]}
+        </text>
+
+        <rect class="dgm-box" x="828" y="348" width="152" height="60"></rect>
+        <text class="dgm-title" x="844" y="370">
+          {t.data[4][0]}
+        </text>
+        <text class="dgm-text" x="844" y="388">
+          {t.data[4][1]}
+        </text>
+
+        <rect class="dgm-box" x="828" y="420" width="152" height="60"></rect>
+        <text class="dgm-title" x="844" y="442">
+          {t.data[5][0]}
+        </text>
+        <text class="dgm-text" x="844" y="460">
+          {t.data[5][1]}
+        </text>
+
+        <rect class="dgm-box" x="828" y="492" width="152" height="60"></rect>
+        <text class="dgm-title" x="844" y="514">
+          {t.data[6][0]}
+        </text>
+        <text class="dgm-text" x="844" y="532">
+          {t.data[6][1]}
+        </text>
+      </g>
+
+      <!-- Connections -->
+      <path class="dgm-arrow" d="M204,275 H250" marker-end="url(#sys-arrow)"></path>
+      <text class="dgm-label" x="227" y="267" text-anchor="middle">
+        {t.https}
+      </text>
+
+      <path class="dgm-arrow" d="M470,220 H515 V140 H560" marker-end="url(#sys-arrow)"></path>
+      <text class="dgm-label" x="552" y="128" text-anchor="end">
+        /api/graphql
+      </text>
+
+      <path class="dgm-arrow" d="M470,330 H515 V400 H560" marker-end="url(#sys-arrow)"></path>
+      <text class="dgm-label" x="552" y="388" text-anchor="end">
+        /api/agent
+      </text>
+
+      <path class="dgm-arrow-accent" d="M665,330 V220" marker-end="url(#sys-arrow-accent)"></path>
+      <text class="dgm-label" x="674" y="278">
+        {t.internal}
+      </text>
+
+      <!-- API outbound bus -->
+      <path class="dgm-arrow" d="M770,140 H790" marker-end="url(#sys-arrow)"></path>
+      <path class="dgm-arrow" d="M790,85 V450"></path>
+      <circle class="dgm-junction" cx="790" cy="140" r="2.5"></circle>
+      <path class="dgm-arrow" d="M790,85 H828" marker-end="url(#sys-arrow)"></path>
+      <path class="dgm-arrow" d="M790,162 H828" marker-end="url(#sys-arrow)"></path>
+      <path class="dgm-arrow" d="M790,234 H828" marker-end="url(#sys-arrow)"></path>
+      <path class="dgm-arrow" d="M790,306 H828" marker-end="url(#sys-arrow)"></path>
+      <path class="dgm-arrow" d="M790,378 H828" marker-end="url(#sys-arrow)"></path>
+      <path class="dgm-arrow" d="M790,450 H828" marker-end="url(#sys-arrow)"></path>
+
+      <!-- Agent to DeepSeek -->
+      <path
+        class="dgm-arrow-accent"
+        d="M665,490 V566 H810 V522 H828"
+        marker-end="url(#sys-arrow-accent)"
+      ></path>
+    </svg>
+  </div>
+
+  <figcaption class="mt-4 flex flex-col gap-1 border-t border-line pt-4 text-xs leading-relaxed text-muted">
+    <span>{study.architecture.caption}</span>
+    <span>{study.architecture.note}</span>
+    <span class="label mt-1 text-accent lg:hidden">
+      {lang === 'es' ? 'Desliza el diagrama →' : 'Scroll the diagram →'}
+    </span>
+  </figcaption>
+</figure>

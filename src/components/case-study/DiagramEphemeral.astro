@@ -1,0 +1,319 @@
+---
+import type { Lang } from '../../i18n/content';
+import type { ProjectCaseStudy } from '../../i18n/projects';
+
+interface Props {
+  lang: Lang;
+  study: ProjectCaseStudy;
+}
+
+const { lang, study } = Astro.props;
+
+const t =
+  lang === 'es'
+    ? {
+        controlLabel: 'SIEMPRE ACTIVO — CONTROL PLANE',
+        appLabel: 'EFÍMERO — SE APLICA AL DESPERTAR Y SE DESTRUYE AL DORMIR',
+        control: [
+          ['GITHUB ACTIONS', 'workflow wake', 'workflow sleep', 'OIDC → AWS'],
+          ['API /WAKE', 'POST /wake', 'repository_dispatch', 'página de estado'],
+          ['EVENTBRIDGE', 'sleep-check Lambda', '30 min sin tráfico', 'destroy → asleep'],
+          ['ESTADO', 'S3 tfstate', 'ECR + ACM', 'secreto de GitHub'],
+        ],
+        internet: ['INTERNET', 'usuario'],
+        cloudflare: ['CLOUDFLARE', 'CNAME → ALB'],
+        alb: ['ALB + WAF', 'TLS · reglas'],
+        ecs: ['ECS FARGATE', 'web · api · agent', 'Cloud Map privado'],
+        data: [
+          ['RDS POSTGRES 17', 'Single-AZ · pgvector', 'se borra al dormir'],
+          ['DYNAMODB', 'catálogo de lugares', 'se borra al dormir'],
+          ['S3 + KMS', 'adjuntos', 'se borra al dormir'],
+        ],
+        cycle: 'terraform apply / destroy',
+      }
+    : {
+        controlLabel: 'ALWAYS ON — CONTROL PLANE',
+        appLabel: 'EPHEMERAL — APPLIED ON WAKE, DESTROYED ON SLEEP',
+        control: [
+          ['GITHUB ACTIONS', 'wake workflow', 'sleep workflow', 'OIDC → AWS'],
+          ['WAKE API', 'POST /wake', 'repository_dispatch', 'status page'],
+          ['EVENTBRIDGE', 'sleep-check Lambda', '30 min without traffic', 'destroy → asleep'],
+          ['STATE', 'S3 tfstate', 'ECR + ACM', 'GitHub secret'],
+        ],
+        internet: ['INTERNET', 'user'],
+        cloudflare: ['CLOUDFLARE', 'CNAME → ALB'],
+        alb: ['ALB + WAF', 'TLS · rules'],
+        ecs: ['ECS FARGATE', 'web · api · agent', 'private Cloud Map'],
+        data: [
+          ['RDS POSTGRES 17', 'Single-AZ · pgvector', 'destroyed on sleep'],
+          ['DYNAMODB', 'location catalogue', 'destroyed on sleep'],
+          ['S3 + KMS', 'attachments', 'destroyed on sleep'],
+        ],
+        cycle: 'terraform apply / destroy',
+      };
+---
+
+<figure class="mt-10 border border-line bg-surface/40 p-4 md:p-6">
+  <div
+    class="overflow-x-auto"
+    tabindex="0"
+    role="region"
+    aria-label={study.infrastructure.diagramTitle}
+  >
+    <svg
+      viewBox="0 0 1000 620"
+      class="h-auto w-full min-w-[720px]"
+      role="img"
+      aria-labelledby={`eph-title-${lang}`}
+      aria-describedby={`eph-desc-${lang}`}
+    >
+      <title id={`eph-title-${lang}`}>{study.infrastructure.diagramTitle}</title>
+      <desc id={`eph-desc-${lang}`}>{study.infrastructure.diagramDesc}</desc>
+
+      <style>
+        .eph-box {
+          fill: var(--color-surface);
+          stroke: var(--color-line);
+          stroke-width: 1;
+        }
+        .eph-panel {
+          fill: none;
+          stroke: var(--color-line);
+          stroke-width: 1;
+        }
+        .eph-accent {
+          fill: var(--color-accent);
+        }
+        .eph-title {
+          fill: var(--color-fg);
+          font-family: var(--font-mono);
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 0.9px;
+        }
+        .eph-text {
+          fill: var(--color-fg-soft);
+          font-family: var(--font-sans);
+          font-size: 11px;
+        }
+        .eph-mono {
+          fill: var(--color-muted);
+          font-family: var(--font-mono);
+          font-size: 9.5px;
+        }
+        .eph-head {
+          fill: var(--color-muted);
+          font-family: var(--font-mono);
+          font-size: 9.5px;
+          letter-spacing: 2px;
+        }
+        .eph-line {
+          stroke: var(--color-line);
+          stroke-width: 1;
+          fill: none;
+        }
+        .eph-arrow {
+          stroke: var(--color-muted);
+          stroke-width: 1.1;
+          fill: none;
+        }
+        .eph-arrow-accent {
+          stroke: var(--color-accent);
+          stroke-width: 1.1;
+          fill: none;
+          stroke-dasharray: 5 4;
+        }
+      </style>
+
+      <defs>
+        <marker
+          id="eph-arrow"
+          viewBox="0 0 8 8"
+          refX="7"
+          refY="4"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L8,4 L0,8 z" fill="var(--color-muted)"></path>
+        </marker>
+        <marker
+          id="eph-arrow-accent"
+          viewBox="0 0 8 8"
+          refX="7"
+          refY="4"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,0 L8,4 L0,8 z" fill="var(--color-accent)"></path>
+        </marker>
+      </defs>
+
+      <!-- Control plane -->
+      <rect class="eph-panel" x="24" y="36" width="952" height="196" stroke-dasharray="6 5"></rect>
+      <text class="eph-head" x="40" y="60">
+        {t.controlLabel}
+      </text>
+
+      <g>
+        <rect class="eph-box" x="44" y="78" width="210" height="124"></rect>
+        <text class="eph-title" x="60" y="104">
+          {t.control[0][0]}
+        </text>
+        <text class="eph-mono" x="60" y="126">
+          {t.control[0][1]}
+        </text>
+        <text class="eph-mono" x="60" y="144">
+          {t.control[0][2]}
+        </text>
+        <text class="eph-mono" x="60" y="162">
+          {t.control[0][3]}
+        </text>
+
+        <rect class="eph-box" x="274" y="78" width="210" height="124"></rect>
+        <text class="eph-title" x="290" y="104">
+          {t.control[1][0]}
+        </text>
+        <text class="eph-mono" x="290" y="126">
+          {t.control[1][1]}
+        </text>
+        <text class="eph-mono" x="290" y="144">
+          {t.control[1][2]}
+        </text>
+        <text class="eph-mono" x="290" y="162">
+          {t.control[1][3]}
+        </text>
+
+        <rect class="eph-box" x="504" y="78" width="210" height="124"></rect>
+        <text class="eph-title" x="520" y="104">
+          {t.control[2][0]}
+        </text>
+        <text class="eph-mono" x="520" y="126">
+          {t.control[2][1]}
+        </text>
+        <text class="eph-mono" x="520" y="144">
+          {t.control[2][2]}
+        </text>
+        <text class="eph-mono" x="520" y="162">
+          {t.control[2][3]}
+        </text>
+
+        <rect class="eph-box" x="734" y="78" width="222" height="124"></rect>
+        <text class="eph-title" x="750" y="104">
+          {t.control[3][0]}
+        </text>
+        <text class="eph-mono" x="750" y="126">
+          {t.control[3][1]}
+        </text>
+        <text class="eph-mono" x="750" y="144">
+          {t.control[3][2]}
+        </text>
+        <text class="eph-mono" x="750" y="162">
+          {t.control[3][3]}
+        </text>
+      </g>
+
+      <path class="eph-arrow-accent" d="M149,202 V280" marker-end="url(#eph-arrow-accent)"></path>
+      <text class="eph-mono" x="160" y="248">
+        {t.cycle}
+      </text>
+
+      <!-- Ephemeral stack -->
+      <rect class="eph-panel" x="24" y="280" width="952" height="310"></rect>
+      <text class="eph-head" x="40" y="304">
+        {t.appLabel}
+      </text>
+
+      <g>
+        <rect class="eph-box" x="44" y="340" width="140" height="80"></rect>
+        <text class="eph-title" x="60" y="370">
+          {t.internet[0]}
+        </text>
+        <text class="eph-text" x="60" y="392">
+          {t.internet[1]}
+        </text>
+
+        <rect class="eph-box" x="214" y="340" width="170" height="80"></rect>
+        <text class="eph-title" x="230" y="370">
+          {t.cloudflare[0]}
+        </text>
+        <text class="eph-text" x="230" y="392">
+          {t.cloudflare[1]}
+        </text>
+
+        <rect class="eph-box" x="414" y="340" width="170" height="80"></rect>
+        <text class="eph-title" x="430" y="370">
+          {t.alb[0]}
+        </text>
+        <text class="eph-text" x="430" y="392">
+          {t.alb[1]}
+        </text>
+
+        <rect class="eph-box" x="614" y="330" width="170" height="100"></rect>
+        <rect class="eph-accent" x="614" y="330" width="170" height="3"></rect>
+        <text class="eph-title" x="630" y="358">
+          {t.ecs[0]}
+        </text>
+        <text class="eph-text" x="630" y="380">
+          {t.ecs[1]}
+        </text>
+        <text class="eph-text" x="630" y="400">
+          {t.ecs[2]}
+        </text>
+      </g>
+
+      <g>
+        <rect class="eph-box" x="414" y="470" width="170" height="90"></rect>
+        <text class="eph-title" x="430" y="494">
+          {t.data[0][0]}
+        </text>
+        <text class="eph-text" x="430" y="514">
+          {t.data[0][1]}
+        </text>
+        <text class="eph-mono" x="430" y="534">
+          {t.data[0][2]}
+        </text>
+
+        <rect class="eph-box" x="614" y="470" width="170" height="90"></rect>
+        <text class="eph-title" x="630" y="494">
+          {t.data[1][0]}
+        </text>
+        <text class="eph-text" x="630" y="514">
+          {t.data[1][1]}
+        </text>
+        <text class="eph-mono" x="630" y="534">
+          {t.data[1][2]}
+        </text>
+
+        <rect class="eph-box" x="814" y="470" width="140" height="90"></rect>
+        <text class="eph-title" x="830" y="494">
+          {t.data[2][0]}
+        </text>
+        <text class="eph-text" x="830" y="514">
+          {t.data[2][1]}
+        </text>
+        <text class="eph-mono" x="830" y="534">
+          {t.data[2][2]}
+        </text>
+      </g>
+
+      <!-- Connections -->
+      <path class="eph-arrow" d="M184,380 H214" marker-end="url(#eph-arrow)"></path>
+      <path class="eph-arrow" d="M384,380 H414" marker-end="url(#eph-arrow)"></path>
+      <path class="eph-arrow" d="M584,380 H614" marker-end="url(#eph-arrow)"></path>
+
+      <path class="eph-arrow" d="M640,430 V450 H499 V470" marker-end="url(#eph-arrow)"></path>
+      <path class="eph-arrow" d="M699,430 V470" marker-end="url(#eph-arrow)"></path>
+      <path class="eph-arrow" d="M760,430 V450 H884 V470" marker-end="url(#eph-arrow)"></path>
+    </svg>
+  </div>
+
+  <figcaption class="mt-4 flex flex-col gap-1 border-t border-line pt-4 text-xs leading-relaxed text-muted">
+    <span>{study.infrastructure.caption}</span>
+    <span>{study.infrastructure.note}</span>
+    <span class="label mt-1 text-accent lg:hidden">
+      {lang === 'es' ? 'Desliza el diagrama →' : 'Scroll the diagram →'}
+    </span>
+  </figcaption>
+</figure>

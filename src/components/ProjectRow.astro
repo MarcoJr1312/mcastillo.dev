@@ -9,13 +9,14 @@ interface Props {
 
 const { project, lang, delay = 0 } = Astro.props;
 const isLink = Boolean(project.href);
+const isExternal = Boolean(project.href && /^https?:\/\//.test(project.href));
 const Tag = isLink ? 'a' : 'div';
 ---
 
 <Tag
   href={project.href}
-  target={isLink ? '_blank' : undefined}
-  rel={isLink ? 'noopener noreferrer' : undefined}
+  target={isExternal ? '_blank' : undefined}
+  rel={isExternal ? 'noopener noreferrer' : undefined}
   class:list={[
     'group relative -mx-4 grid gap-6 border-t border-line px-4 py-8 transition-colors md:-mx-6 md:grid-cols-12 md:gap-8 md:px-6 md:py-10',
     isLink ? 'hover:bg-surface' : '',
@@ -58,10 +59,12 @@ const Tag = isLink ? 'a' : 'div';
     {isLink && project.linkLabel && (
       <span class="label inline-flex items-center gap-2 border border-line px-3 py-2 text-fg-soft transition-all group-hover:border-accent group-hover:bg-accent group-hover:text-canvas">
         {project.linkLabel}
-        <span aria-hidden="true">↗</span>
-        <span class="sr-only">
-          {lang === 'es' ? '(se abre en una pestaña nueva)' : '(opens in a new tab)'}
-        </span>
+        <span aria-hidden="true">{isExternal ? '↗' : '→'}</span>
+        {isExternal && (
+          <span class="sr-only">
+            {lang === 'es' ? '(se abre en una pestaña nueva)' : '(opens in a new tab)'}
+          </span>
+        )}
       </span>
     )}
   </div>

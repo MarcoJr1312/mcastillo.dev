@@ -1,0 +1,310 @@
+---
+import type { Lang } from '../../i18n/content';
+import type { ProjectCaseStudy } from '../../i18n/projects';
+import CaseSection from './CaseSection.astro';
+import DiagramSystem from './DiagramSystem.astro';
+import DiagramEphemeral from './DiagramEphemeral.astro';
+
+interface Props {
+  lang: Lang;
+  study: ProjectCaseStudy;
+}
+
+const { lang, study } = Astro.props;
+const home = lang === 'es' ? '/' : '/en/';
+const copy =
+  lang === 'es'
+    ? {
+        summary: 'Resumen',
+        contact: 'Hablemos',
+        nextProject: 'Siguiente',
+        backToWork: study.labels.backToWork,
+      }
+    : {
+        summary: 'Summary',
+        contact: "Let's talk",
+        nextProject: 'Next',
+        backToWork: study.labels.backToWork,
+      };
+---
+
+<article>
+  <header class="relative overflow-hidden border-b border-line">
+    <div class="hero-grid pointer-events-none absolute inset-0" aria-hidden="true"></div>
+
+    <div class="container-page relative pb-14 pt-8 md:pb-20 md:pt-10">
+      <a
+        href={`${home}#work`}
+        class="label link-underline inline-flex items-center gap-2 text-muted transition-colors hover:text-fg"
+      >
+        <span aria-hidden="true">←</span>
+        {copy.backToWork}
+      </a>
+
+      <div class="mt-10 grid gap-12 lg:grid-cols-12 lg:gap-8">
+        <div class="lg:col-span-8">
+          <p class="label text-accent">{study.kicker}</p>
+
+          <h1 class="mt-5 max-w-4xl font-serif text-[clamp(2.6rem,6.6vw,5.75rem)] leading-[0.96] tracking-[-0.045em]">
+            {study.title}
+          </h1>
+
+          <p class="mt-7 max-w-2xl text-lg leading-relaxed text-fg-soft md:text-xl">{study.lead}</p>
+        </div>
+
+        <aside class="lg:col-span-4 lg:pl-4 xl:pl-8">
+          <div class="border border-line bg-elevated">
+            <div class="flex items-center justify-between border-b border-line px-5 py-3">
+              <span class="label">{study.name}</span>
+              <span class="label text-muted">{study.year}</span>
+            </div>
+
+            <dl>
+              {study.meta
+                .filter((row) => !['estado', 'status'].includes(row.label.toLowerCase()))
+                .map((row) => (
+                  <div class="grid grid-cols-[4.5rem_1fr] gap-3 border-b border-line/70 px-5 py-3.5">
+                    <dt class="label pt-0.5 text-muted">{row.label}</dt>
+                    <dd class="text-sm leading-snug text-fg-soft">{row.value}</dd>
+                  </div>
+                ))}
+            </dl>
+
+            <div class="flex items-center gap-2 px-5 py-4">
+              <span class="status-dot"></span>
+              <span class="label text-fg-soft">{study.status}</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </header>
+
+  <div class="container-page">
+    <div class="grid gap-8 border-b border-line py-10 md:grid-cols-12 md:py-12">
+      <p class="label text-muted md:col-span-3">{copy.summary}</p>
+      <p class="drop-cap max-w-3xl text-base leading-relaxed text-fg-soft md:col-span-9 md:text-lg">
+        {study.abstract}
+      </p>
+    </div>
+
+    <nav
+      aria-label={study.labels.toc}
+      class="flex flex-wrap gap-x-6 gap-y-2 border-b border-line py-4"
+    >
+      <span class="label text-muted">{study.labels.toc}</span>
+      {study.toc.map((item) => (
+        <a
+          href={item.href}
+          class="label link-underline text-fg-soft transition-colors hover:text-accent"
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+  </div>
+
+  <CaseSection
+    id={study.problem.id}
+    index={study.problem.index}
+    label={study.problem.label}
+    title={study.problem.title}
+  >
+    <div class="max-w-3xl space-y-5 text-base leading-relaxed text-fg-soft">
+      {study.problem.body.map((paragraph) => (
+        <p>{paragraph}</p>
+      ))}
+    </div>
+
+    <div class="mt-12">
+      <p class="label text-muted">{study.labels.invariants}</p>
+
+      <ul class="mt-5 grid gap-px border border-line bg-line sm:grid-cols-2">
+        {study.problem.invariants.map((item, index) => (
+          <li class="bg-surface p-5 md:p-6" data-reveal style={`--reveal-delay:${index * 60}ms`}>
+            <span class="label text-accent">{String(index + 1).padStart(2, '0')}</span>
+            <h3 class="mt-3 font-serif text-xl leading-snug">{item.title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-muted">{item.body}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </CaseSection>
+
+  <CaseSection
+    id={study.principles.id}
+    index={study.principles.index}
+    label={study.principles.label}
+    title={study.principles.title}
+  >
+    <p class="max-w-3xl text-base leading-relaxed text-fg-soft">{study.principles.body}</p>
+
+    <div class="mt-12">
+      <p class="label text-muted">{study.labels.approach}</p>
+
+      <ol class="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-5 lg:gap-4">
+        {study.principles.approach.map((step, index) => (
+          <li
+            class="border-t border-line pt-4"
+            data-reveal
+            style={`--reveal-delay:${index * 60}ms`}
+          >
+            <span class="label text-accent">{String(index + 1).padStart(2, '0')}</span>
+            <h3 class="mt-3 text-sm font-medium leading-snug text-fg">{step.title}</h3>
+            <p class="mt-2 text-xs leading-relaxed text-muted">{step.detail}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <ul class="mt-12 divide-y divide-line border-y border-line">
+      {study.principles.items.map((item) => (
+        <li class="grid gap-2 py-6 md:grid-cols-12 md:gap-8">
+          <h3 class="font-serif text-xl leading-snug md:col-span-5">{item.title}</h3>
+          <p class="text-sm leading-relaxed text-muted md:col-span-7">{item.body}</p>
+        </li>
+      ))}
+    </ul>
+  </CaseSection>
+
+  <CaseSection
+    id={study.architecture.id}
+    index={study.architecture.index}
+    label={study.architecture.label}
+    title={study.architecture.title}
+  >
+    <div class="max-w-3xl space-y-5 text-base leading-relaxed text-fg-soft">
+      {study.architecture.body.map((paragraph) => (
+        <p>{paragraph}</p>
+      ))}
+    </div>
+
+    <div class="mt-10">
+      <ol class="grid gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+        {study.architecture.flow.map((step, index) => (
+          <li class="bg-surface p-5" data-reveal style={`--reveal-delay:${index * 60}ms`}>
+            <span class="label text-accent">{String(index + 1).padStart(2, '0')}</span>
+            <h3 class="mt-3 font-serif text-lg leading-none">{step.label}</h3>
+            <p class="mt-3 text-xs leading-relaxed text-muted">{step.detail}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <Fragment slot="wide">
+      <DiagramSystem lang={lang} study={study} />
+    </Fragment>
+  </CaseSection>
+
+  <CaseSection
+    id={study.decisions.id}
+    index={study.decisions.index}
+    label={study.decisions.label}
+    title={study.decisions.title}
+  >
+    <p class="max-w-3xl text-base leading-relaxed text-fg-soft">{study.decisions.intro}</p>
+
+    <div class="mt-10 space-y-4">
+      {study.decisions.items.map((decision) => (
+        <article class="border border-line bg-surface/60 p-6 md:p-8" data-reveal>
+          <div class="flex items-center justify-between gap-4">
+            <span class="label text-accent">{decision.id}</span>
+            <span class="label text-muted">{lang === 'es' ? 'Registro' : 'Record'}</span>
+          </div>
+
+          <h3 class="mt-4 font-serif text-2xl leading-snug md:text-[1.75rem]">{decision.title}</h3>
+
+          <dl class="mt-6 grid gap-5 md:grid-cols-3 md:gap-6">
+            <div>
+              <dt class="label text-muted">{study.decisions.labels.context}</dt>
+              <dd class="mt-2 text-sm leading-relaxed text-fg-soft">{decision.context}</dd>
+            </div>
+            <div>
+              <dt class="label text-accent">{study.decisions.labels.decision}</dt>
+              <dd class="mt-2 text-sm leading-relaxed text-fg-soft">{decision.decision}</dd>
+            </div>
+            <div>
+              <dt class="label text-muted">{study.decisions.labels.tradeoff}</dt>
+              <dd class="mt-2 text-sm leading-relaxed text-muted">{decision.tradeoff}</dd>
+            </div>
+          </dl>
+        </article>
+      ))}
+    </div>
+  </CaseSection>
+
+  <CaseSection
+    id={study.infrastructure.id}
+    index={study.infrastructure.index}
+    label={study.infrastructure.label}
+    title={study.infrastructure.title}
+  >
+    <div class="max-w-3xl space-y-5 text-base leading-relaxed text-fg-soft">
+      {study.infrastructure.body.map((paragraph) => (
+        <p>{paragraph}</p>
+      ))}
+    </div>
+
+    <div class="mt-10">
+      <p class="label text-muted">{study.labels.lifecycle}</p>
+
+      <ol class="mt-5 grid gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+        {study.infrastructure.lifecycle.map((step, index) => (
+          <li class="bg-surface p-5" data-reveal style={`--reveal-delay:${index * 60}ms`}>
+            <span class="label text-accent">{String(index + 1).padStart(2, '0')}</span>
+            <h3 class="mt-3 font-serif text-lg leading-none">{step.label}</h3>
+            <p class="mt-3 text-xs leading-relaxed text-muted">{step.detail}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <Fragment slot="wide">
+      <DiagramEphemeral lang={lang} study={study} />
+    </Fragment>
+  </CaseSection>
+
+  <CaseSection
+    id={study.learnings.id}
+    index={study.learnings.index}
+    label={study.learnings.label}
+    title={study.learnings.title}
+  >
+    <ul class="grid gap-px border border-line bg-line sm:grid-cols-2">
+      {study.learnings.items.map((item, index) => (
+        <li class="bg-surface p-6" data-reveal style={`--reveal-delay:${index * 60}ms`}>
+          <span class="label text-accent">{String(index + 1).padStart(2, '0')}</span>
+          <h3 class="mt-3 font-serif text-xl leading-snug">{item.title}</h3>
+          <p class="mt-3 text-sm leading-relaxed text-muted">{item.body}</p>
+        </li>
+      ))}
+    </ul>
+  </CaseSection>
+
+  <CaseSection
+    id={study.next.id}
+    index={study.next.index}
+    label={study.next.label}
+    title={study.next.title}
+  >
+    <ol class="max-w-3xl divide-y divide-line border-y border-line">
+      {study.next.items.map((item, index) => (
+        <li class="flex gap-5 py-5">
+          <span class="label pt-1 text-accent">{String(index + 1).padStart(2, '0')}</span>
+          <p class="text-base leading-relaxed text-fg-soft">{item}</p>
+        </li>
+      ))}
+    </ol>
+
+    <div class="mt-12 flex flex-wrap gap-3">
+      <a href={`${home}#work`} class="btn">
+        <span aria-hidden="true">←</span>
+        {copy.backToWork}
+      </a>
+      <a href={`${home}#contact`} class="btn btn-primary">
+        {copy.contact}
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </CaseSection>
+</article>

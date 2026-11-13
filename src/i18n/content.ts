@@ -259,6 +259,8 @@ export const content: Record<Lang, SiteContent> = {
             'App de planificación de viajes colaborativa: itinerarios día a día, presupuestos, invitaciones por email y adjuntos con visibilidad por archivo. Next.js en el frontend, GraphQL sobre Bun y Postgres en los datos, y un agente de sugerencias en Python.',
           tags: ['Next.js', 'TypeScript', 'GraphQL', 'Postgres', 'Python'],
           status: 'En desarrollo',
+          href: '/proyectos/triplanner/',
+          linkLabel: 'Ver caso de estudio',
         },
         {
           index: '02',
@@ -482,6 +484,8 @@ export const content: Record<Lang, SiteContent> = {
             'A collaborative trip-planning app: day-by-day itineraries, budgets, email invitations, and attachments with per-file visibility. Next.js on the frontend, GraphQL on Bun with Postgres for data, and a Python suggestion agent.',
           tags: ['Next.js', 'TypeScript', 'GraphQL', 'Postgres', 'Python'],
           status: 'In development',
+          href: '/en/projects/triplanner/',
+          linkLabel: 'Read the case study',
         },
         {
           index: '02',

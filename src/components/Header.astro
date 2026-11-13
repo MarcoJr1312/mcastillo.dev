@@ -3,12 +3,17 @@ import { content, type Lang } from '../i18n/content';
 
 interface Props {
   lang: Lang;
+  esHref?: string;
+  enHref?: string;
 }
 
-const { lang } = Astro.props;
+const { lang, esHref = '/', enHref = '/en/' } = Astro.props;
 const t = content[lang];
 const home = lang === 'es' ? '/' : '/en/';
 const navLabel = lang === 'es' ? 'Navegación principal' : 'Main navigation';
+const currentPath = Astro.url.pathname;
+const isHome = currentPath === home || currentPath === `${home}index.html`;
+const anchor = (hash: string) => (isHome ? hash : `${home}${hash}`);
 ---
 
 <header class="sticky top-0 z-50 border-b border-line/80 bg-canvas/90 backdrop-blur-md">
@@ -34,7 +39,7 @@ const navLabel = lang === 'es' ? 'Navegación principal' : 'Main navigation';
       {t.header.nav.map((item) => (
         <a
           class="label link-underline text-fg-soft transition-colors hover:text-fg"
-          href={item.href}
+          href={anchor(item.href)}
         >
           {item.label}
         </a>
@@ -48,7 +53,7 @@ const navLabel = lang === 'es' ? 'Navegación principal' : 'Main navigation';
         aria-label={t.header.language}
       >
         <a
-          href="/"
+          href={esHref}
           hreflang="es"
           lang="es"
           aria-current={lang === 'es' ? 'page' : undefined}
@@ -60,7 +65,7 @@ const navLabel = lang === 'es' ? 'Navegación principal' : 'Main navigation';
           ES
         </a>
         <a
-          href="/en/"
+          href={enHref}
           hreflang="en"
           lang="en"
           aria-current={lang === 'en' ? 'page' : undefined}
@@ -73,7 +78,7 @@ const navLabel = lang === 'es' ? 'Navegación principal' : 'Main navigation';
         </a>
       </div>
 
-      <a href="#contact" class="btn btn-primary hidden lg:inline-flex">
+      <a href={anchor('#contact')} class="btn btn-primary hidden lg:inline-flex">
         {t.header.cta}
         <span aria-hidden="true">→</span>
       </a>
@@ -98,7 +103,7 @@ const navLabel = lang === 'es' ? 'Navegación principal' : 'Main navigation';
               {t.header.nav.map((item, index) => (
                 <li>
                   <a
-                    href={item.href}
+                    href={anchor(item.href)}
                     class="flex items-center justify-between border-b border-line/70 px-3 py-3.5 text-sm transition-colors last:border-0 hover:text-accent"
                   >
                     <span class="flex items-baseline gap-3">
@@ -110,7 +115,7 @@ const navLabel = lang === 'es' ? 'Navegación principal' : 'Main navigation';
                 </li>
               ))}
             </ul>
-            <a href="#contact" class="btn btn-primary mt-2 w-full">
+            <a href={anchor('#contact')} class="btn btn-primary mt-2 w-full">
               {t.header.cta}
               <span aria-hidden="true">→</span>
             </a>
