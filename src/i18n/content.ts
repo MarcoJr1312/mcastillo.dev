@@ -185,7 +185,7 @@ export const content: Record<Lang, SiteContent> = {
         { label: 'Rol', value: 'Software Engineer' },
         { label: 'Producto', value: 'Woky · implementación de pilotos' },
         { label: 'Base', value: 'Barrie, ON · Canadá' },
-        { label: 'Estudiando', value: 'Computer Systems Technician' },
+        { label: 'Estudiando', value: 'Computer System Technician' },
       ],
       cardFootnote: 'Construyendo mcastillo.dev y su red de subdominios.',
       clockLabel: 'Hora local',
@@ -292,7 +292,7 @@ export const content: Record<Lang, SiteContent> = {
       title: 'Curiosidad de QA, mentalidad de infraestructura.',
       note: 'Cómo pienso el software.',
       lead: 'Empecé en QA automatizando lo que nadie quería repetir. Esa costumbre me llevó a pipelines, a Terraform y a diseñar sistemas completos.',
-      body: 'Mi último rol fue en Deskree, donde construí CI/CD, aprovisioné infraestructura y automaticé despliegues containerizados hasta agosto de 2026. Hoy formo parte de la implementación de Woky, un producto de ingeniería asistida por IA, donde instalo y preparo el software en los entornos de desarrollo de clientes para sus pilotos. Estudio Computer Systems Technician – Networking en Georgian College y me interesa el punto exacto donde el software, la nube y las operaciones se tocan. Me gustan los sistemas que se explican solos: pocos pasos, buenos límites y nada de magia.',
+      body: 'Mi último rol fue en Deskree, donde construí CI/CD, aprovisioné infraestructura y automaticé despliegues containerizados hasta agosto de 2026. Hoy formo parte de la implementación de Woky, un producto de ingeniería asistida por IA, donde instalo y preparo el software en los entornos de desarrollo de clientes para sus pilotos. Estudio Computer System Technician – Networking & Cloud Technologies en Georgian College y me interesa el punto exacto donde el software, la nube y las operaciones se tocan. Me gustan los sistemas que se explican solos: pocos pasos, buenos límites y nada de magia.',
       quote: 'La mejor infraestructura es la que no tienes que pensar.',
       quoteBy: 'Mi regla de trabajo',
       facts: [
@@ -358,7 +358,7 @@ export const content: Record<Lang, SiteContent> = {
         },
         {
           period: 'Dic 2026 (esperado)',
-          role: 'Computer Systems Technician – Networking',
+          role: 'Computer System Technician – Networking & Cloud Technologies',
           org: 'Georgian College',
           location: 'Barrie, ON',
           bullets: [
@@ -421,7 +421,7 @@ export const content: Record<Lang, SiteContent> = {
         { label: 'Role', value: 'Software Engineer' },
         { label: 'Product', value: 'Woky · pilot implementation' },
         { label: 'Based in', value: 'Barrie, ON · Canada' },
-        { label: 'Studying', value: 'Computer Systems Technician' },
+        { label: 'Studying', value: 'Computer System Technician' },
       ],
       cardFootnote: 'Building mcastillo.dev and its subdomain network.',
       clockLabel: 'Local time',
@@ -528,7 +528,7 @@ export const content: Record<Lang, SiteContent> = {
       title: 'A QA mindset, an infrastructure habit.',
       note: 'How I think about software.',
       lead: 'I started in QA automating the work nobody wanted to repeat. That habit led me to pipelines, Terraform, and designing complete systems.',
-      body: "My last role was at Deskree, where I built CI/CD, provisioned infrastructure, and automated containerized deployments until August 2026. Today I'm part of the implementation work for Woky, an AI-assisted engineering product, where I install and prepare the software in client development environments for their pilots. I'm studying Computer Systems Technician – Networking at Georgian College, and I care about the exact point where software, cloud, and operations meet. I like systems that explain themselves: few steps, clear boundaries, no magic.",
+      body: "My last role was at Deskree, where I built CI/CD, provisioned infrastructure, and automated containerized deployments until August 2026. Today I'm part of the implementation work for Woky, an AI-assisted engineering product, where I install and prepare the software in client development environments for their pilots. I'm studying Computer System Technician – Networking & Cloud Technologies at Georgian College, and I care about the exact point where software, cloud, and operations meet. I like systems that explain themselves: few steps, clear boundaries, no magic.",
       quote: "The best infrastructure is the one you don't have to think about.",
       quoteBy: 'My working rule',
       facts: [
@@ -594,7 +594,7 @@ export const content: Record<Lang, SiteContent> = {
         },
         {
           period: 'Dec 2026 (expected)',
-          role: 'Computer Systems Technician – Networking',
+          role: 'Computer System Technician – Networking & Cloud Technologies',
           org: 'Georgian College',
           location: 'Barrie, ON',
           bullets: [
