@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import CaseStudy from '../../../components/case-study/CaseStudy.astro';
+import { caseStudies } from '../../../i18n/projects';
+
+export function getStaticPaths() {
+  return Object.keys(caseStudies).map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const study = slug ? caseStudies[slug]?.es : undefined;
+
+if (!study) {
+  throw new Error(`Unknown case study: ${slug}`);
+}
+
+const path = `/es/proyectos/${study.slug}/`;
+const alternateEn = `/projects/${study.slug}/`;
+---
+
+<BaseLayout
+  lang="es"
+  title={`${study.seoTitle} · Marco Castillo`}
+  description={study.lead}
+  alternateEs={path}
+  alternateEn={alternateEn}
+>
+  <CaseStudy lang="es" study={study} />
+</BaseLayout>

@@ -7,9 +7,9 @@ interface Props {
   enHref?: string;
 }
 
-const { lang, esHref = '/', enHref = '/en/' } = Astro.props;
+const { lang, esHref = '/es/', enHref = '/' } = Astro.props;
 const t = content[lang];
-const home = lang === 'es' ? '/' : '/en/';
+const home = lang === 'es' ? '/es/' : '/';
 const navLabel = lang === 'es' ? 'Navegación principal' : 'Main navigation';
 const currentPath = Astro.url.pathname;
 const isHome = currentPath === home || currentPath === `${home}index.html`;

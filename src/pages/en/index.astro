@@ -1,11 +1,4 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Landing from '../../components/Landing.astro';
-import { content } from '../../i18n/content';
-
-const t = content.en;
+// English moved to the root: /en/ -> /
+return Astro.redirect('/', 301);
 ---
-
-<BaseLayout lang="en" title={t.meta.title} description={t.meta.description}>
-  <Landing lang="en" />
-</BaseLayout>

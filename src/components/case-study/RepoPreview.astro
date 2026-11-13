@@ -1,0 +1,164 @@
+---
+import type { Lang } from '../../i18n/content';
+import type { RepoNode } from '../../data/repoTree';
+import { repoTree } from '../../data/repoTree';
+
+interface Props {
+  lang: Lang;
+  node?: RepoNode;
+  depth?: number;
+  wakeUrl?: string;
+}
+
+const { lang, node = repoTree, depth = 0, wakeUrl } = Astro.props;
+
+const copy =
+  lang === 'es'
+    ? {
+        label: 'Repositorio',
+        privateLabel: 'privado',
+        deployable: 'Desplegable',
+        deploy: 'Desplegar',
+        deployHint: 'El endpoint de wake se conectará pronto.',
+        sending: 'Despertando…',
+        ok: 'Wake enviado',
+        error: 'No se pudo alcanzar el endpoint',
+        note: 'Solo aws-infra se despliega · el resto es de solo vista',
+      }
+    : {
+        label: 'Repository',
+        privateLabel: 'private',
+        deployable: 'Deployable',
+        deploy: 'Deploy',
+        deployHint: 'Wake endpoint wiring coming soon.',
+        sending: 'Waking…',
+        ok: 'Wake sent',
+        error: 'Could not reach the endpoint',
+        note: 'Only aws-infra deploys · the rest is view-only',
+      };
+
+const isRoot = depth === 0;
+---
+
+{isRoot && (
+  <figure class="border border-line bg-elevated">
+    <figcaption class="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line px-4 py-3 md:px-5">
+      <span class="flex items-center gap-2 font-mono text-xs text-fg">
+        <span aria-hidden="true" class="text-accent">
+          ⌂
+        </span>
+        <span class="font-medium">aws_triplanner</span>
+        <span class="text-muted">/</span>
+      </span>
+      <span class="label border border-line px-2 py-1 text-muted">{copy.privateLabel}</span>
+      <span class="label px-2 py-1 text-muted">
+        branch · <span class="text-fg-soft">main</span>
+      </span>
+      <span class="label ml-auto hidden text-muted lg:block">{copy.note}</span>
+    </figcaption>
+
+    <div class="overflow-x-auto px-4 py-4 md:px-5 md:py-5">
+      <div class="min-w-[22rem] font-mono text-[0.8125rem] leading-relaxed">
+        {repoTree.children?.map((child) => (
+          <Astro.self lang={lang} node={child} depth={1} wakeUrl={wakeUrl} />
+        ))}
+      </div>
+    </div>
+  </figure>
+)}
+
+{!isRoot &&
+  (node.kind === 'folder' ? (
+    <details class="group" open={node.deployable}>
+      <summary
+        class:list={[
+          'flex cursor-pointer list-none items-center gap-2 py-[0.2rem] pr-2 transition-colors [&::-webkit-details-marker]:hidden hover:text-accent',
+          node.deployable && 'border-l-2 border-accent pl-2.5',
+        ]}
+      >
+        <span
+          aria-hidden="true"
+          class="inline-block w-[0.6rem] text-[0.6rem] text-muted transition-transform group-open:rotate-90"
+        >
+          ▸
+        </span>
+        <span class:list={['text-fg-soft', node.deployable && 'text-fg']}>
+          {node.name}
+          <span class="text-muted">/</span>
+        </span>
+
+        {node.deployable && (
+          <span class="ml-1 inline-flex items-center gap-1.5 border border-accent/60 bg-accent/10 px-2 py-0.5 text-[0.5625rem] uppercase tracking-[0.14em] text-accent-soft">
+            <span class="status-dot"></span>
+            {copy.deployable}
+          </span>
+        )}
+
+        {node.deployable && (
+          <button
+            type="button"
+            class="ml-auto inline-flex items-center gap-1 border border-accent px-2.5 py-1 text-[0.5625rem] uppercase tracking-[0.14em] text-accent transition-colors hover:bg-accent hover:text-canvas"
+            data-repo-deploy
+            data-wake-url={wakeUrl ?? ''}
+            data-sending={copy.sending}
+            data-ok={copy.ok}
+            data-error={copy.error}
+          >
+            {copy.deploy}
+            <span aria-hidden="true">→</span>
+          </button>
+        )}
+      </summary>
+
+      {node.deployable && (
+        <p class="hidden pl-8 pr-2 pt-1 font-sans text-xs italic text-muted" data-repo-hint>
+          {copy.deployHint}
+        </p>
+      )}
+
+      {node.children && node.children.length > 0 && (
+        <div class="ml-[0.9rem] border-l border-line/60 pl-2.5">
+          {node.children.map((child) => (
+            <Astro.self lang={lang} node={child} depth={depth + 1} wakeUrl={wakeUrl} />
+          ))}
+        </div>
+      )}
+    </details>
+  ) : (
+    <div class="py-[0.2rem] text-muted">{node.name}</div>
+  ))}
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-repo-deploy]');
+
+  buttons.forEach((button) => {
+    button.addEventListener('click', async () => {
+      const url = button.dataset.wakeUrl;
+      const hint = button.closest('details')?.querySelector<HTMLElement>('[data-repo-hint]');
+
+      if (!url) {
+        hint?.classList.toggle('hidden');
+        return;
+      }
+
+      // Wake endpoint wired: POST to the control plane.
+      const original = button.innerHTML;
+      button.disabled = true;
+      button.textContent = button.dataset.sending ?? '…';
+
+      try {
+        const response = await fetch(url, { method: 'POST' });
+        button.textContent = response.ok
+          ? (button.dataset.ok ?? 'Wake sent')
+          : (button.dataset.error ?? 'Error');
+      } catch {
+        button.textContent = button.dataset.error ?? 'Error';
+      }
+
+      window.setTimeout(() => {
+        button.disabled = false;
+        button.innerHTML = original;
+      }, 4000);
+    });
+  });
+</script>

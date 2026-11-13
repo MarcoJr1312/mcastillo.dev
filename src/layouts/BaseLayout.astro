@@ -17,7 +17,7 @@ interface Props {
   alternateEn?: string;
 }
 
-const { lang, title, description, alternateEs = '/', alternateEn = '/en/' } = Astro.props;
+const { lang, title, description, alternateEs = '/es/', alternateEn = '/' } = Astro.props;
 
 const siteUrl = Astro.site ?? new URL('https://mcastillo.dev');
 const canonical = new URL(Astro.url.pathname, siteUrl);
@@ -58,7 +58,7 @@ const personSchema = {
     <link rel="canonical" href={canonical} />
     <link rel="alternate" hreflang="es" href={alternateEsUrl} />
     <link rel="alternate" hreflang="en" href={alternateEnUrl} />
-    <link rel="alternate" hreflang="x-default" href={alternateEsUrl} />
+    <link rel="alternate" hreflang="x-default" href={alternateEnUrl} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/favicon.svg" />

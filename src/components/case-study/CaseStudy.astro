@@ -4,6 +4,7 @@ import type { ProjectCaseStudy } from '../../i18n/projects';
 import CaseSection from './CaseSection.astro';
 import DiagramSystem from './DiagramSystem.astro';
 import DiagramEphemeral from './DiagramEphemeral.astro';
+import RepoPreview from './RepoPreview.astro';
 
 interface Props {
   lang: Lang;
@@ -11,7 +12,7 @@ interface Props {
 }
 
 const { lang, study } = Astro.props;
-const home = lang === 'es' ? '/' : '/en/';
+const home = lang === 'es' ? '/es/' : '/';
 const copy =
   lang === 'es'
     ? {
@@ -261,6 +262,10 @@ const copy =
 
     <Fragment slot="wide">
       <DiagramEphemeral lang={lang} study={study} />
+
+      <div class="mt-10 md:mt-12">
+        <RepoPreview lang={lang} />
+      </div>
     </Fragment>
   </CaseSection>
 
