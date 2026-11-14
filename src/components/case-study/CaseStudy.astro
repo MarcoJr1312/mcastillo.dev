@@ -2,6 +2,7 @@
 import type { Lang } from '../../i18n/content';
 import type { ProjectCaseStudy } from '../../i18n/projects';
 import CaseSection from './CaseSection.astro';
+import DeployModal from './DeployModal.astro';
 import DiagramSystem from './DiagramSystem.astro';
 import DiagramEphemeral from './DiagramEphemeral.astro';
 import LocalRepoCallout from './LocalRepoCallout.astro';
@@ -14,6 +15,10 @@ interface Props {
 
 const { lang, study } = Astro.props;
 const home = lang === 'es' ? '/es/' : '/';
+const triplannerUrl = 'https://triplanner.mcastillo.dev';
+// Set this when the control-plane wake endpoint is live. The modal POSTs to it
+// before polling the app URL.
+const wakeUrl = '';
 const copy =
   lang === 'es'
     ? {
@@ -265,7 +270,7 @@ const copy =
       <DiagramEphemeral lang={lang} study={study} />
 
       <div class="mt-10 md:mt-12">
-        <RepoPreview lang={lang} />
+        <RepoPreview lang={lang} wakeUrl={wakeUrl} />
       </div>
 
       <div class="mt-6 md:mt-8">
@@ -318,3 +323,5 @@ const copy =
     </div>
   </CaseSection>
 </article>
+
+<DeployModal lang={lang} appUrl={triplannerUrl} wakeUrl={wakeUrl} />

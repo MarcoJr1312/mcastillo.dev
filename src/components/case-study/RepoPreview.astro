@@ -19,10 +19,6 @@ const copy =
         privateLabel: 'privado',
         deployable: 'Desplegable',
         deploy: 'Desplegar',
-        deployHint: 'El endpoint de wake se conectará pronto.',
-        sending: 'Despertando…',
-        ok: 'Wake enviado',
-        error: 'No se pudo alcanzar el endpoint',
         note: 'Solo aws-infra se despliega · el resto es de solo vista',
       }
     : {
@@ -30,10 +26,6 @@ const copy =
         privateLabel: 'private',
         deployable: 'Deployable',
         deploy: 'Deploy',
-        deployHint: 'Wake endpoint wiring coming soon.',
-        sending: 'Waking…',
-        ok: 'Wake sent',
-        error: 'Could not reach the endpoint',
         note: 'Only aws-infra deploys · the rest is view-only',
       };
 
@@ -100,21 +92,12 @@ const isRoot = depth === 0;
             class="ml-auto inline-flex items-center gap-1 border border-accent px-2.5 py-1 text-[0.5625rem] uppercase tracking-[0.14em] text-accent transition-colors hover:bg-accent hover:text-canvas"
             data-repo-deploy
             data-wake-url={wakeUrl ?? ''}
-            data-sending={copy.sending}
-            data-ok={copy.ok}
-            data-error={copy.error}
           >
             {copy.deploy}
             <span aria-hidden="true">→</span>
           </button>
         )}
       </summary>
-
-      {node.deployable && (
-        <p class="hidden pl-8 pr-2 pt-1 font-sans text-xs italic text-muted" data-repo-hint>
-          {copy.deployHint}
-        </p>
-      )}
 
       {node.children && node.children.length > 0 && (
         <div class="ml-[0.9rem] border-l border-line/60 pl-2.5">
@@ -127,38 +110,3 @@ const isRoot = depth === 0;
   ) : (
     <div class="py-[0.2rem] text-muted">{node.name}</div>
   ))}
-
-<script>
-  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-repo-deploy]');
-
-  buttons.forEach((button) => {
-    button.addEventListener('click', async () => {
-      const url = button.dataset.wakeUrl;
-      const hint = button.closest('details')?.querySelector<HTMLElement>('[data-repo-hint]');
-
-      if (!url) {
-        hint?.classList.toggle('hidden');
-        return;
-      }
-
-      // Wake endpoint wired: POST to the control plane.
-      const original = button.innerHTML;
-      button.disabled = true;
-      button.textContent = button.dataset.sending ?? '…';
-
-      try {
-        const response = await fetch(url, { method: 'POST' });
-        button.textContent = response.ok
-          ? (button.dataset.ok ?? 'Wake sent')
-          : (button.dataset.error ?? 'Error');
-      } catch {
-        button.textContent = button.dataset.error ?? 'Error';
-      }
-
-      window.setTimeout(() => {
-        button.disabled = false;
-        button.innerHTML = original;
-      }, 4000);
-    });
-  });
-</script>

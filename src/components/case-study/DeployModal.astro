@@ -1,0 +1,585 @@
+---
+import type { Lang } from '../../i18n/content';
+
+interface Props {
+  lang: Lang;
+  appUrl?: string;
+  healthUrl?: string;
+  wakeUrl?: string;
+  timeoutSeconds?: number;
+}
+
+const {
+  lang,
+  appUrl = 'https://triplanner.mcastillo.dev',
+  healthUrl = appUrl,
+  wakeUrl = '',
+  timeoutSeconds = 900,
+} = Astro.props;
+
+const copy =
+  lang === 'es'
+    ? {
+        eyebrow: 'Deploy · stack efímero',
+        title: 'Despertando Triplanner',
+        intro:
+          'AWS está construyendo el stack desde cero. Suele tardar entre 8 y 12 minutos; esta ventana se actualiza sola cuando el health check responde. Puedes cerrarla: el despliegue sigue en segundo plano.',
+        close: 'Cerrar',
+        progress: 'Progreso del despliegue',
+        elapsed: 'Tiempo',
+        checking: 'Verificando cada 5 s',
+        readyStatus: 'Triplanner está listo.',
+        readyNote: 'Stack en línea',
+        errorStatus: 'El stack no respondió en 15 minutos.',
+        errorNote: 'Polling detenido',
+        open: 'Abrir Triplanner',
+        retry: 'Reintentar',
+        localLead: '¿No quieres esperar?',
+        localLink: 'Corre Triplanner localmente',
+        steps: [
+          { label: 'DNS', detail: 'Resolviendo el DNS y el certificado TLS' },
+          { label: 'VPC', detail: 'Creando VPC, subredes y security groups' },
+          { label: 'DB', detail: 'Aprovisionando Postgres y el catálogo de lugares' },
+          { label: 'ECS', detail: 'Iniciando web, API y agente en Fargate' },
+          { label: 'HTTP', detail: 'Esperando el health check del ALB' },
+        ],
+      }
+    : {
+        eyebrow: 'Deploy · ephemeral stack',
+        title: 'Waking Triplanner',
+        intro:
+          'AWS is building the stack from scratch. It usually takes 8–12 minutes; this window updates itself when the health check responds. You can close it: the deployment keeps running in the background.',
+        close: 'Close',
+        progress: 'Deployment progress',
+        elapsed: 'Elapsed',
+        checking: 'Checking every 5 s',
+        readyStatus: 'Triplanner is ready.',
+        readyNote: 'Stack online',
+        errorStatus: 'The stack did not respond within 15 minutes.',
+        errorNote: 'Polling stopped',
+        open: 'Open Triplanner',
+        retry: 'Retry',
+        localLead: "Don't want to wait?",
+        localLink: 'Run Triplanner locally',
+        steps: [
+          { label: 'DNS', detail: 'Resolving DNS and the TLS certificate' },
+          { label: 'VPC', detail: 'Creating the VPC, subnets, and security groups' },
+          { label: 'DB', detail: 'Provisioning Postgres and the location catalogue' },
+          { label: 'ECS', detail: 'Starting web, API, and agent on Fargate' },
+          { label: 'HTTP', detail: 'Waiting for the ALB health check' },
+        ],
+      };
+---
+
+<dialog
+  id="triplanner-deploy"
+  class="fixed inset-0 m-auto max-h-[calc(100dvh-2rem)] w-[min(44rem,calc(100vw-2rem))] max-w-none overflow-y-auto overscroll-contain border-0 bg-transparent p-0 text-fg backdrop:bg-canvas/85"
+  data-app-url={appUrl}
+  data-health-url={healthUrl}
+  data-wake-url={wakeUrl}
+  data-timeout-seconds={timeoutSeconds}
+  data-ready-status={copy.readyStatus}
+  data-error-status={copy.errorStatus}
+  data-elapsed-label={copy.elapsed}
+  data-checking-label={copy.checking}
+  data-ready-note={copy.readyNote}
+  data-error-note={copy.errorNote}
+  aria-labelledby="triplanner-deploy-title"
+  aria-describedby="triplanner-deploy-desc"
+>
+  <div class="border border-line bg-elevated">
+    <div class="flex items-start justify-between gap-6 border-b border-line px-5 py-5 md:px-6">
+      <div>
+        <p class="label text-accent">{copy.eyebrow}</p>
+        <h2
+          id="triplanner-deploy-title"
+          class="mt-3 font-serif text-3xl leading-none tracking-[-0.03em] md:text-4xl"
+        >
+          {copy.title}
+        </h2>
+      </div>
+
+      <button
+        type="button"
+        class="grid h-9 w-9 shrink-0 place-items-center border border-line text-xl leading-none text-muted transition-colors hover:border-accent hover:text-accent"
+        data-deploy-close
+        aria-label={copy.close}
+      >
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+
+    <p
+      id="triplanner-deploy-desc"
+      class="border-b border-line px-5 py-4 text-sm leading-relaxed text-muted md:px-6"
+    >
+      {copy.intro}
+    </p>
+
+    <div class="px-5 py-6 md:px-6">
+      <div class="relative">
+        <div class="absolute left-[1.125rem] right-[1.125rem] top-[1.125rem] h-px bg-line"></div>
+        <div
+          class="absolute left-[1.125rem] right-[1.125rem] top-[1.125rem] h-px origin-left scale-x-0 bg-accent transition-transform duration-700 ease-out"
+          data-deploy-track
+        ></div>
+
+        <ol class="relative grid grid-cols-5 gap-1">
+          {copy.steps.map((step, index) => (
+            <li
+              class="deploy-step flex flex-col items-center text-center"
+              data-deploy-step
+              data-state="pending"
+              data-detail={step.detail}
+            >
+              <span class="deploy-node" aria-hidden="true">
+                <span class="deploy-index">{String(index + 1).padStart(2, '0')}</span>
+                <span class="deploy-check">✓</span>
+                <span class="deploy-error">!</span>
+              </span>
+              <span class="mt-2 font-mono text-[0.5625rem] uppercase tracking-[0.12em] text-muted">
+                {step.label}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div class="mt-7">
+        <div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
+          <p class="font-mono text-xs leading-relaxed text-fg-soft" aria-live="polite">
+            <span data-deploy-status-text>{copy.steps[0].detail}</span>
+            <span class="deploy-cursor" aria-hidden="true">
+              _
+            </span>
+          </p>
+          <span class="label text-accent" data-deploy-percent>
+            0%
+          </span>
+        </div>
+
+        <div
+          class="mt-3 h-1 w-full bg-line"
+          role="progressbar"
+          aria-label={copy.progress}
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+          data-deploy-progress
+        >
+          <div
+            class="h-full w-0 bg-accent transition-[width] duration-700 ease-out"
+            data-deploy-bar
+          ></div>
+        </div>
+
+        <div class="mt-3 flex flex-wrap items-center justify-between gap-2 font-mono text-[0.625rem] uppercase tracking-[0.12em] text-muted">
+          <span data-deploy-elapsed>{copy.elapsed} 00:00</span>
+          <span data-deploy-checking>{copy.checking}</span>
+        </div>
+      </div>
+
+      <div class="mt-6 flex flex-wrap gap-3" data-deploy-actions hidden>
+        <a
+          href={appUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-primary"
+          data-deploy-open
+          hidden
+        >
+          {copy.open}
+          <span aria-hidden="true">↗</span>
+        </a>
+        <button type="button" class="btn" data-deploy-retry hidden>
+          {copy.retry}
+        </button>
+      </div>
+
+      <div class="mt-6 border-t border-line pt-4">
+        <p class="text-xs leading-relaxed text-muted">
+          {copy.localLead}{' '}
+          <a
+            href="https://github.com/MarcoJr1312/local_triplanner"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="link-underline text-fg-soft transition-colors hover:text-accent"
+          >
+            {copy.localLink}
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  dialog[open] {
+    animation: deploy-in 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  dialog[open]::backdrop {
+    animation: deploy-fade 260ms ease-out;
+  }
+
+  :global(html.deploy-open) {
+    overflow: hidden;
+  }
+
+  .deploy-node {
+    display: grid;
+    width: 2.25rem;
+    height: 2.25rem;
+    place-items: center;
+    border: 1px solid var(--color-line);
+    background-color: var(--color-surface);
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    line-height: 1;
+    transition:
+      border-color 220ms ease,
+      background-color 220ms ease,
+      color 220ms ease;
+  }
+
+  .deploy-step[data-state='active'] .deploy-node {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    animation: deploy-pulse 1.6s ease-in-out infinite;
+  }
+
+  .deploy-step[data-state='done'] .deploy-node {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent);
+    color: var(--color-canvas);
+  }
+
+  .deploy-step[data-state='error'] .deploy-node {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .deploy-index {
+    display: block;
+  }
+
+  .deploy-check,
+  .deploy-error {
+    display: none;
+  }
+
+  .deploy-step[data-state='done'] .deploy-index,
+  .deploy-step[data-state='error'] .deploy-index {
+    display: none;
+  }
+
+  .deploy-step[data-state='done'] .deploy-check,
+  .deploy-step[data-state='error'] .deploy-error {
+    display: block;
+  }
+
+  .deploy-cursor {
+    display: inline-block;
+    margin-left: 0.15em;
+    animation: deploy-blink 1s steps(1, end) infinite;
+  }
+
+  @keyframes deploy-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes deploy-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes deploy-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(255, 77, 63, 0.35);
+    }
+    50% {
+      box-shadow: 0 0 0 6px rgba(255, 77, 63, 0);
+    }
+  }
+
+  @keyframes deploy-blink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+</style>
+
+<script>
+  const dialog = document.getElementById('triplanner-deploy') as HTMLDialogElement | null;
+
+  if (dialog) {
+    const modal = dialog;
+    const appUrl = (modal.dataset.appUrl ?? '').replace(/\/+$/, '');
+    const healthUrl = (modal.dataset.healthUrl ?? '').replace(/\/+$/, '');
+    const defaultWakeUrl = modal.dataset.wakeUrl ?? '';
+    const readyStatus = modal.dataset.readyStatus ?? 'Ready';
+    const errorStatus = modal.dataset.errorStatus ?? 'Timed out';
+    const elapsedLabel = modal.dataset.elapsedLabel ?? 'Elapsed';
+    const checkingLabel = modal.dataset.checkingLabel ?? 'Checking';
+    const readyNote = modal.dataset.readyNote ?? 'Online';
+    const errorNote = modal.dataset.errorNote ?? 'Stopped';
+
+    const steps = Array.from(modal.querySelectorAll<HTMLElement>('[data-deploy-step]'));
+    const stageDetails = steps.map((step) => step.dataset.detail ?? '');
+    const statusText = modal.querySelector<HTMLElement>('[data-deploy-status-text]');
+    const percentEl = modal.querySelector<HTMLElement>('[data-deploy-percent]');
+    const elapsedEl = modal.querySelector<HTMLElement>('[data-deploy-elapsed]');
+    const checkingEl = modal.querySelector<HTMLElement>('[data-deploy-checking]');
+    const bar = modal.querySelector<HTMLElement>('[data-deploy-bar]');
+    const track = modal.querySelector<HTMLElement>('[data-deploy-track]');
+    const progress = modal.querySelector<HTMLElement>('[data-deploy-progress]');
+    const actions = modal.querySelector<HTMLElement>('[data-deploy-actions]');
+    const openLink = modal.querySelector<HTMLAnchorElement>('[data-deploy-open]');
+    const retryButton = modal.querySelector<HTMLButtonElement>('[data-deploy-retry]');
+    const closeButton = modal.querySelector<HTMLButtonElement>('[data-deploy-close]');
+    const deployButtons = document.querySelectorAll<HTMLButtonElement>('[data-repo-deploy]');
+
+    const expectedSeconds = 600;
+    const pollMs = 5000;
+    const probeTimeoutMs = 8000;
+    const minReadySeconds = 3;
+    const stageThresholds = [0, 12, 60, 180, 360];
+
+    let elapsed = 0;
+    let currentStage = 0;
+    let readyDetected = false;
+    let started = false;
+    let probing = false;
+    let session = 0;
+    let timeoutSeconds = Number(modal.dataset.timeoutSeconds ?? 900);
+    let tickId: number | undefined;
+    let pollId: number | undefined;
+    let probeController: AbortController | undefined;
+
+    function setStepState(index: number, state: 'pending' | 'active' | 'done' | 'error') {
+      const step = steps[index];
+      if (step) step.dataset.state = state;
+    }
+
+    function updateStages(activeIndex: number) {
+      steps.forEach((_, index) => {
+        setStepState(
+          index,
+          index < activeIndex ? 'done' : index === activeIndex ? 'active' : 'pending',
+        );
+      });
+    }
+
+    function setProgress(percent: number) {
+      const value = Math.max(0, Math.min(100, Math.round(percent)));
+      if (bar) bar.style.width = `${value}%`;
+      if (track) track.style.transform = `scaleX(${value / 100})`;
+      if (percentEl) percentEl.textContent = `${value}%`;
+      progress?.setAttribute('aria-valuenow', String(value));
+    }
+
+    function setElapsed(seconds: number) {
+      if (!elapsedEl) return;
+      const minutes = Math.floor(seconds / 60)
+        .toString()
+        .padStart(2, '0');
+      const rest = (seconds % 60).toString().padStart(2, '0');
+      elapsedEl.textContent = `${elapsedLabel} ${minutes}:${rest}`;
+    }
+
+    function setPhase(phase: 'loading' | 'ready' | 'error') {
+      modal.dataset.phase = phase;
+      if (actions) actions.hidden = phase === 'loading';
+      if (openLink) openLink.hidden = phase !== 'ready';
+      if (retryButton) retryButton.hidden = phase !== 'error';
+      if (checkingEl) {
+        checkingEl.textContent =
+          phase === 'ready' ? readyNote : phase === 'error' ? errorNote : checkingLabel;
+      }
+    }
+
+    function stopTimers() {
+      if (tickId !== undefined) window.clearInterval(tickId);
+      if (pollId !== undefined) window.clearInterval(pollId);
+      probeController?.abort();
+      tickId = undefined;
+      pollId = undefined;
+      probeController = undefined;
+      probing = false;
+    }
+
+    function finishReady() {
+      if (!started) return;
+      stopTimers();
+      started = false;
+      setPhase('ready');
+      steps.forEach((_, index) => setStepState(index, 'done'));
+      setProgress(100);
+      if (statusText) statusText.textContent = readyStatus;
+      openLink?.focus();
+    }
+
+    function finishError() {
+      if (!started) return;
+      stopTimers();
+      started = false;
+      setPhase('error');
+      setStepState(currentStage, 'error');
+      if (statusText) statusText.textContent = errorStatus;
+    }
+
+    function tick(activeSession: number) {
+      if (activeSession !== session) return;
+
+      elapsed += 1;
+      setElapsed(elapsed);
+
+      if (!readyDetected) {
+        currentStage = Math.max(
+          0,
+          stageThresholds.findLastIndex((threshold) => elapsed >= threshold),
+        );
+        updateStages(currentStage);
+        if (statusText) statusText.textContent = stageDetails[currentStage] ?? '';
+        setProgress(Math.min(94, (elapsed / expectedSeconds) * 100));
+      }
+
+      if (readyDetected && elapsed >= minReadySeconds) {
+        finishReady();
+        return;
+      }
+
+      if (elapsed >= timeoutSeconds) {
+        finishError();
+      }
+    }
+
+    async function probe(): Promise<boolean> {
+      if (!healthUrl) return false;
+
+      const controller = new AbortController();
+      probeController = controller;
+      const timeoutId = window.setTimeout(() => controller.abort(), probeTimeoutMs);
+
+      try {
+        const probeUrl = new URL(healthUrl, window.location.href);
+        probeUrl.searchParams.set('deploy_probe', String(Date.now()));
+
+        await fetch(probeUrl.toString(), {
+          method: 'GET',
+          mode: 'no-cors',
+          cache: 'no-store',
+          redirect: 'follow',
+          signal: controller.signal,
+        });
+        return true;
+      } catch {
+        return false;
+      } finally {
+        window.clearTimeout(timeoutId);
+        if (probeController === controller) probeController = undefined;
+      }
+    }
+
+    async function check(activeSession: number) {
+      if (activeSession !== session || !started || readyDetected || probing) return;
+
+      probing = true;
+      try {
+        const isUp = await probe();
+        if (isUp && started && activeSession === session) {
+          readyDetected = true;
+          if (elapsed >= minReadySeconds) finishReady();
+        }
+      } finally {
+        probing = false;
+      }
+    }
+
+    function sendWake(url: string) {
+      if (!url) return;
+
+      void fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        cache: 'no-store',
+        keepalive: true,
+      }).catch(() => {
+        // The control plane may still be warming up; keep polling the app URL.
+      });
+    }
+
+    function reset() {
+      stopTimers();
+      session += 1;
+      const activeSession = session;
+      elapsed = 0;
+      currentStage = 0;
+      readyDetected = false;
+      started = true;
+      timeoutSeconds = Number(modal.dataset.timeoutSeconds ?? 900);
+
+      setPhase('loading');
+      setElapsed(0);
+      setProgress(0);
+      updateStages(0);
+      if (statusText) statusText.textContent = stageDetails[0] ?? '';
+
+      tickId = window.setInterval(() => tick(activeSession), 1000);
+      pollId = window.setInterval(() => check(activeSession), pollMs);
+      void check(activeSession);
+    }
+
+    function openModal(button?: HTMLButtonElement) {
+      if (typeof modal.showModal !== 'function') {
+        if (appUrl) window.open(appUrl, '_blank', 'noopener');
+        return;
+      }
+
+      reset();
+      if (!modal.open) modal.showModal();
+      document.documentElement.classList.add('deploy-open');
+      sendWake(button?.dataset.wakeUrl || defaultWakeUrl);
+    }
+
+    deployButtons.forEach((button) => {
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        openModal(button);
+      });
+    });
+
+    closeButton?.addEventListener('click', () => modal.close());
+    retryButton?.addEventListener('click', () => openModal());
+
+    modal.addEventListener('click', (event) => {
+      if (event.target === dialog) modal.close();
+    });
+
+    modal.addEventListener('close', () => {
+      started = false;
+      stopTimers();
+      document.documentElement.classList.remove('deploy-open');
+      setPhase('loading');
+    });
+  }
+</script>
