@@ -16,9 +16,11 @@ interface Props {
 const { lang, study } = Astro.props;
 const home = lang === 'es' ? '/es/' : '/';
 const triplannerUrl = 'https://triplanner.mcastillo.dev';
-// Set this when the control-plane wake endpoint is live. The modal POSTs to it
-// before polling the app URL.
-const wakeUrl = '';
+// The app's own health check path (also used by the ALB target group).
+const triplannerHealthUrl = `${triplannerUrl}/login`;
+// Control-plane API Gateway: POST /wake dispatches the wake.yml workflow.
+// Keep this in sync with `terraform output -raw wake_url` in aws-infra/envs/control-plane.
+const wakeUrl = 'https://zev4y8ny7l.execute-api.us-east-1.amazonaws.com/wake';
 const copy =
   lang === 'es'
     ? {
@@ -324,4 +326,4 @@ const copy =
   </CaseSection>
 </article>
 
-<DeployModal lang={lang} appUrl={triplannerUrl} wakeUrl={wakeUrl} />
+<DeployModal lang={lang} appUrl={triplannerUrl} healthUrl={triplannerHealthUrl} wakeUrl={wakeUrl} />
