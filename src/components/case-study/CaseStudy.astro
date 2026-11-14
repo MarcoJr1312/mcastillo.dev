@@ -2,11 +2,10 @@
 import type { Lang } from '../../i18n/content';
 import type { ProjectCaseStudy } from '../../i18n/projects';
 import CaseSection from './CaseSection.astro';
-import DeployModal from './DeployModal.astro';
 import DiagramSystem from './DiagramSystem.astro';
 import DiagramEphemeral from './DiagramEphemeral.astro';
+import InfrastructureNotice from './InfrastructureNotice.astro';
 import LocalRepoCallout from './LocalRepoCallout.astro';
-import RepoPreview from './RepoPreview.astro';
 
 interface Props {
   lang: Lang;
@@ -15,12 +14,6 @@ interface Props {
 
 const { lang, study } = Astro.props;
 const home = lang === 'es' ? '/es/' : '/';
-const triplannerUrl = 'https://triplanner.mcastillo.dev';
-// The app's own health check path (also used by the ALB target group).
-const triplannerHealthUrl = `${triplannerUrl}/login`;
-// Control-plane API Gateway: POST /wake dispatches the wake.yml workflow.
-// Keep this in sync with `terraform output -raw wake_url` in aws-infra/envs/control-plane.
-const wakeUrl = 'https://zev4y8ny7l.execute-api.us-east-1.amazonaws.com/wake';
 const copy =
   lang === 'es'
     ? {
@@ -272,7 +265,7 @@ const copy =
       <DiagramEphemeral lang={lang} study={study} />
 
       <div class="mt-10 md:mt-12">
-        <RepoPreview lang={lang} wakeUrl={wakeUrl} />
+        <InfrastructureNotice lang={lang} />
       </div>
 
       <div class="mt-6 md:mt-8">
@@ -325,5 +318,3 @@ const copy =
     </div>
   </CaseSection>
 </article>
-
-<DeployModal lang={lang} appUrl={triplannerUrl} healthUrl={triplannerHealthUrl} wakeUrl={wakeUrl} />
