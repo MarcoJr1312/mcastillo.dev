@@ -57,6 +57,18 @@ export interface ProjectCaseStudy {
     diagramTitle: string;
     diagramDesc: string;
   };
+  localRepo: {
+    label: string;
+    title: string;
+    body: string;
+    cloneLabel: string;
+    cloneCommand: string;
+    copyLabel: string;
+    copiedLabel: string;
+    note: string;
+    repoLabel: string;
+    repoUrl: string;
+  };
   learnings: CaseStudySection & {
     items: { title: string; body: string }[];
   };
@@ -329,6 +341,18 @@ const triplannerEs: ProjectCaseStudy = {
     diagramTitle: 'Diagrama del stack AWS efímero',
     diagramDesc:
       'El control plane siempre activo contiene GitHub Actions, la API de wake, EventBridge con la Lambda de sleep-check y el estado en S3 con ECR y ACM. El stack efímero contiene Cloudflare, el ALB con WAF, ECS Fargate con web, API y agente, y RDS, DynamoDB y S3, que se destruyen al dormir.',
+  },
+  localRepo: {
+    label: 'Demo local',
+    title: 'También puedes correrlo en tu máquina.',
+    body: 'El repo privado aws_triplanner necesita que el stack de AWS despierte, y eso tarda entre 8 y 12 minutos. Para evaluar el producto sin esperar, local_triplanner contiene la misma app empaquetada con Docker Compose: Next.js, GraphQL sobre Bun, el agente en Python, Postgres y MongoDB, con datos sembrados y sin cuentas externas.',
+    cloneLabel: 'Clona el repositorio',
+    cloneCommand: 'git clone https://github.com/MarcoJr1312/local_triplanner.git',
+    copyLabel: 'Copiar',
+    copiedLabel: 'Copiado',
+    note: 'Después entra en la carpeta, corre docker compose up --build y abre localhost:3000/login. Elige Demo o Demo Friend.',
+    repoLabel: 'Abrir local_triplanner en GitHub',
+    repoUrl: 'https://github.com/MarcoJr1312/local_triplanner',
   },
   learnings: {
     id: 'aprendizajes',
@@ -633,6 +657,18 @@ const triplannerEn: ProjectCaseStudy = {
     diagramTitle: 'Ephemeral AWS stack diagram',
     diagramDesc:
       'The always-on control plane contains GitHub Actions, the wake API, EventBridge with the sleep-check Lambda, and the state in S3 with ECR and ACM. The ephemeral stack contains Cloudflare, the ALB with WAF, ECS Fargate with web, API, and agent, and RDS, DynamoDB, and S3, which are destroyed on sleep.',
+  },
+  localRepo: {
+    label: 'Local demo',
+    title: 'You can also run it on your machine.',
+    body: 'The private aws_triplanner repo needs the AWS stack to wake, which takes 8–12 minutes. To evaluate the product without waiting, local_triplanner packages the same app with Docker Compose: Next.js, GraphQL on Bun, the Python agent, Postgres, and MongoDB, with seeded data and no external accounts.',
+    cloneLabel: 'Clone the repository',
+    cloneCommand: 'git clone https://github.com/MarcoJr1312/local_triplanner.git',
+    copyLabel: 'Copy',
+    copiedLabel: 'Copied',
+    note: 'Then enter the folder, run docker compose up --build, and open localhost:3000/login. Pick Demo or Demo Friend.',
+    repoLabel: 'Open local_triplanner on GitHub',
+    repoUrl: 'https://github.com/MarcoJr1312/local_triplanner',
   },
   learnings: {
     id: 'aprendizajes',

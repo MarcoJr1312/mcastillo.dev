@@ -4,6 +4,7 @@ import type { ProjectCaseStudy } from '../../i18n/projects';
 import CaseSection from './CaseSection.astro';
 import DiagramSystem from './DiagramSystem.astro';
 import DiagramEphemeral from './DiagramEphemeral.astro';
+import LocalRepoCallout from './LocalRepoCallout.astro';
 import RepoPreview from './RepoPreview.astro';
 
 interface Props {
@@ -265,6 +266,10 @@ const copy =
 
       <div class="mt-10 md:mt-12">
         <RepoPreview lang={lang} />
+      </div>
+
+      <div class="mt-6 md:mt-8">
+        <LocalRepoCallout study={study} />
       </div>
     </Fragment>
   </CaseSection>
