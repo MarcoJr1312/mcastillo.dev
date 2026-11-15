@@ -189,7 +189,10 @@ export const content: Record<Lang, SiteContent> = {
         { label: 'Rol', value: 'Junior DevOps' },
         { label: 'Producto', value: 'Woky · implementación de pilotos' },
         { label: 'Base', value: 'Barrie, ON · Canadá' },
-        { label: 'Estudiando', value: 'Computer System Technician' },
+        {
+          label: 'Estudiando',
+          value: 'Computer System Technician - Networking & Cloud Technologies',
+        },
       ],
       cardFootnote: 'Construyendo mcastillo.dev y su red de subdominios.',
       clockLabel: 'Hora local',
@@ -416,7 +419,10 @@ export const content: Record<Lang, SiteContent> = {
         { label: 'Role', value: 'Junior DevOps' },
         { label: 'Product', value: 'Woky · pilot implementation' },
         { label: 'Based in', value: 'Barrie, ON · Canada' },
-        { label: 'Studying', value: 'Computer System Technician' },
+        {
+          label: 'Studying',
+          value: 'Computer System Technician - Networking & Cloud Technologies',
+        },
       ],
       cardFootnote: 'Building mcastillo.dev and its subdomain network.',
       clockLabel: 'Local time',
