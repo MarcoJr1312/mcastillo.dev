@@ -17,11 +17,17 @@ const copy =
         intro:
           'El stack AWS se despierta bajo demanda. Antes de ejecutar el workflow, comprobamos si ya está en línea.',
         gateLead:
-          'Deja tus datos para que el deploy quede registrado. Solo el nombre es obligatorio.',
+          'Deja tus datos para que el deploy quede registrado. El nombre es obligatorio; el resto es opcional.',
+        requiredLegend: 'Los campos con * son obligatorios.',
+        required: 'Obligatorio',
+        optional: 'Opcional',
         nameLabel: 'Nombre',
         namePlaceholder: 'Tu nombre',
         positionLabel: 'Posición',
-        positionPlaceholder: 'No especificar',
+        positionNone: 'No especificar',
+        positionOther: 'Otra posición',
+        positionOtherLabel: 'Especifica la posición',
+        positionOtherPlaceholder: 'Ej. Technical Recruiter',
         companyLabel: 'Empresa',
         companyNone: 'No especificar',
         companyFreelancer: 'Freelancer',
@@ -29,12 +35,15 @@ const copy =
         companyOther: 'Otra empresa',
         companyNameLabel: 'Nombre de la empresa',
         companyPlaceholder: 'Empresa',
+        linkedinLabel: 'LinkedIn',
+        linkedinPlaceholder: 'usuario o URL de LinkedIn',
+        linkedinHint: 'Opcional · para conectar contigo',
         privacyNote:
           'Estos datos y la IP de la solicitud se envían por email al dueño del sitio para registrar quién despliega la infraestructura. No se publican.',
         gateSubmit: 'Solicitar deploy',
         gateSubmitting: 'Verificando…',
         emailNote: 'Se envía una notificación por email.',
-        nameError: 'El nombre es obligatorio.',
+        nameError: 'Escribe tu nombre para continuar.',
         gateError: 'No se pudo verificar la solicitud. Intenta de nuevo.',
         rateError: 'Demasiadas solicitudes. Espera un minuto e intenta de nuevo.',
         configError: 'El deploy no está configurado todavía. Intenta más tarde.',
@@ -69,11 +78,18 @@ const copy =
         title: 'Wake Triplanner',
         intro:
           'The AWS stack wakes on demand. Before running the workflow, we check whether it is already online.',
-        gateLead: 'Leave your details so the deploy is on record. Only the name is required.',
+        gateLead:
+          'Leave your details so the deploy is on record. The name is required; everything else is optional.',
+        requiredLegend: 'Fields marked with * are required.',
+        required: 'Required',
+        optional: 'Optional',
         nameLabel: 'Name',
         namePlaceholder: 'Your name',
         positionLabel: 'Position',
-        positionPlaceholder: 'Not specified',
+        positionNone: 'Not specified',
+        positionOther: 'Other position',
+        positionOtherLabel: 'Specify the position',
+        positionOtherPlaceholder: 'e.g. Technical Recruiter',
         companyLabel: 'Company',
         companyNone: 'Not specified',
         companyFreelancer: 'Freelancer',
@@ -81,12 +97,15 @@ const copy =
         companyOther: 'Other company',
         companyNameLabel: 'Company name',
         companyPlaceholder: 'Company',
+        linkedinLabel: 'LinkedIn',
+        linkedinPlaceholder: 'LinkedIn username or URL',
+        linkedinHint: 'Optional · so we can connect',
         privacyNote:
           'These details and the request IP are emailed to the site owner to record who deploys the infrastructure. They are not published.',
         gateSubmit: 'Request deploy',
         gateSubmitting: 'Checking…',
         emailNote: 'An email notification is sent.',
-        nameError: 'Name is required.',
+        nameError: 'Enter your name to continue.',
         gateError: 'Could not verify the request. Try again.',
         rateError: 'Too many requests. Wait a minute and try again.',
         configError: 'Deploy is not configured yet. Try again later.',
@@ -173,14 +192,22 @@ const copy =
 
     <div data-deploy-gate class="px-5 py-6 md:px-6">
       <p class="max-w-2xl text-sm leading-relaxed text-fg-soft">{copy.gateLead}</p>
+      <p class="mt-2 font-mono text-[0.625rem] uppercase tracking-[0.12em] text-muted">
+        {copy.requiredLegend}
+      </p>
 
       <form class="relative mt-6" data-deploy-form novalidate>
         <div class="grid gap-5 sm:grid-cols-2">
           <label class="block sm:col-span-2">
-            <span class="label text-muted">
-              {copy.nameLabel}
-              <span class="text-accent" aria-hidden="true">
-                *
+            <span class="flex flex-wrap items-center gap-2">
+              <span class="label text-muted">
+                {copy.nameLabel}
+                <span class="text-accent" aria-hidden="true">
+                  *
+                </span>
+              </span>
+              <span class="label border border-accent/50 px-1.5 py-0.5 text-[0.5rem] text-accent-soft">
+                {copy.required}
               </span>
             </span>
             <input
@@ -196,26 +223,54 @@ const copy =
           </label>
 
           <label class="block">
-            <span class="label text-muted">{copy.positionLabel}</span>
-            <input
-              type="text"
-              name="position"
-              maxlength="80"
-              autocomplete="organization-title"
-              class="deploy-field"
-              placeholder={copy.positionPlaceholder}
-              data-deploy-position
-            />
+            <span class="flex flex-wrap items-center gap-2">
+              <span class="label text-muted">{copy.positionLabel}</span>
+              <span class="label border border-line px-1.5 py-0.5 text-[0.5rem] text-muted">
+                {copy.optional}
+              </span>
+            </span>
+            <select name="position" class="deploy-field deploy-select" data-deploy-position>
+              <option value="">{copy.positionNone}</option>
+              <option value="recruiter">Recruiter</option>
+              <option value="developer">Developer</option>
+              <option value="qa">QA</option>
+              <option value="devops">DevOps</option>
+              <option value="sre">SRE</option>
+              <option value="product">Product Manager</option>
+              <option value="designer">Designer</option>
+              <option value="data">Data Engineer</option>
+              <option value="manager">Engineering Manager</option>
+              <option value="student">Student</option>
+              <option value="other">{copy.positionOther}</option>
+            </select>
           </label>
 
           <label class="block">
-            <span class="label text-muted">{copy.companyLabel}</span>
+            <span class="flex flex-wrap items-center gap-2">
+              <span class="label text-muted">{copy.companyLabel}</span>
+              <span class="label border border-line px-1.5 py-0.5 text-[0.5rem] text-muted">
+                {copy.optional}
+              </span>
+            </span>
             <select name="company" class="deploy-field deploy-select" data-deploy-company>
               <option value="">{copy.companyNone}</option>
               <option value="freelancer">{copy.companyFreelancer}</option>
               <option value="none">{copy.companyNoCompany}</option>
               <option value="other">{copy.companyOther}</option>
             </select>
+          </label>
+
+          <label class="block sm:col-span-2" data-deploy-position-other-wrap hidden>
+            <span class="label text-muted">{copy.positionOtherLabel}</span>
+            <input
+              type="text"
+              name="positionOther"
+              maxlength="80"
+              autocomplete="organization-title"
+              class="deploy-field"
+              placeholder={copy.positionOtherPlaceholder}
+              data-deploy-position-other
+            />
           </label>
 
           <label class="block sm:col-span-2" data-deploy-company-other-wrap hidden>
@@ -229,6 +284,27 @@ const copy =
               placeholder={copy.companyPlaceholder}
               data-deploy-company-other
             />
+          </label>
+
+          <label class="block sm:col-span-2">
+            <span class="flex flex-wrap items-center gap-2">
+              <span class="label text-muted">{copy.linkedinLabel}</span>
+              <span class="label border border-line px-1.5 py-0.5 text-[0.5rem] text-muted">
+                {copy.optional}
+              </span>
+            </span>
+            <input
+              type="text"
+              name="linkedin"
+              maxlength="200"
+              autocomplete="url"
+              class="deploy-field"
+              placeholder={copy.linkedinPlaceholder}
+              data-deploy-linkedin
+            />
+            <span class="mt-1.5 block font-mono text-[0.5625rem] uppercase tracking-[0.12em] text-muted">
+              {copy.linkedinHint}
+            </span>
           </label>
         </div>
 
@@ -554,10 +630,15 @@ const copy =
     const form = modal.querySelector<HTMLFormElement>('[data-deploy-form]');
     const formError = modal.querySelector<HTMLElement>('[data-deploy-form-error]');
     const nameInput = modal.querySelector<HTMLInputElement>('[data-deploy-name]');
-    const positionInput = modal.querySelector<HTMLInputElement>('[data-deploy-position]');
+    const positionSelect = modal.querySelector<HTMLSelectElement>('[data-deploy-position]');
+    const positionOtherWrap = modal.querySelector<HTMLElement>('[data-deploy-position-other-wrap]');
+    const positionOtherInput = modal.querySelector<HTMLInputElement>(
+      '[data-deploy-position-other]',
+    );
     const companySelect = modal.querySelector<HTMLSelectElement>('[data-deploy-company]');
     const companyOtherWrap = modal.querySelector<HTMLElement>('[data-deploy-company-other-wrap]');
     const companyOtherInput = modal.querySelector<HTMLInputElement>('[data-deploy-company-other]');
+    const linkedinInput = modal.querySelector<HTMLInputElement>('[data-deploy-linkedin]');
     const honeypot = modal.querySelector<HTMLInputElement>('[data-deploy-website]');
     const submitButton = modal.querySelector<HTMLButtonElement>('[data-deploy-submit]');
     const submitLabel = modal.querySelector<HTMLElement>('[data-deploy-submit-label]');
@@ -793,6 +874,12 @@ const copy =
       return '';
     }
 
+    function resolvePosition() {
+      const value = positionSelect?.value ?? '';
+      if (value === 'other') return (positionOtherInput?.value ?? '').trim();
+      return value;
+    }
+
     function resetGate() {
       stopTimers();
       session += 1;
@@ -803,6 +890,7 @@ const copy =
       if (progressView) progressView.hidden = true;
       clearFormError();
       setSubmitting(false);
+      if (positionOtherWrap && positionSelect?.value !== 'other') positionOtherWrap.hidden = true;
       if (companyOtherWrap && companySelect?.value !== 'other') companyOtherWrap.hidden = true;
     }
 
@@ -824,12 +912,22 @@ const copy =
       if (isOther) companyOtherInput?.focus();
     });
 
+    positionSelect?.addEventListener('change', () => {
+      const isOther = positionSelect.value === 'other';
+      if (positionOtherWrap) positionOtherWrap.hidden = !isOther;
+      if (isOther) positionOtherInput?.focus();
+    });
+
+    nameInput?.addEventListener('input', () => {
+      if (nameInput.value.trim()) clearFormError();
+    });
+
     form?.addEventListener('submit', async (event) => {
       event.preventDefault();
       if (submitting) return;
 
       clearFormError();
-      const name = (nameInput?.value ?? '').trim();
+      const name = (nameInput?.value ?? '').normalize('NFC').trim();
       if (!name) {
         showFormError(nameError);
         nameInput?.focus();
@@ -844,8 +942,9 @@ const copy =
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
             name,
-            position: (positionInput?.value ?? '').trim(),
+            position: resolvePosition(),
             company: resolveCompany(),
+            linkedin: (linkedinInput?.value ?? '').trim(),
             website: honeypot?.value ?? '',
           }),
         });
@@ -861,7 +960,8 @@ const copy =
             rate_limited: rateError,
             not_configured: configError,
           };
-          showFormError(messages[data.error ?? ''] ?? gateError);
+          const errorKey = data.error ?? '';
+          showFormError(Object.hasOwn(messages, errorKey) ? messages[errorKey] : gateError);
           return;
         }
 

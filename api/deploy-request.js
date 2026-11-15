@@ -6,6 +6,19 @@ const DEFAULT_NOTIFY_TO = 'macd.chicho@gmail.com';
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 3;
 
+const POSITION_LABELS = {
+  recruiter: 'Recruiter',
+  developer: 'Developer',
+  qa: 'QA',
+  devops: 'DevOps',
+  sre: 'SRE',
+  product: 'Product Manager',
+  designer: 'Designer',
+  data: 'Data Engineer',
+  manager: 'Engineering Manager',
+  student: 'Student',
+};
+
 const rateHits = new Map();
 
 function parseBody(body) {
@@ -18,10 +31,34 @@ function parseBody(body) {
 function clean(value, maxLength) {
   if (typeof value !== 'string') return '';
   return value
+    .normalize('NFC')
     .replace(/[\u0000-\u001f\u007f]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, maxLength);
+}
+
+function normalizeLinkedin(value) {
+  const raw = clean(value, 200);
+  if (!raw) return '';
+
+  if (/^https?:\/\//i.test(raw)) {
+    try {
+      const url = new URL(raw);
+      if (/(^|\.)linkedin\.com$/i.test(url.hostname)) return url.toString();
+    } catch {
+      return '';
+    }
+    return '';
+  }
+
+  const slug = raw.replace(/^@/, '').replace(/^in\//i, '').replace(/\/+$/, '');
+
+  if (/^[a-zA-Z0-9][a-zA-Z0-9-]{0,99}$/.test(slug)) {
+    return `https://www.linkedin.com/in/${slug}`;
+  }
+
+  return '';
 }
 
 function escapeHtml(value) {
@@ -115,7 +152,7 @@ async function triggerWake() {
   }
 }
 
-async function sendEmail({ name, position, company, state, action, ip, userAgent }) {
+async function sendEmail({ name, position, company, linkedin, state, action, ip, userAgent }) {
   const to = (process.env.DEPLOY_NOTIFY_TO || DEFAULT_NOTIFY_TO)
     .split(',')
     .map((value) => value.trim())
@@ -126,6 +163,7 @@ async function sendEmail({ name, position, company, state, action, ip, userAgent
     ['Nombre', name],
     ['Posición', position],
     ['Empresa', company],
+    ['LinkedIn', linkedin || 'No especificado'],
     ['Estado previo del stack', state],
     ['Acción', action],
     ['IP', ip],
@@ -228,6 +266,7 @@ export default async function handler(req, res) {
 
   const position = clean(body.position, 80);
   const company = clean(body.company, 120);
+  const linkedin = normalizeLinkedin(body.linkedin);
 
   if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM) {
     console.error('deploy-request: RESEND_API_KEY or RESEND_FROM is not configured');
@@ -245,6 +284,9 @@ export default async function handler(req, res) {
       : company === 'none'
         ? 'No pertenece a ninguna empresa'
         : company || 'No especificada';
+  const positionLabel = Object.hasOwn(POSITION_LABELS, position)
+    ? POSITION_LABELS[position]
+    : position || 'No especificada';
   const actionLabel = alreadyUp
     ? 'Stack ya despierto · sin workflow'
     : alreadyWaking
@@ -254,8 +296,9 @@ export default async function handler(req, res) {
   try {
     await sendEmail({
       name,
-      position: position || 'No especificada',
+      position: positionLabel,
       company: companyLabel,
+      linkedin,
       state,
       action: actionLabel,
       ip,

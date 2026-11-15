@@ -155,7 +155,7 @@ No hace falta todavía. Con 3+ proyectos que compartan componentes o tokens, con
 
 ## Deploy gate (Vercel Functions + Resend)
 
-El botón de deploy del caso de estudio no dispara el workflow directamente. Primero abre un formulario con nombre (obligatorio), posición y empresa (opcionales), y lo envía a `api/deploy-request.js`.
+El botón de deploy del caso de estudio no dispara el workflow directamente. Primero abre un formulario con nombre (obligatorio), posición, empresa y LinkedIn (opcionales), y lo envía a `api/deploy-request.js`.
 
 El endpoint, en orden:
 
