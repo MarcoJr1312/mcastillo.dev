@@ -4,34 +4,54 @@ import type { Lang } from '../../i18n/content';
 interface Props {
   lang: Lang;
   appUrl?: string;
-  healthUrl?: string;
-  wakeUrl?: string;
   timeoutSeconds?: number;
 }
 
-const {
-  lang,
-  appUrl = 'https://triplanner.mcastillo.dev',
-  healthUrl = appUrl,
-  wakeUrl = '',
-  timeoutSeconds = 900,
-} = Astro.props;
+const { lang, appUrl = 'https://triplanner.mcastillo.dev', timeoutSeconds = 900 } = Astro.props;
 
 const copy =
   lang === 'es'
     ? {
         eyebrow: 'Deploy · stack efímero',
-        title: 'Despertando Triplanner',
+        title: 'Despertar Triplanner',
         intro:
-          'AWS está construyendo el stack desde cero. Suele tardar entre 8 y 12 minutos; esta ventana se actualiza sola cuando el health check responde. Puedes cerrarla: el despliegue sigue en segundo plano.',
+          'El stack AWS se despierta bajo demanda. Antes de ejecutar el workflow, comprobamos si ya está en línea.',
+        gateLead:
+          'Deja tus datos para que el deploy quede registrado. Solo el nombre es obligatorio.',
+        nameLabel: 'Nombre',
+        namePlaceholder: 'Tu nombre',
+        positionLabel: 'Posición',
+        positionPlaceholder: 'No especificar',
+        companyLabel: 'Empresa',
+        companyNone: 'No especificar',
+        companyFreelancer: 'Freelancer',
+        companyNoCompany: 'No pertenezco a ninguna empresa',
+        companyOther: 'Otra empresa',
+        companyNameLabel: 'Nombre de la empresa',
+        companyPlaceholder: 'Empresa',
+        privacyNote:
+          'Estos datos y la IP de la solicitud se envían por email al dueño del sitio para registrar quién despliega la infraestructura. No se publican.',
+        gateSubmit: 'Solicitar deploy',
+        gateSubmitting: 'Verificando…',
+        emailNote: 'Se envía una notificación por email.',
+        nameError: 'El nombre es obligatorio.',
+        gateError: 'No se pudo verificar la solicitud. Intenta de nuevo.',
+        rateError: 'Demasiadas solicitudes. Espera un minuto e intenta de nuevo.',
+        configError: 'El deploy no está configurado todavía. Intenta más tarde.',
+        progressLead:
+          'El stack está arrancando. Suele tardar entre 8 y 12 minutos; esta ventana se actualiza cuando el estado pasa a awake.',
+        alreadyLead: 'El stack ya estaba en línea. No se ejecutó ningún workflow.',
         close: 'Cerrar',
         progress: 'Progreso del despliegue',
         elapsed: 'Tiempo',
-        checking: 'Verificando cada 5 s',
+        checking: 'Estado cada 5 s',
         readyStatus: 'Triplanner está listo.',
         readyNote: 'Stack en línea',
-        errorStatus: 'El stack no respondió en 15 minutos.',
-        errorNote: 'Polling detenido',
+        alreadyStatus: 'Triplanner ya estaba despierto.',
+        alreadyNote: 'Sin workflow · stack existente',
+        errorStatus: 'No se pudo despertar el stack.',
+        errorNote: 'Workflow detenido',
+        timeoutStatus: 'El stack no respondió en 15 minutos.',
         open: 'Abrir Triplanner',
         retry: 'Reintentar',
         localLead: '¿No quieres esperar?',
@@ -46,17 +66,44 @@ const copy =
       }
     : {
         eyebrow: 'Deploy · ephemeral stack',
-        title: 'Waking Triplanner',
+        title: 'Wake Triplanner',
         intro:
-          'AWS is building the stack from scratch. It usually takes 8–12 minutes; this window updates itself when the health check responds. You can close it: the deployment keeps running in the background.',
+          'The AWS stack wakes on demand. Before running the workflow, we check whether it is already online.',
+        gateLead: 'Leave your details so the deploy is on record. Only the name is required.',
+        nameLabel: 'Name',
+        namePlaceholder: 'Your name',
+        positionLabel: 'Position',
+        positionPlaceholder: 'Not specified',
+        companyLabel: 'Company',
+        companyNone: 'Not specified',
+        companyFreelancer: 'Freelancer',
+        companyNoCompany: 'Not affiliated with any company',
+        companyOther: 'Other company',
+        companyNameLabel: 'Company name',
+        companyPlaceholder: 'Company',
+        privacyNote:
+          'These details and the request IP are emailed to the site owner to record who deploys the infrastructure. They are not published.',
+        gateSubmit: 'Request deploy',
+        gateSubmitting: 'Checking…',
+        emailNote: 'An email notification is sent.',
+        nameError: 'Name is required.',
+        gateError: 'Could not verify the request. Try again.',
+        rateError: 'Too many requests. Wait a minute and try again.',
+        configError: 'Deploy is not configured yet. Try again later.',
+        progressLead:
+          'The stack is starting. It usually takes 8–12 minutes; this window updates when the state becomes awake.',
+        alreadyLead: 'The stack was already online. No workflow was run.',
         close: 'Close',
         progress: 'Deployment progress',
         elapsed: 'Elapsed',
-        checking: 'Checking every 5 s',
+        checking: 'Status every 5 s',
         readyStatus: 'Triplanner is ready.',
         readyNote: 'Stack online',
-        errorStatus: 'The stack did not respond within 15 minutes.',
-        errorNote: 'Polling stopped',
+        alreadyStatus: 'Triplanner was already awake.',
+        alreadyNote: 'No workflow · existing stack',
+        errorStatus: 'Could not wake the stack.',
+        errorNote: 'Workflow stopped',
+        timeoutStatus: 'The stack did not respond within 15 minutes.',
         open: 'Open Triplanner',
         retry: 'Retry',
         localLead: "Don't want to wait?",
@@ -75,15 +122,23 @@ const copy =
   id="triplanner-deploy"
   class="fixed inset-0 m-auto max-h-[calc(100dvh-2rem)] w-[min(44rem,calc(100vw-2rem))] max-w-none overflow-y-auto overscroll-contain border-0 bg-transparent p-0 text-fg backdrop:bg-canvas/85"
   data-app-url={appUrl}
-  data-health-url={healthUrl}
-  data-wake-url={wakeUrl}
   data-timeout-seconds={timeoutSeconds}
   data-ready-status={copy.readyStatus}
+  data-already-status={copy.alreadyStatus}
   data-error-status={copy.errorStatus}
+  data-timeout-status={copy.timeoutStatus}
   data-elapsed-label={copy.elapsed}
   data-checking-label={copy.checking}
   data-ready-note={copy.readyNote}
+  data-already-note={copy.alreadyNote}
   data-error-note={copy.errorNote}
+  data-name-error={copy.nameError}
+  data-gate-error={copy.gateError}
+  data-rate-error={copy.rateError}
+  data-config-error={copy.configError}
+  data-gate-submit={copy.gateSubmit}
+  data-gate-submitting={copy.gateSubmitting}
+  data-already-lead={copy.alreadyLead}
   aria-labelledby="triplanner-deploy-title"
   aria-describedby="triplanner-deploy-desc"
 >
@@ -116,99 +171,208 @@ const copy =
       {copy.intro}
     </p>
 
-    <div class="px-5 py-6 md:px-6">
-      <div class="relative">
-        <div class="absolute left-[1.125rem] right-[1.125rem] top-[1.125rem] h-px bg-line"></div>
-        <div
-          class="absolute left-[1.125rem] right-[1.125rem] top-[1.125rem] h-px origin-left scale-x-0 bg-accent transition-transform duration-700 ease-out"
-          data-deploy-track
-        ></div>
+    <div data-deploy-gate class="px-5 py-6 md:px-6">
+      <p class="max-w-2xl text-sm leading-relaxed text-fg-soft">{copy.gateLead}</p>
 
-        <ol class="relative grid grid-cols-5 gap-1">
-          {copy.steps.map((step, index) => (
-            <li
-              class="deploy-step flex flex-col items-center text-center"
-              data-deploy-step
-              data-state="pending"
-              data-detail={step.detail}
-            >
-              <span class="deploy-node" aria-hidden="true">
-                <span class="deploy-index">{String(index + 1).padStart(2, '0')}</span>
-                <span class="deploy-check">✓</span>
-                <span class="deploy-error">!</span>
+      <form class="relative mt-6" data-deploy-form novalidate>
+        <div class="grid gap-5 sm:grid-cols-2">
+          <label class="block sm:col-span-2">
+            <span class="label text-muted">
+              {copy.nameLabel}
+              <span class="text-accent" aria-hidden="true">
+                *
               </span>
-              <span class="mt-2 font-mono text-[0.5625rem] uppercase tracking-[0.12em] text-muted">
-                {step.label}
-              </span>
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      <div class="mt-7">
-        <div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
-          <p class="font-mono text-xs leading-relaxed text-fg-soft" aria-live="polite">
-            <span data-deploy-status-text>{copy.steps[0].detail}</span>
-            <span class="deploy-cursor" aria-hidden="true">
-              _
             </span>
-          </p>
-          <span class="label text-accent" data-deploy-percent>
-            0%
-          </span>
+            <input
+              type="text"
+              name="name"
+              maxlength="80"
+              required
+              autocomplete="name"
+              class="deploy-field"
+              placeholder={copy.namePlaceholder}
+              data-deploy-name
+            />
+          </label>
+
+          <label class="block">
+            <span class="label text-muted">{copy.positionLabel}</span>
+            <input
+              type="text"
+              name="position"
+              maxlength="80"
+              autocomplete="organization-title"
+              class="deploy-field"
+              placeholder={copy.positionPlaceholder}
+              data-deploy-position
+            />
+          </label>
+
+          <label class="block">
+            <span class="label text-muted">{copy.companyLabel}</span>
+            <select name="company" class="deploy-field deploy-select" data-deploy-company>
+              <option value="">{copy.companyNone}</option>
+              <option value="freelancer">{copy.companyFreelancer}</option>
+              <option value="none">{copy.companyNoCompany}</option>
+              <option value="other">{copy.companyOther}</option>
+            </select>
+          </label>
+
+          <label class="block sm:col-span-2" data-deploy-company-other-wrap hidden>
+            <span class="label text-muted">{copy.companyNameLabel}</span>
+            <input
+              type="text"
+              name="companyName"
+              maxlength="120"
+              autocomplete="organization"
+              class="deploy-field"
+              placeholder={copy.companyPlaceholder}
+              data-deploy-company-other
+            />
+          </label>
         </div>
 
         <div
-          class="mt-3 h-1 w-full bg-line"
-          role="progressbar"
-          aria-label={copy.progress}
-          aria-valuemin="0"
-          aria-valuemax="100"
-          aria-valuenow="0"
-          data-deploy-progress
+          class="pointer-events-none absolute -left-[9999px] top-auto h-px w-px overflow-hidden"
+          aria-hidden="true"
         >
+          <label>
+            Website
+            <input
+              type="text"
+              name="website"
+              tabindex="-1"
+              autocomplete="off"
+              data-deploy-website
+            />
+          </label>
+        </div>
+
+        <div class="mt-5 flex items-start gap-2 border border-line bg-surface px-3 py-2.5 text-xs leading-relaxed text-muted">
+          <span aria-hidden="true" class="mt-0.5 text-accent">
+            ◇
+          </span>
+          <p>{copy.privacyNote}</p>
+        </div>
+
+        <p
+          class="mt-4 hidden border border-accent/40 bg-accent/10 px-3 py-2.5 text-xs leading-relaxed text-accent-soft"
+          role="alert"
+          data-deploy-form-error
+        ></p>
+
+        <div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-3">
+          <button type="submit" class="btn btn-primary" data-deploy-submit>
+            <span data-deploy-submit-label>{copy.gateSubmit}</span>
+            <span aria-hidden="true">→</span>
+          </button>
+          <span class="font-mono text-[0.625rem] leading-relaxed text-muted">{copy.emailNote}</span>
+        </div>
+      </form>
+    </div>
+
+    <div data-deploy-progress-view hidden>
+      <p
+        class="border-b border-line px-5 py-4 text-sm leading-relaxed text-muted md:px-6"
+        data-deploy-progress-lead
+      >
+        {copy.progressLead}
+      </p>
+
+      <div class="px-5 py-6 md:px-6">
+        <div class="relative">
+          <div class="absolute left-[1.125rem] right-[1.125rem] top-[1.125rem] h-px bg-line"></div>
           <div
-            class="h-full w-0 bg-accent transition-[width] duration-700 ease-out"
-            data-deploy-bar
+            class="absolute left-[1.125rem] right-[1.125rem] top-[1.125rem] h-px origin-left scale-x-0 bg-accent transition-transform duration-700 ease-out"
+            data-deploy-track
           ></div>
+
+          <ol class="relative grid grid-cols-5 gap-1">
+            {copy.steps.map((step, index) => (
+              <li
+                class="deploy-step flex flex-col items-center text-center"
+                data-deploy-step
+                data-state="pending"
+                data-detail={step.detail}
+              >
+                <span class="deploy-node" aria-hidden="true">
+                  <span class="deploy-index">{String(index + 1).padStart(2, '0')}</span>
+                  <span class="deploy-check">✓</span>
+                  <span class="deploy-error">!</span>
+                </span>
+                <span class="mt-2 font-mono text-[0.5625rem] uppercase tracking-[0.12em] text-muted">
+                  {step.label}
+                </span>
+              </li>
+            ))}
+          </ol>
         </div>
 
-        <div class="mt-3 flex flex-wrap items-center justify-between gap-2 font-mono text-[0.625rem] uppercase tracking-[0.12em] text-muted">
-          <span data-deploy-elapsed>{copy.elapsed} 00:00</span>
-          <span data-deploy-checking>{copy.checking}</span>
+        <div class="mt-7">
+          <div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
+            <p class="font-mono text-xs leading-relaxed text-fg-soft" aria-live="polite">
+              <span data-deploy-status-text>{copy.steps[0].detail}</span>
+              <span class="deploy-cursor" aria-hidden="true">
+                _
+              </span>
+            </p>
+            <span class="label text-accent" data-deploy-percent>
+              0%
+            </span>
+          </div>
+
+          <div
+            class="mt-3 h-1 w-full bg-line"
+            role="progressbar"
+            aria-label={copy.progress}
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            data-deploy-progress
+          >
+            <div
+              class="h-full w-0 bg-accent transition-[width] duration-700 ease-out"
+              data-deploy-bar
+            ></div>
+          </div>
+
+          <div class="mt-3 flex flex-wrap items-center justify-between gap-2 font-mono text-[0.625rem] uppercase tracking-[0.12em] text-muted">
+            <span data-deploy-elapsed>{copy.elapsed} 00:00</span>
+            <span data-deploy-checking>{copy.checking}</span>
+          </div>
         </div>
-      </div>
 
-      <div class="mt-6 flex flex-wrap gap-3" data-deploy-actions hidden>
-        <a
-          href={appUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn btn-primary"
-          data-deploy-open
-          hidden
-        >
-          {copy.open}
-          <span aria-hidden="true">↗</span>
-        </a>
-        <button type="button" class="btn" data-deploy-retry hidden>
-          {copy.retry}
-        </button>
-      </div>
-
-      <div class="mt-6 border-t border-line pt-4">
-        <p class="text-xs leading-relaxed text-muted">
-          {copy.localLead}{' '}
+        <div class="mt-6 flex flex-wrap gap-3" data-deploy-actions hidden>
           <a
-            href="https://github.com/MarcoJr1312/local_triplanner"
+            href={appUrl}
             target="_blank"
             rel="noopener noreferrer"
-            class="link-underline text-fg-soft transition-colors hover:text-accent"
+            class="btn btn-primary"
+            data-deploy-open
+            hidden
           >
-            {copy.localLink}
+            {copy.open}
+            <span aria-hidden="true">↗</span>
           </a>
-        </p>
+          <button type="button" class="btn" data-deploy-retry hidden>
+            {copy.retry}
+          </button>
+        </div>
       </div>
+    </div>
+
+    <div class="border-t border-line px-5 py-4 md:px-6">
+      <p class="text-xs leading-relaxed text-muted">
+        {copy.localLead}{' '}
+        <a
+          href="https://github.com/MarcoJr1312/local_triplanner"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="link-underline text-fg-soft transition-colors hover:text-accent"
+        >
+          {copy.localLink}
+        </a>
+      </p>
     </div>
   </div>
 </dialog>
@@ -224,6 +388,39 @@ const copy =
 
   :global(html.deploy-open) {
     overflow: hidden;
+  }
+
+  .deploy-field {
+    margin-top: 0.5rem;
+    width: 100%;
+    border: 1px solid var(--color-line);
+    background-color: var(--color-surface);
+    padding: 0.625rem 0.75rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--color-fg);
+    transition:
+      border-color 200ms ease,
+      background-color 200ms ease;
+  }
+
+  .deploy-field::placeholder {
+    color: var(--color-muted);
+    opacity: 0.65;
+  }
+
+  .deploy-field:focus {
+    border-color: var(--color-accent);
+    outline: none;
+  }
+
+  .deploy-field[aria-invalid='true'] {
+    border-color: var(--color-accent);
+  }
+
+  .deploy-select {
+    cursor: pointer;
   }
 
   .deploy-node {
@@ -333,14 +530,37 @@ const copy =
   if (dialog) {
     const modal = dialog;
     const appUrl = (modal.dataset.appUrl ?? '').replace(/\/+$/, '');
-    const healthUrl = (modal.dataset.healthUrl ?? '').replace(/\/+$/, '');
-    const defaultWakeUrl = modal.dataset.wakeUrl ?? '';
     const readyStatus = modal.dataset.readyStatus ?? 'Ready';
-    const errorStatus = modal.dataset.errorStatus ?? 'Timed out';
+    const alreadyStatus = modal.dataset.alreadyStatus ?? 'Already online';
+    const errorStatus = modal.dataset.errorStatus ?? 'Could not wake the stack';
+    const timeoutStatus = modal.dataset.timeoutStatus ?? 'Timed out';
     const elapsedLabel = modal.dataset.elapsedLabel ?? 'Elapsed';
     const checkingLabel = modal.dataset.checkingLabel ?? 'Checking';
     const readyNote = modal.dataset.readyNote ?? 'Online';
+    const alreadyNote = modal.dataset.alreadyNote ?? 'No workflow';
     const errorNote = modal.dataset.errorNote ?? 'Stopped';
+    const nameError = modal.dataset.nameError ?? 'Name is required.';
+    const gateError = modal.dataset.gateError ?? 'Could not verify the request. Try again.';
+    const rateError = modal.dataset.rateError ?? 'Too many requests. Try again later.';
+    const configError = modal.dataset.configError ?? 'Deploy is not configured yet.';
+    const gateSubmitLabel = modal.dataset.gateSubmit ?? 'Request deploy';
+    const gateSubmittingLabel = modal.dataset.gateSubmitting ?? 'Checking…';
+
+    const gate = modal.querySelector<HTMLElement>('[data-deploy-gate]');
+    const progressView = modal.querySelector<HTMLElement>('[data-deploy-progress-view]');
+    const progressLeadEl = modal.querySelector<HTMLElement>('[data-deploy-progress-lead]');
+    const initialProgressLead = progressLeadEl?.textContent ?? '';
+    const alreadyLead = modal.dataset.alreadyLead ?? 'The stack was already online.';
+    const form = modal.querySelector<HTMLFormElement>('[data-deploy-form]');
+    const formError = modal.querySelector<HTMLElement>('[data-deploy-form-error]');
+    const nameInput = modal.querySelector<HTMLInputElement>('[data-deploy-name]');
+    const positionInput = modal.querySelector<HTMLInputElement>('[data-deploy-position]');
+    const companySelect = modal.querySelector<HTMLSelectElement>('[data-deploy-company]');
+    const companyOtherWrap = modal.querySelector<HTMLElement>('[data-deploy-company-other-wrap]');
+    const companyOtherInput = modal.querySelector<HTMLInputElement>('[data-deploy-company-other]');
+    const honeypot = modal.querySelector<HTMLInputElement>('[data-deploy-website]');
+    const submitButton = modal.querySelector<HTMLButtonElement>('[data-deploy-submit]');
+    const submitLabel = modal.querySelector<HTMLElement>('[data-deploy-submit-label]');
 
     const steps = Array.from(modal.querySelectorAll<HTMLElement>('[data-deploy-step]'));
     const stageDetails = steps.map((step) => step.dataset.detail ?? '');
@@ -359,7 +579,7 @@ const copy =
 
     const expectedSeconds = 600;
     const pollMs = 5000;
-    const probeTimeoutMs = 8000;
+    const statusTimeoutMs = 6000;
     const minReadySeconds = 3;
     const stageThresholds = [0, 12, 60, 180, 360];
 
@@ -367,12 +587,13 @@ const copy =
     let currentStage = 0;
     let readyDetected = false;
     let started = false;
-    let probing = false;
+    let submitting = false;
+    let polling = false;
     let session = 0;
     let timeoutSeconds = Number(modal.dataset.timeoutSeconds ?? 900);
     let tickId: number | undefined;
     let pollId: number | undefined;
-    let probeController: AbortController | undefined;
+    let statusController: AbortController | undefined;
 
     function setStepState(index: number, state: 'pending' | 'active' | 'done' | 'error') {
       const step = steps[index];
@@ -405,9 +626,9 @@ const copy =
       elapsedEl.textContent = `${elapsedLabel} ${minutes}:${rest}`;
     }
 
-    function setPhase(phase: 'loading' | 'ready' | 'error') {
+    function setPhase(phase: 'gate' | 'loading' | 'ready' | 'error') {
       modal.dataset.phase = phase;
-      if (actions) actions.hidden = phase === 'loading';
+      if (actions) actions.hidden = phase === 'gate' || phase === 'loading';
       if (openLink) openLink.hidden = phase !== 'ready';
       if (retryButton) retryButton.hidden = phase !== 'error';
       if (checkingEl) {
@@ -419,11 +640,11 @@ const copy =
     function stopTimers() {
       if (tickId !== undefined) window.clearInterval(tickId);
       if (pollId !== undefined) window.clearInterval(pollId);
-      probeController?.abort();
+      statusController?.abort();
       tickId = undefined;
       pollId = undefined;
-      probeController = undefined;
-      probing = false;
+      statusController = undefined;
+      polling = false;
     }
 
     function finishReady() {
@@ -437,13 +658,28 @@ const copy =
       openLink?.focus();
     }
 
-    function finishError() {
+    function showAlreadyReady() {
+      stopTimers();
+      session += 1;
+      started = false;
+      readyDetected = true;
+      setPhase('ready');
+      steps.forEach((_, index) => setStepState(index, 'done'));
+      setProgress(100);
+      setElapsed(0);
+      if (progressLeadEl) progressLeadEl.textContent = alreadyLead;
+      if (statusText) statusText.textContent = alreadyStatus;
+      if (checkingEl) checkingEl.textContent = alreadyNote;
+      openLink?.focus();
+    }
+
+    function finishError(message = errorStatus) {
       if (!started) return;
       stopTimers();
       started = false;
       setPhase('error');
       setStepState(currentStage, 'error');
-      if (statusText) statusText.textContent = errorStatus;
+      if (statusText) statusText.textContent = message;
     }
 
     function tick(activeSession: number) {
@@ -468,66 +704,46 @@ const copy =
       }
 
       if (elapsed >= timeoutSeconds) {
-        finishError();
-      }
-    }
-
-    async function probe(): Promise<boolean> {
-      if (!healthUrl) return false;
-
-      const controller = new AbortController();
-      probeController = controller;
-      const timeoutId = window.setTimeout(() => controller.abort(), probeTimeoutMs);
-
-      try {
-        const probeUrl = new URL(healthUrl, window.location.href);
-        probeUrl.searchParams.set('deploy_probe', String(Date.now()));
-
-        await fetch(probeUrl.toString(), {
-          method: 'GET',
-          mode: 'no-cors',
-          cache: 'no-store',
-          redirect: 'follow',
-          signal: controller.signal,
-        });
-        return true;
-      } catch {
-        return false;
-      } finally {
-        window.clearTimeout(timeoutId);
-        if (probeController === controller) probeController = undefined;
+        finishError(timeoutStatus);
       }
     }
 
     async function check(activeSession: number) {
-      if (activeSession !== session || !started || readyDetected || probing) return;
+      if (activeSession !== session || !started || readyDetected || polling) return;
 
-      probing = true;
+      const controller = new AbortController();
+      statusController = controller;
+      const timeoutId = window.setTimeout(() => controller.abort(), statusTimeoutMs);
+      polling = true;
+
       try {
-        const isUp = await probe();
-        if (isUp && started && activeSession === session) {
+        const response = await fetch(`/api/deploy-status?ts=${Date.now()}`, {
+          method: 'GET',
+          cache: 'no-store',
+          headers: { accept: 'application/json' },
+          signal: controller.signal,
+        });
+        if (!response.ok) return;
+
+        const data = (await response.json()) as { state?: string };
+        if (activeSession !== session || !started) return;
+
+        if (data.state === 'awake') {
           readyDetected = true;
           if (elapsed >= minReadySeconds) finishReady();
+        } else if (data.state === 'error') {
+          finishError(errorStatus);
         }
+      } catch {
+        // Keep polling on transient network errors.
       } finally {
-        probing = false;
+        window.clearTimeout(timeoutId);
+        if (statusController === controller) statusController = undefined;
+        polling = false;
       }
     }
 
-    function sendWake(url: string) {
-      if (!url) return;
-
-      void fetch(url, {
-        method: 'POST',
-        mode: 'no-cors',
-        cache: 'no-store',
-        keepalive: true,
-      }).catch(() => {
-        // The control plane may still be warming up; keep polling the app URL.
-      });
-    }
-
-    function reset() {
+    function startProgress() {
       stopTimers();
       session += 1;
       const activeSession = session;
@@ -541,6 +757,7 @@ const copy =
       setElapsed(0);
       setProgress(0);
       updateStages(0);
+      if (progressLeadEl) progressLeadEl.textContent = initialProgressLead;
       if (statusText) statusText.textContent = stageDetails[0] ?? '';
 
       tickId = window.setInterval(() => tick(activeSession), 1000);
@@ -548,28 +765,134 @@ const copy =
       void check(activeSession);
     }
 
-    function openModal(button?: HTMLButtonElement) {
+    function showFormError(message: string) {
+      if (!formError) return;
+      formError.textContent = message;
+      formError.hidden = false;
+      nameInput?.setAttribute('aria-invalid', message ? 'true' : 'false');
+    }
+
+    function clearFormError() {
+      if (formError) {
+        formError.textContent = '';
+        formError.hidden = true;
+      }
+      nameInput?.removeAttribute('aria-invalid');
+    }
+
+    function setSubmitting(value: boolean) {
+      submitting = value;
+      if (submitButton) submitButton.disabled = value;
+      if (submitLabel) submitLabel.textContent = value ? gateSubmittingLabel : gateSubmitLabel;
+    }
+
+    function resolveCompany() {
+      const value = companySelect?.value ?? '';
+      if (value === 'other') return (companyOtherInput?.value ?? '').trim();
+      if (value === 'freelancer' || value === 'none') return value;
+      return '';
+    }
+
+    function resetGate() {
+      stopTimers();
+      session += 1;
+      started = false;
+      readyDetected = false;
+      setPhase('gate');
+      if (gate) gate.hidden = false;
+      if (progressView) progressView.hidden = true;
+      clearFormError();
+      setSubmitting(false);
+      if (companyOtherWrap && companySelect?.value !== 'other') companyOtherWrap.hidden = true;
+    }
+
+    function openModal() {
       if (typeof modal.showModal !== 'function') {
         if (appUrl) window.open(appUrl, '_blank', 'noopener');
         return;
       }
 
-      reset();
+      resetGate();
       if (!modal.open) modal.showModal();
       document.documentElement.classList.add('deploy-open');
-      sendWake(button?.dataset.wakeUrl || defaultWakeUrl);
+      window.setTimeout(() => nameInput?.focus(), 80);
     }
+
+    companySelect?.addEventListener('change', () => {
+      const isOther = companySelect.value === 'other';
+      if (companyOtherWrap) companyOtherWrap.hidden = !isOther;
+      if (isOther) companyOtherInput?.focus();
+    });
+
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (submitting) return;
+
+      clearFormError();
+      const name = (nameInput?.value ?? '').trim();
+      if (!name) {
+        showFormError(nameError);
+        nameInput?.focus();
+        return;
+      }
+
+      setSubmitting(true);
+
+      try {
+        const response = await fetch('/api/deploy-request', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            position: (positionInput?.value ?? '').trim(),
+            company: resolveCompany(),
+            website: honeypot?.value ?? '',
+          }),
+        });
+
+        const data = (await response.json().catch(() => ({}))) as {
+          stack?: 'online' | 'waking';
+          error?: string;
+        };
+
+        if (!response.ok) {
+          const messages: Record<string, string> = {
+            invalid_name: nameError,
+            rate_limited: rateError,
+            not_configured: configError,
+          };
+          showFormError(messages[data.error ?? ''] ?? gateError);
+          return;
+        }
+
+        if (gate) gate.hidden = true;
+        if (progressView) progressView.hidden = false;
+
+        if (data.stack === 'online') {
+          showAlreadyReady();
+        } else {
+          startProgress();
+        }
+      } catch {
+        showFormError(gateError);
+      } finally {
+        setSubmitting(false);
+      }
+    });
 
     deployButtons.forEach((button) => {
       button.addEventListener('click', (event) => {
         event.preventDefault();
         event.stopPropagation();
-        openModal(button);
+        openModal();
       });
     });
 
     closeButton?.addEventListener('click', () => modal.close());
-    retryButton?.addEventListener('click', () => openModal());
+    retryButton?.addEventListener('click', () => {
+      resetGate();
+      nameInput?.focus();
+    });
 
     modal.addEventListener('click', (event) => {
       if (event.target === dialog) modal.close();
@@ -579,7 +902,6 @@ const copy =
       started = false;
       stopTimers();
       document.documentElement.classList.remove('deploy-open');
-      setPhase('loading');
     });
   }
 </script>

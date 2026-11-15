@@ -96,9 +96,6 @@ export interface ProjectCaseStudy {
   learnings: CaseStudySection & {
     items: { title: string; body: string }[];
   };
-  next: CaseStudySection & {
-    items: string[];
-  };
   labels: {
     backToWork: string;
     toc: string;
@@ -135,7 +132,6 @@ const triplannerEs: ProjectCaseStudy = {
     { label: 'Decisiones', href: '#decisiones' },
     { label: 'Infraestructura', href: '#infraestructura' },
     { label: 'Aprendizajes', href: '#aprendizajes' },
-    { label: 'Qué sigue', href: '#siguientes' },
   ],
   problem: {
     id: 'problema',
@@ -492,18 +488,6 @@ const triplannerEs: ProjectCaseStudy = {
       },
     ],
   },
-  next: {
-    id: 'siguientes',
-    index: '07',
-    label: 'Qué sigue',
-    title: 'La siguiente versión.',
-    items: [
-      'Terminar el stack AWS efímero y volver a conectar el botón de deploy cuando el flujo de wake sea estable.',
-      'Reducir el rol OIDC de AdministratorAccess a los servicios exactos que toca cada workflow.',
-      'Añadir un arnés de evaluación para el agente: comparar sugerencias contra un conjunto de viajes reales.',
-      'Medir y optimizar el tiempo de despertar antes de abrirlo al público.',
-    ],
-  },
   labels: {
     backToWork: 'Volver a proyectos',
     toc: 'En esta página',
@@ -540,7 +524,6 @@ const triplannerEn: ProjectCaseStudy = {
     { label: 'Decisions', href: '#decisiones' },
     { label: 'Infrastructure', href: '#infraestructura' },
     { label: 'Learnings', href: '#aprendizajes' },
-    { label: 'What is next', href: '#siguientes' },
   ],
   problem: {
     id: 'problema',
@@ -896,18 +879,6 @@ const triplannerEn: ProjectCaseStudy = {
         title: 'Permissions are designed into the data',
         body: 'When file visibility is a column instead of a layer, it is much harder to forget in a new query.',
       },
-    ],
-  },
-  next: {
-    id: 'siguientes',
-    index: '07',
-    label: 'What is next',
-    title: 'The next version.',
-    items: [
-      'Finish the ephemeral AWS stack and reconnect the deploy button once the wake flow is stable.',
-      'Reduce the OIDC role from AdministratorAccess to the exact services each workflow touches.',
-      'Add an evaluation harness for the agent: compare suggestions against a set of real trips.',
-      'Measure and optimize wake time before opening it to the public.',
     ],
   },
   labels: {

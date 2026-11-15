@@ -153,6 +153,20 @@ Si más adelante quieres un solo servidor, un reverse proxy (Caddy/Traefik) pued
 
 No hace falta todavía. Con 3+ proyectos que compartan componentes o tokens, considera `pnpm workspaces` + Turborepo y extrae un paquete de diseño. Hasta entonces, duplicar tokens es más barato que acoplar deploys.
 
+## Deploy gate (Vercel Functions + Resend)
+
+El botón de deploy del caso de estudio no dispara el workflow directamente. Primero abre un formulario con nombre (obligatorio), posición y empresa (opcionales), y lo envía a `api/deploy-request.js`.
+
+El endpoint, en orden:
+
+1. Valida origen, campos, honeypot y rate limit básico por IP.
+2. Consulta el estado real del control plane (`/status`).
+3. Envía un email con Resend al dueño del sitio con los datos de quien solicita el deploy.
+4. Solo si el estado no es `awake` ni `waking`, dispara `POST /wake`.
+5. Responde `online` o `waking`; el modal hace polling a `api/deploy-status.js` hasta que el stack responde o falla.
+
+Configura las variables de `.env.example` en **Vercel → Project → Settings → Environment Variables**. `RESEND_FROM` debe usar un dominio verificado en Resend. Sin `RESEND_API_KEY` el endpoint falla cerrado: no envía email y no despierta el stack.
+
 ## QA antes de publicar
 
 - [ ] `npm run check` y `npm run build` sin errores.
