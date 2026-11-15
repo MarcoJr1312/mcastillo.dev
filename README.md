@@ -159,11 +159,14 @@ El botón de deploy del caso de estudio no dispara el workflow directamente. Pri
 
 El endpoint, en orden:
 
-1. Valida origen, campos, honeypot y rate limit básico por IP.
+1. Valida origen, campos, honeypot y rate limit básico por IP. La IP solo se usa en memoria para limitar abuso; no se guarda ni se envía por email.
 2. Consulta el estado real del control plane (`/status`).
 3. Envía un email con Resend al dueño del sitio con los datos de quien solicita el deploy.
-4. Solo si el estado no es `awake` ni `waking`, dispara `POST /wake`.
-5. Responde `online` o `waking`; el modal hace polling a `api/deploy-status.js` hasta que el stack responde o falla.
+4. Si el stack está `asleep` o `error`, el email incluye botones para **aprobar o rechazar**. El wake **no se ejecuta** hasta que el dueño confirme en `api/deploy-approval.js`; el enlace de email solo abre una página de confirmación y no dispara nada por sí solo.
+5. Si el stack ya está `awake` o `waking`, no se pide aprobación ni se ejecuta otro workflow.
+6. El modal muestra el estado `pending` y permite comprobar si ya fue aprobado; el progreso solo aparece cuando el stack empieza a despertar.
+
+El token de aprobación se firma con HMAC y expira en 48 horas por defecto. `DEPLOY_APPROVAL_SECRET` es opcional: si no existe, se usa `RESEND_API_KEY` como fallback.
 
 Configura las variables de `.env.example` en **Vercel → Project → Settings → Environment Variables**. `RESEND_FROM` debe usar un dominio verificado en Resend. Sin `RESEND_API_KEY` el endpoint falla cerrado: no envía email y no despierta el stack.
 

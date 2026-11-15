@@ -17,7 +17,7 @@ const copy =
         intro:
           'El stack AWS se despierta bajo demanda. Antes de ejecutar el workflow, comprobamos si ya está en línea.',
         gateLead:
-          'Deja tus datos para que el deploy quede registrado. El nombre es obligatorio; el resto es opcional.',
+          'Deja tus datos para que el dueño del sitio revise la solicitud. El deploy no se ejecutará hasta que lo apruebe. Solo el nombre es obligatorio.',
         requiredLegend: 'Los campos con * son obligatorios.',
         required: 'Obligatorio',
         optional: 'Opcional',
@@ -39,10 +39,10 @@ const copy =
         linkedinPlaceholder: 'usuario o URL de LinkedIn',
         linkedinHint: 'Opcional · para conectar contigo',
         privacyNote:
-          'Estos datos y la IP de la solicitud se envían por email al dueño del sitio para registrar quién despliega la infraestructura. No se publican.',
+          'Estos datos se envían por email al dueño del sitio para registrar quién despliega la infraestructura. No se publican.',
         gateSubmit: 'Solicitar deploy',
         gateSubmitting: 'Verificando…',
-        emailNote: 'Se envía una notificación por email.',
+        emailNote: 'Se envía una solicitud de aprobación por email.',
         nameError: 'Escribe tu nombre para continuar.',
         gateError: 'No se pudo verificar la solicitud. Intenta de nuevo.',
         rateError: 'Demasiadas solicitudes. Espera un minuto e intenta de nuevo.',
@@ -53,6 +53,14 @@ const copy =
         progressLead:
           'El stack está arrancando. Suele tardar entre 8 y 12 minutos; esta ventana se actualiza cuando el estado pasa a awake.',
         alreadyLead: 'El stack ya estaba en línea. No se ejecutó ningún workflow.',
+        pendingEyebrow: 'Pendiente de aprobación',
+        pendingLead:
+          'Solicitud enviada. El deploy no se ejecutará hasta que el dueño lo apruebe desde el email de notificación.',
+        pendingNote:
+          'No se despertó el stack. Si se aprueba, Triplanner estará disponible en unos minutos.',
+        pendingCheck: 'Comprobar estado',
+        pendingStill: 'Aún pendiente de aprobación. No se despertó el stack.',
+        pendingClose: 'Entendido',
         close: 'Cerrar',
         progress: 'Progreso del despliegue',
         elapsed: 'Tiempo',
@@ -82,7 +90,7 @@ const copy =
         intro:
           'The AWS stack wakes on demand. Before running the workflow, we check whether it is already online.',
         gateLead:
-          'Leave your details so the deploy is on record. The name is required; everything else is optional.',
+          'Leave your details for the site owner to review. The deploy will not run until it is approved. Only the name is required.',
         requiredLegend: 'Fields marked with * are required.',
         required: 'Required',
         optional: 'Optional',
@@ -104,10 +112,10 @@ const copy =
         linkedinPlaceholder: 'LinkedIn username or URL',
         linkedinHint: 'Optional · so we can connect',
         privacyNote:
-          'These details and the request IP are emailed to the site owner to record who deploys the infrastructure. They are not published.',
+          'These details are emailed to the site owner to record who deploys the infrastructure. They are not published.',
         gateSubmit: 'Request deploy',
         gateSubmitting: 'Checking…',
-        emailNote: 'An email notification is sent.',
+        emailNote: 'An approval request is sent by email.',
         nameError: 'Enter your name to continue.',
         gateError: 'Could not verify the request. Try again.',
         rateError: 'Too many requests. Wait a minute and try again.',
@@ -118,6 +126,14 @@ const copy =
         progressLead:
           'The stack is starting. It usually takes 8–12 minutes; this window updates when the state becomes awake.',
         alreadyLead: 'The stack was already online. No workflow was run.',
+        pendingEyebrow: 'Pending approval',
+        pendingLead:
+          'Request sent. The deploy will not run until the site owner approves it from the email notification.',
+        pendingNote:
+          'The stack was not woken. If approved, Triplanner will be available in a few minutes.',
+        pendingCheck: 'Check status',
+        pendingStill: 'Still pending approval. The stack was not woken.',
+        pendingClose: 'Got it',
         close: 'Close',
         progress: 'Deployment progress',
         elapsed: 'Elapsed',
@@ -166,6 +182,7 @@ const copy =
   data-gate-submit={copy.gateSubmit}
   data-gate-submitting={copy.gateSubmitting}
   data-already-lead={copy.alreadyLead}
+  data-pending-still={copy.pendingStill}
   aria-labelledby="triplanner-deploy-title"
   aria-describedby="triplanner-deploy-desc"
 >
@@ -445,6 +462,32 @@ const copy =
       </div>
     </div>
 
+    <div data-deploy-pending-view hidden>
+      <div class="px-5 py-6 md:px-6">
+        <p class="label text-accent">{copy.pendingEyebrow}</p>
+        <p class="mt-3 max-w-2xl text-sm leading-relaxed text-fg-soft">{copy.pendingLead}</p>
+
+        <div class="mt-5 border border-line bg-surface px-3 py-2.5 text-xs leading-relaxed text-muted">
+          <p>{copy.pendingNote}</p>
+        </div>
+
+        <p
+          class="mt-3 hidden font-mono text-[0.625rem] uppercase tracking-[0.12em] text-muted"
+          data-deploy-pending-status
+          role="status"
+        ></p>
+
+        <div class="mt-6 flex flex-wrap gap-3">
+          <button type="button" class="btn" data-deploy-pending-check>
+            {copy.pendingCheck}
+          </button>
+          <button type="button" class="btn btn-primary" data-deploy-pending-close>
+            {copy.pendingClose}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="border-t border-line px-5 py-4 md:px-6">
       <p class="text-xs leading-relaxed text-muted">
         {copy.localLead}{' '}
@@ -636,6 +679,11 @@ const copy =
     const progressView = modal.querySelector<HTMLElement>('[data-deploy-progress-view]');
     const progressLeadEl = modal.querySelector<HTMLElement>('[data-deploy-progress-lead]');
     const initialProgressLead = progressLeadEl?.textContent ?? '';
+    const pendingView = modal.querySelector<HTMLElement>('[data-deploy-pending-view]');
+    const pendingStatus = modal.querySelector<HTMLElement>('[data-deploy-pending-status]');
+    const pendingCheck = modal.querySelector<HTMLButtonElement>('[data-deploy-pending-check]');
+    const pendingClose = modal.querySelector<HTMLButtonElement>('[data-deploy-pending-close]');
+    const pendingStill = modal.dataset.pendingStill ?? 'Still pending approval.';
     const alreadyLead = modal.dataset.alreadyLead ?? 'The stack was already online.';
     const form = modal.querySelector<HTMLFormElement>('[data-deploy-form]');
     const formError = modal.querySelector<HTMLElement>('[data-deploy-form-error]');
@@ -717,9 +765,9 @@ const copy =
       elapsedEl.textContent = `${elapsedLabel} ${minutes}:${rest}`;
     }
 
-    function setPhase(phase: 'gate' | 'loading' | 'ready' | 'error') {
+    function setPhase(phase: 'gate' | 'loading' | 'ready' | 'error' | 'pending') {
       modal.dataset.phase = phase;
-      if (actions) actions.hidden = phase === 'gate' || phase === 'loading';
+      if (actions) actions.hidden = phase === 'gate' || phase === 'loading' || phase === 'pending';
       if (openLink) openLink.hidden = phase !== 'ready';
       if (retryButton) retryButton.hidden = phase !== 'error';
       if (checkingEl) {
@@ -856,6 +904,41 @@ const copy =
       void check(activeSession);
     }
 
+    async function checkPendingStatus() {
+      if (!pendingCheck) return;
+      pendingCheck.disabled = true;
+
+      try {
+        const response = await fetch(`/api/deploy-status?ts=${Date.now()}`, {
+          method: 'GET',
+          cache: 'no-store',
+          headers: { accept: 'application/json' },
+        });
+        if (!response.ok) throw new Error('status_unavailable');
+
+        const data = (await response.json()) as { state?: string };
+        if (data.state === 'awake') {
+          if (pendingView) pendingView.hidden = true;
+          if (progressView) progressView.hidden = false;
+          showAlreadyReady();
+        } else if (data.state === 'waking') {
+          if (pendingView) pendingView.hidden = true;
+          if (progressView) progressView.hidden = false;
+          startProgress();
+        } else if (pendingStatus) {
+          pendingStatus.textContent = pendingStill;
+          pendingStatus.hidden = false;
+        }
+      } catch {
+        if (pendingStatus) {
+          pendingStatus.textContent = gateError;
+          pendingStatus.hidden = false;
+        }
+      } finally {
+        pendingCheck.disabled = false;
+      }
+    }
+
     function showFormError(message: string) {
       if (!formError) return;
       formError.textContent = message;
@@ -898,6 +981,11 @@ const copy =
       setPhase('gate');
       if (gate) gate.hidden = false;
       if (progressView) progressView.hidden = true;
+      if (pendingView) pendingView.hidden = true;
+      if (pendingStatus) {
+        pendingStatus.hidden = true;
+        pendingStatus.textContent = '';
+      }
       clearFormError();
       setSubmitting(false);
       if (positionOtherWrap && positionSelect?.value !== 'other') positionOtherWrap.hidden = true;
@@ -960,7 +1048,7 @@ const copy =
         });
 
         const data = (await response.json().catch(() => ({}))) as {
-          stack?: 'online' | 'waking';
+          stack?: 'online' | 'waking' | 'pending';
           error?: string;
         };
 
@@ -978,12 +1066,18 @@ const copy =
         }
 
         if (gate) gate.hidden = true;
-        if (progressView) progressView.hidden = false;
+        if (progressView) progressView.hidden = true;
+        if (pendingView) pendingView.hidden = true;
 
         if (data.stack === 'online') {
+          if (progressView) progressView.hidden = false;
           showAlreadyReady();
-        } else {
+        } else if (data.stack === 'waking') {
+          if (progressView) progressView.hidden = false;
           startProgress();
+        } else {
+          if (pendingView) pendingView.hidden = false;
+          setPhase('pending');
         }
       } catch {
         showFormError(gateError);
@@ -1001,6 +1095,10 @@ const copy =
     });
 
     closeButton?.addEventListener('click', () => modal.close());
+    pendingClose?.addEventListener('click', () => modal.close());
+    pendingCheck?.addEventListener('click', () => {
+      void checkPendingStatus();
+    });
     retryButton?.addEventListener('click', () => {
       resetGate();
       nameInput?.focus();

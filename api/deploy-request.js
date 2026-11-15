@@ -1,5 +1,6 @@
-const DEFAULT_STATUS_URL = 'https://zev4y8ny7l.execute-api.us-east-1.amazonaws.com/status';
-const DEFAULT_WAKE_URL = 'https://zev4y8ny7l.execute-api.us-east-1.amazonaws.com/wake';
+import { readStackStatus } from '../lib/deploy.js';
+import { createApprovalToken, getApprovalTtlSeconds } from '../lib/approval.js';
+
 const DEFAULT_ALLOWED_ORIGINS =
   'https://mcastillo.dev,https://www.mcastillo.dev,http://localhost:4321';
 const DEFAULT_NOTIFY_TO = 'macd.chicho@gmail.com';
@@ -109,50 +110,7 @@ function checkRateLimit(ip) {
   return true;
 }
 
-async function readStackState() {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 6000);
-
-  try {
-    const response = await fetch(process.env.DEPLOY_STATUS_URL || DEFAULT_STATUS_URL, {
-      method: 'GET',
-      headers: { accept: 'application/json' },
-      cache: 'no-store',
-      signal: controller.signal,
-    });
-
-    if (!response.ok) return 'unknown';
-
-    const data = await response.json();
-    return typeof data.state === 'string' ? data.state : 'unknown';
-  } catch {
-    return 'unknown';
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
-
-async function triggerWake() {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000);
-
-  try {
-    const response = await fetch(process.env.DEPLOY_WAKE_URL || DEFAULT_WAKE_URL, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: '{}',
-      cache: 'no-store',
-      signal: controller.signal,
-    });
-    return response.ok;
-  } catch {
-    return false;
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
-
-async function sendEmail({ name, position, company, linkedin, state, action, ip, userAgent }) {
+async function sendEmail({ name, position, company, linkedin, state, action, approval }) {
   const to = (process.env.DEPLOY_NOTIFY_TO || DEFAULT_NOTIFY_TO)
     .split(',')
     .map((value) => value.trim())
@@ -166,8 +124,6 @@ async function sendEmail({ name, position, company, linkedin, state, action, ip,
     ['LinkedIn', linkedin || 'No especificado'],
     ['Estado previo del stack', state],
     ['Acción', action],
-    ['IP', ip],
-    ['User-Agent', userAgent || 'No especificado'],
     ['Fecha', timestamp],
   ];
 
@@ -181,26 +137,52 @@ async function sendEmail({ name, position, company, linkedin, state, action, ip,
     )
     .join('');
 
+  const approvalHtml = approval
+    ? `
+      <div style="margin:24px 0;padding:16px;border:1px solid #e5e5e5;background:#fafafa;">
+        <p style="font-size:14px;line-height:1.6;color:#111111;margin:0 0 12px;">
+          <strong>Pendiente de tu aprobación.</strong> El stack no se despertará hasta que confirmes desde este email.
+        </p>
+        <p style="margin:0 0 12px;">
+          <a href="${escapeHtml(approval.approveUrl)}" style="display:inline-block;background:#ff4d3f;color:#ffffff;text-decoration:none;font-size:13px;font-weight:600;padding:10px 16px;margin-right:8px;">Aprobar deploy</a>
+          <a href="${escapeHtml(approval.rejectUrl)}" style="display:inline-block;border:1px solid #cccccc;color:#444444;text-decoration:none;font-size:13px;font-weight:600;padding:10px 16px;">Rechazar</a>
+        </p>
+        <p style="font-size:12px;line-height:1.6;color:#888888;margin:0;">
+          El enlace expira en ${approval.ttlHours} horas y solo ejecuta el workflow después de confirmar en la página.
+        </p>
+      </div>`
+    : '';
+
   const html = `
     <div style="font-family:Inter,Arial,sans-serif;max-width:640px;margin:0 auto;padding:24px;color:#111111;">
       <p style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#ff4d3f;margin:0 0 8px;">mcastillo.dev · deploy gate</p>
-      <h1 style="font-size:24px;line-height:1.2;margin:0 0 12px;">Solicitud de deploy de Triplanner</h1>
+      <h1 style="font-size:24px;line-height:1.2;margin:0 0 12px;">${approval ? 'Aprobación de deploy de Triplanner' : 'Solicitud de deploy de Triplanner'}</h1>
       <p style="font-size:14px;line-height:1.6;color:#444444;margin:0 0 20px;">
-        Alguien envió el formulario para despertar el stack AWS efímero.
+        ${approval ? 'Alguien envió el formulario para despertar el stack AWS efímero.' : 'Alguien envió el formulario de deploy del stack AWS efímero.'}
       </p>
       <table style="border-collapse:collapse;width:100%;border:1px solid #e5e5e5;">
         ${htmlRows}
       </table>
+      ${approvalHtml}
       <p style="font-size:12px;line-height:1.6;color:#888888;margin:20px 0 0;">
         Este mensaje se generó automáticamente desde el botón de deploy del caso de estudio.
       </p>
     </div>`;
 
   const text = [
-    'Solicitud de deploy de Triplanner',
+    approval ? 'Aprobación de deploy de Triplanner' : 'Solicitud de deploy de Triplanner',
     '',
     ...rows.map(([label, value]) => `${label}: ${value}`),
     '',
+    ...(approval
+      ? [
+          'Pendiente de tu aprobación. El stack no se despertará hasta que confirmes.',
+          `Aprobar: ${approval.approveUrl}`,
+          `Rechazar: ${approval.rejectUrl}`,
+          `El enlace expira en ${approval.ttlHours} horas.`,
+          '',
+        ]
+      : []),
     'Generado automáticamente desde mcastillo.dev.',
   ].join('\n');
 
@@ -213,7 +195,7 @@ async function sendEmail({ name, position, company, linkedin, state, action, ip,
     body: JSON.stringify({
       from: process.env.RESEND_FROM,
       to,
-      subject: `Solicitud de deploy · ${name}`,
+      subject: approval ? `Aprobación pendiente · ${name}` : `Solicitud de deploy · ${name}`,
       html,
       text,
     }),
@@ -276,10 +258,32 @@ export default async function handler(req, res) {
     return res.status(503).json({ error: 'not_configured' });
   }
 
-  const state = await readStackState();
+  const { state } = await readStackStatus();
   const alreadyUp = state === 'awake';
   const alreadyWaking = state === 'waking';
-  const shouldWake = !alreadyUp && !alreadyWaking;
+  const needsApproval = !alreadyUp && !alreadyWaking;
+
+  let approval = null;
+  if (needsApproval) {
+    const token = createApprovalToken({ name });
+    if (!token) {
+      console.error('deploy-request: approval secret is not configured');
+      return res.status(503).json({ error: 'not_configured' });
+    }
+
+    const base = (process.env.DEPLOY_SITE_URL || origin || 'https://mcastillo.dev').replace(
+      /\/+$/,
+      '',
+    );
+    const query = new URLSearchParams({ token }).toString();
+    const ttlHours = Math.max(1, Math.round(getApprovalTtlSeconds() / 3600));
+
+    approval = {
+      approveUrl: `${base}/api/deploy-approval?${query}&action=approve`,
+      rejectUrl: `${base}/api/deploy-approval?${query}&action=reject`,
+      ttlHours,
+    };
+  }
 
   const companyLabel =
     company === 'freelancer'
@@ -290,11 +294,11 @@ export default async function handler(req, res) {
   const positionLabel = Object.hasOwn(POSITION_LABELS, position)
     ? POSITION_LABELS[position]
     : position || 'No especificada';
-  const actionLabel = alreadyUp
-    ? 'Stack ya despierto · sin workflow'
-    : alreadyWaking
-      ? 'Wake ya en progreso · sin nuevo workflow'
-      : 'Wake solicitado';
+  const actionLabel = needsApproval
+    ? 'Pendiente de aprobación'
+    : alreadyUp
+      ? 'Stack ya despierto · sin workflow'
+      : 'Wake ya en progreso · sin nuevo workflow';
 
   try {
     await sendEmail({
@@ -304,8 +308,7 @@ export default async function handler(req, res) {
       linkedin,
       state,
       action: actionLabel,
-      ip,
-      userAgent: clean(req.headers['user-agent'], 300),
+      approval,
     });
   } catch (error) {
     console.error('deploy-request: email failed', error);
@@ -316,18 +319,10 @@ export default async function handler(req, res) {
     });
   }
 
-  let wakeDispatched = false;
-  if (shouldWake) {
-    wakeDispatched = await triggerWake();
-    if (!wakeDispatched) {
-      return res.status(502).json({ error: 'wake_failed' });
-    }
-  }
-
   return res.status(200).json({
     ok: true,
-    stack: alreadyUp ? 'online' : 'waking',
-    wakeDispatched,
+    stack: alreadyUp ? 'online' : alreadyWaking ? 'waking' : 'pending',
+    approvalRequired: needsApproval,
     emailSent: true,
   });
 }
