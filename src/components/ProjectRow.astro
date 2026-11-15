@@ -50,10 +50,12 @@ const Tag = isLink ? 'a' : 'div';
   <div class="flex min-w-0 flex-row flex-wrap items-end justify-between gap-4 md:col-span-4 md:flex-col md:items-end">
     <div class="text-left md:text-right">
       <p class="label text-muted">{project.domain}</p>
-      <p class="label mt-3 flex items-center gap-2 text-fg-soft">
-        <span class="h-1.5 w-1.5 flex-none bg-accent"></span>
-        {project.status}
-      </p>
+      {project.status && (
+        <p class="label mt-3 flex items-center gap-2 text-fg-soft">
+          <span class="h-1.5 w-1.5 flex-none bg-accent"></span>
+          {project.status}
+        </p>
+      )}
     </div>
 
     {isLink && project.linkLabel && (

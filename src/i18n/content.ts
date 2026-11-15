@@ -19,7 +19,7 @@ export interface Project {
   tagline: string;
   description: string;
   tags: string[];
-  status: string;
+  status?: string;
   href?: string;
   linkLabel?: string;
 }
@@ -263,9 +263,8 @@ export const content: Record<Lang, SiteContent> = {
           domain: 'localhost:3000',
           tagline: 'Viajes en equipo, sin hojas de cálculo',
           description:
-            'App de planificación de viajes colaborativa: itinerarios día a día, presupuestos, invitaciones y adjuntos con visibilidad por archivo. La demo corre localmente con Docker Compose: Next.js, GraphQL sobre Bun, Postgres, MongoDB y un agente en Python. El stack AWS efímero está en construcción.',
+            'App de planificación de viajes colaborativa: itinerarios día a día, presupuestos, invitaciones y adjuntos con visibilidad por archivo. Corre sobre un stack AWS efímero que despierta bajo demanda, con Next.js, GraphQL sobre Bun, Postgres, MongoDB y un agente en Python; también hay una demo local con Docker Compose.',
           tags: ['Next.js', 'TypeScript', 'GraphQL', 'Postgres', 'MongoDB', 'Python'],
-          status: 'Stack AWS efímero en construcción',
           href: '/es/proyectos/triplanner/',
           linkLabel: 'Ver caso de estudio',
         },
@@ -493,9 +492,8 @@ export const content: Record<Lang, SiteContent> = {
           domain: 'localhost:3000',
           tagline: 'Team travel planning, without spreadsheets',
           description:
-            'A collaborative trip-planning app: day-by-day itineraries, budgets, invitations, and attachments with per-file visibility. The demo runs locally with Docker Compose: Next.js, GraphQL on Bun, Postgres, MongoDB, and a Python agent. The ephemeral AWS stack is under construction.',
+            'A collaborative trip-planning app: day-by-day itineraries, budgets, invitations, and attachments with per-file visibility. It runs on an ephemeral AWS stack that wakes on demand, with Next.js, GraphQL on Bun, Postgres, MongoDB, and a Python agent; there is also a local demo with Docker Compose.',
           tags: ['Next.js', 'TypeScript', 'GraphQL', 'Postgres', 'MongoDB', 'Python'],
-          status: 'Ephemeral AWS stack under construction',
           href: '/projects/triplanner/',
           linkLabel: 'Read the case study',
         },

@@ -21,7 +21,7 @@ export interface ProjectCaseStudy {
   kicker: string;
   name: string;
   year: string;
-  status: string;
+  status?: string;
   title: string;
   lead: string;
   meta: { label: string; value: string }[];
@@ -52,6 +52,30 @@ export interface ProjectCaseStudy {
   infrastructure: CaseStudySection & {
     body: string[];
     lifecycle: { label: string; detail: string }[];
+    terraform: {
+      label: string;
+      title: string;
+      intro: string;
+      readOnly: string;
+      note: string;
+    };
+    workflows: {
+      label: string;
+      title: string;
+      intro: string;
+      previous: string;
+      next: string;
+      triggerLabel: string;
+      stepsLabel: string;
+      items: {
+        file: string;
+        name: string;
+        title: string;
+        trigger: string;
+        body: string;
+        steps: string[];
+      }[];
+    };
     caption: string;
     note: string;
     diagramTitle: string;
@@ -91,13 +115,11 @@ const triplannerEs: ProjectCaseStudy = {
   kicker: 'Caso de estudio · 01',
   name: 'Triplanner',
   year: '2026',
-  status: 'Stack AWS efímero en construcción',
   title: 'Planear un viaje es un problema de estado compartido.',
   lead: 'Triplanner nació de una frustración concreta: cuando cuatro personas planean el mismo viaje, la información se reparte entre chats, hojas de cálculo y capturas. Construí una app que mantiene el itinerario, el presupuesto y los documentos en un solo lugar, con permisos explícitos y sugerencias de IA que no deciden por nadie.',
   meta: [
     { label: 'Rol', value: 'Producto, frontend, backend e infraestructura' },
     { label: 'Año', value: '2026' },
-    { label: 'Estado', value: 'Stack AWS efímero en construcción' },
     {
       label: 'Stack',
       value: 'Next.js · GraphQL · Postgres · MongoDB · Python · Docker · Terraform',
@@ -338,6 +360,95 @@ const triplannerEs: ProjectCaseStudy = {
         detail: 'Estado, Lambdas, ECR, ACM y el secreto de GitHub siguen en pie.',
       },
     ],
+    terraform: {
+      label: 'Terraform · aws-infra',
+      title: 'Terraform',
+      intro:
+        'Vista de solo lectura de aws-infra, el único directorio que aplica y destruye el stack. Solo se muestran carpetas y archivos: no se ejecutan planes, no se exponen valores y no se toca AWS.',
+      readOnly: 'Solo lectura',
+      note: 'Haz clic en una carpeta para expandirla. Es una instantánea de la estructura del repositorio, sin contenido de archivos.',
+    },
+    workflows: {
+      label: 'GitHub Actions · 7 workflows',
+      title: 'Cada workflow tiene su disparador y su permiso.',
+      intro:
+        'En aws_triplanner, los pipelines de aplicación prueban cada cambio y solo publican imágenes desde main. Wake y sleep son los únicos que aplican o destruyen Terraform, y comparten grupo de concurrencia para no pisarse. Elige una pestaña o desliza el panel para ver el siguiente.',
+      previous: 'Workflow anterior',
+      next: 'Workflow siguiente',
+      triggerLabel: 'Disparador',
+      stepsLabel: 'Pasos clave',
+      items: [
+        {
+          file: 'web.yml',
+          name: 'Web',
+          title: 'Web · probar y publicar',
+          trigger: 'push · pull_request · tags v* · manual',
+          body: 'Valida el frontend en cada cambio y publica la imagen solo desde main. El test corre con Bun; el publish asume el rol OIDC, entra a ECR y construye para linux/amd64, que es lo que espera Fargate.',
+          steps: ['bun audit', 'tsc --noEmit', 'bun test', 'build → triplanner/web'],
+        },
+        {
+          file: 'api.yml',
+          name: 'API',
+          title: 'API · probar y publicar',
+          trigger: 'push · pull_request · tags v* · manual',
+          body: 'El test levanta Postgres con pgvector, DynamoDB Local y S3 sobre LocalStack para correr la suite contra servicios reales. Desde main, publica triplanner/api con tag por SHA y latest.',
+          steps: [
+            'Postgres 17 + pgvector',
+            'DynamoDB Local',
+            'LocalStack S3',
+            'bun test',
+            'build → triplanner/api',
+          ],
+        },
+        {
+          file: 'agent.yml',
+          name: 'Agent',
+          title: 'Agente · probar y publicar',
+          trigger: 'push · pull_request · tags v* · manual',
+          body: 'Prueba el agente en Python 3.12 con uv y una base pgvector. pip-audit corta el pipeline salvo por cuatro advisories de chromadb que todavía no tienen fix upstream; el publish construye triplanner/agent.',
+          steps: ['uv sync --frozen', 'pip-audit', 'test_m2.py', 'build → triplanner/agent'],
+        },
+        {
+          file: 'compose-smoke.yml',
+          name: 'Compose',
+          title: 'Compose smoke · el stack completo',
+          trigger: 'push · pull_request · manual',
+          body: 'Es el único workflow que arranca los tres servicios juntos. Construye las imágenes, levanta docker-compose.ci.yml, espera los health checks de Postgres, DynamoDB, API, agente y web, y corre el smoke test de extremo a extremo.',
+          steps: ['build 3 imágenes', 'docker compose up', 'health checks', 'scripts/smoke.sh'],
+        },
+        {
+          file: 'wake.yml',
+          name: 'Wake',
+          title: 'Wake · despertar el stack',
+          trigger: 'repository_dispatch: wake · manual',
+          body: 'Lo dispara POST /wake. Aplica Terraform con desired_count=1, apunta el CNAME de Cloudflare al ALB nuevo, corre migraciones y seed como tareas ECS de una sola vez y espera un 200 en /login antes de marcar el stack como awake. Si algo falla, deja el estado en error.',
+          steps: [
+            'OIDC → AWS',
+            'terraform apply',
+            'CNAME → ALB',
+            'migrate + seed',
+            'health check',
+            'estado: awake',
+          ],
+        },
+        {
+          file: 'sleep.yml',
+          name: 'Sleep',
+          title: 'Sleep · destruir el stack',
+          trigger: 'repository_dispatch: sleep · manual',
+          body: 'Lo dispara el sleep-check tras 30 minutos sin tráfico. Destruye el stack de aplicación, mueve el hostname a la página de estado y marca asleep. Comparte con wake el grupo de concurrencia triplanner-aws, así que nunca corren a la vez.',
+          steps: ['OIDC → AWS', 'terraform destroy', 'hostname → status page', 'estado: asleep'],
+        },
+        {
+          file: 'status-page.yml',
+          name: 'Status',
+          title: 'Status page · lo que queda en línea',
+          trigger: 'push a main · manual',
+          body: 'Publica la página estática que responde cuando el stack duerme. Wrangler la sube a Cloudflare Pages, fuera del stack de AWS que se destruye.',
+          steps: ['wrangler pages deploy', 'Cloudflare Pages'],
+        },
+      ],
+    },
     caption:
       'Fig. 02 — Stack efímero. Arriba, lo que nunca se destruye; abajo, lo que se reconstruye en cada despertar.',
     note: 'RDS es Single-AZ a propósito: menos tiempo de arranque, sin garantía de alta disponibilidad. El DNS del ALB cambia en cada apply, así que el workflow actualiza Cloudflare.',
@@ -347,8 +458,8 @@ const triplannerEs: ProjectCaseStudy = {
   },
   localRepo: {
     label: 'Demo local',
-    title: 'Por ahora, pruébalo en tu máquina.',
-    body: 'El stack AWS efímero está en construcción. Mientras tanto, local_triplanner es la única forma de evaluar el producto: Next.js, GraphQL sobre Bun, el agente en Python, Postgres y MongoDB, todo con Docker Compose, datos sembrados y sin cuentas externas.',
+    title: 'También puedes correrlo en tu máquina.',
+    body: 'El stack AWS efímero tarda entre 8 y 12 minutos en despertar. Si no quieres esperar, local_triplanner empaqueta la misma app con Docker Compose: Next.js, GraphQL sobre Bun, el agente en Python, Postgres y MongoDB, con datos sembrados y sin cuentas externas.',
     cloneLabel: 'Clona el repositorio',
     cloneCommand: 'git clone https://github.com/MarcoJr1312/local_triplanner.git',
     copyLabel: 'Copiar',
@@ -409,13 +520,11 @@ const triplannerEn: ProjectCaseStudy = {
   kicker: 'Case study · 01',
   name: 'Triplanner',
   year: '2026',
-  status: 'Ephemeral AWS stack under construction',
   title: 'Planning a trip is a shared-state problem.',
   lead: 'Triplanner started from a concrete frustration: when four people plan the same trip, the information scatters across chats, spreadsheets, and screenshots. I built an app that keeps the itinerary, the budget, and the documents in one place, with explicit permissions and AI suggestions that never make decisions for anyone.',
   meta: [
     { label: 'Role', value: 'Product, frontend, backend, and infrastructure' },
     { label: 'Year', value: '2026' },
-    { label: 'Status', value: 'Ephemeral AWS stack under construction' },
     {
       label: 'Stack',
       value: 'Next.js · GraphQL · Postgres · MongoDB · Python · Docker · Terraform',
@@ -657,6 +766,95 @@ const triplannerEn: ProjectCaseStudy = {
         detail: 'State, Lambdas, ECR, ACM, and the GitHub secret stay up.',
       },
     ],
+    terraform: {
+      label: 'Terraform · aws-infra',
+      title: 'Terraform',
+      intro:
+        'A read-only view of aws-infra, the only directory that applies and destroys the stack. Only folders and files are shown: no plans run, no values are exposed, and nothing touches AWS.',
+      readOnly: 'Read-only',
+      note: 'Click a folder to expand it. This is a snapshot of the repository structure, without file contents.',
+    },
+    workflows: {
+      label: 'GitHub Actions · 7 workflows',
+      title: 'Every workflow has its own trigger and its own permission.',
+      intro:
+        'In aws_triplanner, application pipelines test every change and only publish images from main. Wake and sleep are the only ones that apply or destroy Terraform, and they share a concurrency group so they never overlap. Pick a tab or swipe the panel to see the next one.',
+      previous: 'Previous workflow',
+      next: 'Next workflow',
+      triggerLabel: 'Trigger',
+      stepsLabel: 'Key steps',
+      items: [
+        {
+          file: 'web.yml',
+          name: 'Web',
+          title: 'Web · test and publish',
+          trigger: 'push · pull_request · tags v* · manual',
+          body: 'Validates the frontend on every change and publishes the image only from main. Tests run on Bun; publish assumes the OIDC role, logs in to ECR, and builds for linux/amd64, which is what Fargate expects.',
+          steps: ['bun audit', 'tsc --noEmit', 'bun test', 'build → triplanner/web'],
+        },
+        {
+          file: 'api.yml',
+          name: 'API',
+          title: 'API · test and publish',
+          trigger: 'push · pull_request · tags v* · manual',
+          body: 'The test job starts Postgres with pgvector, DynamoDB Local, and S3 on LocalStack so the suite runs against real services. From main, it publishes triplanner/api tagged by SHA and latest.',
+          steps: [
+            'Postgres 17 + pgvector',
+            'DynamoDB Local',
+            'LocalStack S3',
+            'bun test',
+            'build → triplanner/api',
+          ],
+        },
+        {
+          file: 'agent.yml',
+          name: 'Agent',
+          title: 'Agent · test and publish',
+          trigger: 'push · pull_request · tags v* · manual',
+          body: 'Tests the agent on Python 3.12 with uv and a pgvector database. pip-audit gates the pipeline except for four chromadb advisories that have no upstream fix yet; publish builds triplanner/agent.',
+          steps: ['uv sync --frozen', 'pip-audit', 'test_m2.py', 'build → triplanner/agent'],
+        },
+        {
+          file: 'compose-smoke.yml',
+          name: 'Compose',
+          title: 'Compose smoke · the whole stack',
+          trigger: 'push · pull_request · manual',
+          body: 'The only workflow that boots all three services together. It builds the images, starts docker-compose.ci.yml, waits for the Postgres, DynamoDB, API, agent, and web health checks, and runs the end-to-end smoke test.',
+          steps: ['build 3 images', 'docker compose up', 'health checks', 'scripts/smoke.sh'],
+        },
+        {
+          file: 'wake.yml',
+          name: 'Wake',
+          title: 'Wake · bring the stack up',
+          trigger: 'repository_dispatch: wake · manual',
+          body: 'Triggered by POST /wake. It applies Terraform with desired_count=1, points the Cloudflare CNAME at the new ALB, runs migrations and seed as one-off ECS tasks, and waits for a 200 on /login before marking the stack awake. On failure it leaves the state as error.',
+          steps: [
+            'OIDC → AWS',
+            'terraform apply',
+            'CNAME → ALB',
+            'migrate + seed',
+            'health check',
+            'state: awake',
+          ],
+        },
+        {
+          file: 'sleep.yml',
+          name: 'Sleep',
+          title: 'Sleep · tear the stack down',
+          trigger: 'repository_dispatch: sleep · manual',
+          body: 'Triggered by the sleep-check after 30 minutes without traffic. It destroys the application stack, moves the hostname to the status page, and marks the stack asleep. It shares the triplanner-aws concurrency group with wake, so the two never run at the same time.',
+          steps: ['OIDC → AWS', 'terraform destroy', 'hostname → status page', 'state: asleep'],
+        },
+        {
+          file: 'status-page.yml',
+          name: 'Status',
+          title: 'Status page · what stays online',
+          trigger: 'push to main · manual',
+          body: 'Publishes the static page that answers while the stack sleeps. Wrangler uploads it to Cloudflare Pages, outside the AWS stack that gets destroyed.',
+          steps: ['wrangler pages deploy', 'Cloudflare Pages'],
+        },
+      ],
+    },
     caption:
       'Fig. 02 — Ephemeral stack. Above, what is never destroyed; below, what is rebuilt on every wake.',
     note: 'RDS is Single-AZ on purpose: shorter start time, no high-availability guarantee. The ALB DNS name changes on every apply, so the workflow updates Cloudflare.',
@@ -666,8 +864,8 @@ const triplannerEn: ProjectCaseStudy = {
   },
   localRepo: {
     label: 'Local demo',
-    title: 'For now, run it on your machine.',
-    body: 'The ephemeral AWS stack is under construction. In the meantime, local_triplanner is the only way to evaluate the product: Next.js, GraphQL on Bun, the Python agent, Postgres, and MongoDB, all with Docker Compose, seeded data, and no external accounts.',
+    title: 'You can also run it on your machine.',
+    body: 'The ephemeral AWS stack takes 8–12 minutes to wake. If you do not want to wait, local_triplanner packages the same app with Docker Compose: Next.js, GraphQL on Bun, the Python agent, Postgres, and MongoDB, with seeded data and no external accounts.',
     cloneLabel: 'Clone the repository',
     cloneCommand: 'git clone https://github.com/MarcoJr1312/local_triplanner.git',
     copyLabel: 'Copy',

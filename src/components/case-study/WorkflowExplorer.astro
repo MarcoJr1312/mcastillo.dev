@@ -1,0 +1,258 @@
+---
+import type { Lang } from '../../i18n/content';
+import type { ProjectCaseStudy } from '../../i18n/projects';
+
+interface Props {
+  lang: Lang;
+  study: ProjectCaseStudy;
+}
+
+const { lang, study } = Astro.props;
+const workflows = study.infrastructure.workflows;
+const total = String(workflows.items.length).padStart(2, '0');
+
+const pad = (value: number) => String(value).padStart(2, '0');
+const titleId = `workflows-title-${lang}`;
+---
+
+<section
+  class="mt-10 border border-line bg-elevated md:mt-12"
+  aria-labelledby={titleId}
+  data-workflow-explorer
+>
+  <div class="flex flex-wrap items-start justify-between gap-5 border-b border-line px-5 py-5 md:px-6">
+    <div class="max-w-2xl">
+      <p class="label text-accent">{workflows.label}</p>
+      <h3 id={titleId} class="mt-3 font-serif text-2xl leading-snug md:text-[1.75rem]">
+        {workflows.title}
+      </h3>
+      <p class="mt-3 text-sm leading-relaxed text-muted">{workflows.intro}</p>
+    </div>
+
+    <div class="ml-auto flex shrink-0 items-center gap-3">
+      <span class="font-mono text-xs text-muted">
+        <span data-workflow-count>{pad(1)}</span> / {total}
+      </span>
+      <button
+        type="button"
+        class="grid h-9 w-9 place-items-center border border-line text-muted transition-colors hover:border-accent hover:text-accent"
+        data-workflow-prev
+        aria-label={workflows.previous}
+      >
+        <span aria-hidden="true">←</span>
+      </button>
+      <button
+        type="button"
+        class="grid h-9 w-9 place-items-center border border-line text-muted transition-colors hover:border-accent hover:text-accent"
+        data-workflow-next
+        aria-label={workflows.next}
+      >
+        <span aria-hidden="true">→</span>
+      </button>
+    </div>
+  </div>
+
+  <div
+    class="flex gap-px overflow-x-auto bg-line [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    role="tablist"
+    aria-label={workflows.label}
+  >
+    {workflows.items.map((item, index) => (
+      <button
+        type="button"
+        role="tab"
+        id={`workflow-tab-${lang}-${index}`}
+        aria-controls={`workflow-panel-${lang}-${index}`}
+        aria-selected={index === 0 ? 'true' : 'false'}
+        tabindex={index === 0 ? 0 : -1}
+        class="workflow-tab flex min-w-max flex-1 items-center justify-center gap-2 bg-elevated px-4 py-3 font-mono text-[0.625rem] uppercase tracking-[0.12em] text-muted transition-colors hover:text-accent"
+        data-workflow-tab
+      >
+        <span class="text-[0.5625rem] opacity-60" aria-hidden="true">
+          {pad(index + 1)}
+        </span>
+        {item.name}
+      </button>
+    ))}
+  </div>
+
+  <div class="relative" data-workflow-panels>
+    {workflows.items.map((item, index) => (
+      <article
+        id={`workflow-panel-${lang}-${index}`}
+        role="tabpanel"
+        aria-labelledby={`workflow-tab-${lang}-${index}`}
+        tabindex="0"
+        hidden={index !== 0}
+        class="workflow-panel px-5 py-6 md:px-6"
+        data-workflow-panel
+      >
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p class="font-mono text-xs text-accent">{item.file}</p>
+            <h4 class="mt-2 font-serif text-xl leading-snug md:text-2xl">{item.title}</h4>
+          </div>
+        </div>
+
+        <p class="mt-4 max-w-3xl text-sm leading-relaxed text-fg-soft">{item.body}</p>
+
+        <div class="mt-5 grid gap-4 border-t border-line pt-4 sm:grid-cols-[auto_1fr] sm:items-baseline sm:gap-6">
+          <p class="label text-muted">{workflows.triggerLabel}</p>
+          <p class="font-mono text-xs leading-relaxed text-fg-soft">{item.trigger}</p>
+        </div>
+
+        <div class="mt-4">
+          <p class="label text-muted">{workflows.stepsLabel}</p>
+          <ol class="mt-2 flex flex-wrap gap-2">
+            {item.steps.map((step) => (
+              <li class="border border-line bg-surface px-2.5 py-1 font-mono text-[0.625rem] leading-relaxed text-muted">
+                {step}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .workflow-tab[aria-selected='true'] {
+    background-color: var(--color-surface);
+    color: var(--color-fg);
+    box-shadow: inset 0 -2px 0 var(--color-accent);
+  }
+
+  [data-workflow-panels] {
+    touch-action: pan-y;
+  }
+
+  .workflow-panel.workflow-enter-next {
+    animation: workflow-enter-next 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .workflow-panel.workflow-enter-prev {
+    animation: workflow-enter-prev 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @keyframes workflow-enter-next {
+    from {
+      opacity: 0;
+      transform: translateX(14px);
+    }
+  }
+
+  @keyframes workflow-enter-prev {
+    from {
+      opacity: 0;
+      transform: translateX(-14px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .workflow-panel.workflow-enter-next,
+    .workflow-panel.workflow-enter-prev {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  type Direction = -1 | 0 | 1;
+
+  document.querySelectorAll<HTMLElement>('[data-workflow-explorer]').forEach((root) => {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-workflow-tab]'));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-workflow-panel]'));
+    const counter = root.querySelector<HTMLElement>('[data-workflow-count]');
+    const previous = root.querySelector<HTMLButtonElement>('[data-workflow-prev]');
+    const next = root.querySelector<HTMLButtonElement>('[data-workflow-next]');
+    const swipeArea = root.querySelector<HTMLElement>('[data-workflow-panels]');
+
+    if (!tabs.length || tabs.length !== panels.length) return;
+
+    let active = 0;
+
+    function show(index: number, direction: Direction = 0, focusTab = false) {
+      const target = ((index % panels.length) + panels.length) % panels.length;
+      active = target;
+
+      tabs.forEach((tab, i) => {
+        const selected = i === target;
+        tab.setAttribute('aria-selected', String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+      });
+
+      panels.forEach((panel, i) => {
+        panel.hidden = i !== target;
+      });
+
+      const panel = panels[target];
+      if (panel) {
+        panel.classList.remove('workflow-enter-next', 'workflow-enter-prev');
+        if (direction !== 0) {
+          void panel.offsetWidth;
+          panel.classList.add(direction > 0 ? 'workflow-enter-next' : 'workflow-enter-prev');
+        }
+      }
+
+      if (counter) counter.textContent = String(target + 1).padStart(2, '0');
+      if (focusTab) tabs[target]?.focus();
+      tabs[target]?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => show(index, index > active ? 1 : -1));
+
+      tab.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowRight') {
+          event.preventDefault();
+          show(index + 1, 1, true);
+        } else if (event.key === 'ArrowLeft') {
+          event.preventDefault();
+          show(index - 1, -1, true);
+        } else if (event.key === 'Home') {
+          event.preventDefault();
+          show(0, -1, true);
+        } else if (event.key === 'End') {
+          event.preventDefault();
+          show(tabs.length - 1, 1, true);
+        }
+      });
+    });
+
+    previous?.addEventListener('click', () => show(active - 1, -1));
+    next?.addEventListener('click', () => show(active + 1, 1));
+
+    if (swipeArea) {
+      let startX = 0;
+      let startY = 0;
+      let tracking = false;
+
+      swipeArea.addEventListener('pointerdown', (event) => {
+        if (event.pointerType === 'mouse') return;
+        startX = event.clientX;
+        startY = event.clientY;
+        tracking = true;
+      });
+
+      swipeArea.addEventListener('pointerup', (event) => {
+        if (!tracking) return;
+        tracking = false;
+
+        const dx = event.clientX - startX;
+        const dy = event.clientY - startY;
+        if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
+
+        show(active + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+      });
+
+      swipeArea.addEventListener('pointercancel', () => {
+        tracking = false;
+      });
+
+      swipeArea.addEventListener('pointerleave', () => {
+        tracking = false;
+      });
+    }
+  });
+</script>

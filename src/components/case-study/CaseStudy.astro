@@ -2,10 +2,12 @@
 import type { Lang } from '../../i18n/content';
 import type { ProjectCaseStudy } from '../../i18n/projects';
 import CaseSection from './CaseSection.astro';
+import DeployModal from './DeployModal.astro';
 import DiagramSystem from './DiagramSystem.astro';
 import DiagramEphemeral from './DiagramEphemeral.astro';
-import InfrastructureNotice from './InfrastructureNotice.astro';
 import LocalRepoCallout from './LocalRepoCallout.astro';
+import TerraformPreview from './TerraformPreview.astro';
+import WorkflowExplorer from './WorkflowExplorer.astro';
 
 interface Props {
   lang: Lang;
@@ -14,6 +16,12 @@ interface Props {
 
 const { lang, study } = Astro.props;
 const home = lang === 'es' ? '/es/' : '/';
+const triplannerUrl = 'https://triplanner.mcastillo.dev';
+// The app's own health check path (also used by the ALB target group).
+const triplannerHealthUrl = `${triplannerUrl}/login`;
+// Control-plane API Gateway: POST /wake dispatches the wake.yml workflow.
+// Keep this in sync with `terraform output -raw wake_url` in aws-infra/envs/control-plane.
+const wakeUrl = 'https://zev4y8ny7l.execute-api.us-east-1.amazonaws.com/wake';
 const copy =
   lang === 'es'
     ? {
@@ -21,12 +29,14 @@ const copy =
         contact: 'Hablemos',
         nextProject: 'Siguiente',
         backToWork: study.labels.backToWork,
+        deploy: 'Desplegar',
       }
     : {
         summary: 'Summary',
         contact: "Let's talk",
         nextProject: 'Next',
         backToWork: study.labels.backToWork,
+        deploy: 'Deploy',
       };
 ---
 
@@ -62,20 +72,20 @@ const copy =
             </div>
 
             <dl>
-              {study.meta
-                .filter((row) => !['estado', 'status'].includes(row.label.toLowerCase()))
-                .map((row) => (
-                  <div class="grid grid-cols-[4.5rem_1fr] gap-3 border-b border-line/70 px-5 py-3.5">
-                    <dt class="label pt-0.5 text-muted">{row.label}</dt>
-                    <dd class="text-sm leading-snug text-fg-soft">{row.value}</dd>
-                  </div>
-                ))}
+              {study.meta.map((row) => (
+                <div class="grid grid-cols-[4.5rem_1fr] gap-3 border-b border-line/70 px-5 py-3.5 last:border-b-0">
+                  <dt class="label pt-0.5 text-muted">{row.label}</dt>
+                  <dd class="text-sm leading-snug text-fg-soft">{row.value}</dd>
+                </div>
+              ))}
             </dl>
 
-            <div class="flex items-center gap-2 px-5 py-4">
-              <span class="status-dot"></span>
-              <span class="label text-fg-soft">{study.status}</span>
-            </div>
+            {study.status && (
+              <div class="flex items-center gap-2 border-t border-line/70 px-5 py-4">
+                <span class="status-dot"></span>
+                <span class="label text-fg-soft">{study.status}</span>
+              </div>
+            )}
           </div>
         </aside>
       </div>
@@ -264,8 +274,15 @@ const copy =
     <Fragment slot="wide">
       <DiagramEphemeral lang={lang} study={study} />
 
+      <TerraformPreview lang={lang} study={study} />
+
+      <WorkflowExplorer lang={lang} study={study} />
+
       <div class="mt-10 md:mt-12">
-        <InfrastructureNotice lang={lang} />
+        <button type="button" class="btn btn-primary" data-repo-deploy data-wake-url={wakeUrl}>
+          {copy.deploy}
+          <span aria-hidden="true">→</span>
+        </button>
       </div>
 
       <div class="mt-6 md:mt-8">
@@ -318,3 +335,5 @@ const copy =
     </div>
   </CaseSection>
 </article>
+
+<DeployModal lang={lang} appUrl={triplannerUrl} healthUrl={triplannerHealthUrl} wakeUrl={wakeUrl} />

@@ -1,0 +1,95 @@
+---
+import type { Lang } from '../../i18n/content';
+import type { ProjectCaseStudy } from '../../i18n/projects';
+import type { TerraformNode } from '../../data/terraformTree';
+import { terraformTree } from '../../data/terraformTree';
+
+interface Props {
+  lang: Lang;
+  study: ProjectCaseStudy;
+  node?: TerraformNode;
+  depth?: number;
+}
+
+const { lang, study, node = terraformTree, depth = 0 } = Astro.props;
+const copy = study.infrastructure.terraform;
+const isRoot = depth === 0;
+const titleId = `terraform-title-${lang}`;
+---
+
+{isRoot ? (
+  <aside
+    class="mt-10 border border-line bg-elevated md:mt-12"
+    aria-labelledby={titleId}
+    data-terraform-preview
+  >
+    <div class="flex flex-wrap items-start justify-between gap-4 border-b border-line px-5 py-5 md:px-6">
+      <div class="max-w-2xl">
+        <p class="label text-accent">{copy.label}</p>
+        <h3 id={titleId} class="mt-3 font-serif text-2xl leading-snug md:text-[1.75rem]">
+          {copy.title}
+        </h3>
+        <p class="mt-3 text-sm leading-relaxed text-muted">{copy.intro}</p>
+      </div>
+
+      <span class="label inline-flex shrink-0 items-center gap-2 border border-line px-2.5 py-1 text-muted">
+        <span aria-hidden="true">◇</span>
+        {copy.readOnly}
+      </span>
+    </div>
+
+    <div class="px-5 py-5 md:px-6">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line pb-3">
+        <span class="flex items-center gap-2 font-mono text-xs text-fg">
+          <span aria-hidden="true" class="text-accent">
+            ⌂
+          </span>
+          <span class="font-medium">{node.name}</span>
+          <span class="text-muted">/</span>
+        </span>
+      </div>
+
+      <div class="mt-4 overflow-x-auto">
+        <div class="min-w-[18rem] font-mono text-[0.8125rem] leading-relaxed">
+          {node.children?.map((child) => (
+            <Astro.self lang={lang} study={study} node={child} depth={1} />
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <p class="border-t border-line px-5 py-3 font-mono text-[0.625rem] leading-relaxed text-muted md:px-6">
+      {copy.note}
+    </p>
+  </aside>
+) : node.kind === 'folder' ? (
+  <details class="group" open={depth === 1}>
+    <summary class="flex cursor-pointer list-none items-center gap-2 py-[0.2rem] pr-2 transition-colors hover:text-accent [&::-webkit-details-marker]:hidden">
+      <span
+        aria-hidden="true"
+        class="inline-block w-[0.6rem] text-[0.6rem] text-muted transition-transform group-open:rotate-90"
+      >
+        ▸
+      </span>
+      <span class="text-fg-soft">
+        {node.name}
+        <span class="text-muted">/</span>
+      </span>
+    </summary>
+
+    {node.children && node.children.length > 0 && (
+      <div class="ml-[0.9rem] border-l border-line/60 pl-2.5">
+        {node.children.map((child) => (
+          <Astro.self lang={lang} study={study} node={child} depth={depth + 1} />
+        ))}
+      </div>
+    )}
+  </details>
+) : (
+  <div class="flex items-center gap-2 py-[0.2rem] text-muted">
+    <span aria-hidden="true" class="w-[0.6rem] text-center text-[0.5rem]">
+      ·
+    </span>
+    <span class="truncate">{node.name}</span>
+  </div>
+)}
