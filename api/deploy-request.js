@@ -221,7 +221,10 @@ async function sendEmail({ name, position, company, linkedin, state, action, ip,
 
   if (!response.ok) {
     const detail = await response.text().catch(() => '');
-    throw new Error(`Resend responded ${response.status}: ${detail.slice(0, 300)}`);
+    const error = new Error(`Resend responded ${response.status}: ${detail.slice(0, 300)}`);
+    error.status = response.status;
+    error.detail = detail.slice(0, 300);
+    throw error;
   }
 }
 
@@ -306,7 +309,11 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error('deploy-request: email failed', error);
-    return res.status(502).json({ error: 'email_failed' });
+    return res.status(502).json({
+      error: 'email_failed',
+      providerStatus: typeof error?.status === 'number' ? error.status : null,
+      providerMessage: typeof error?.detail === 'string' ? error.detail : null,
+    });
   }
 
   let wakeDispatched = false;

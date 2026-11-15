@@ -47,6 +47,9 @@ const copy =
         gateError: 'No se pudo verificar la solicitud. Intenta de nuevo.',
         rateError: 'Demasiadas solicitudes. Espera un minuto e intenta de nuevo.',
         configError: 'El deploy no está configurado todavía. Intenta más tarde.',
+        emailError:
+          'No se pudo enviar la notificación por email. Revisa la configuración de Resend e intenta de nuevo.',
+        wakeError: 'No se pudo iniciar el workflow de wake. Intenta de nuevo.',
         progressLead:
           'El stack está arrancando. Suele tardar entre 8 y 12 minutos; esta ventana se actualiza cuando el estado pasa a awake.',
         alreadyLead: 'El stack ya estaba en línea. No se ejecutó ningún workflow.',
@@ -109,6 +112,9 @@ const copy =
         gateError: 'Could not verify the request. Try again.',
         rateError: 'Too many requests. Wait a minute and try again.',
         configError: 'Deploy is not configured yet. Try again later.',
+        emailError:
+          'Could not send the email notification. Check the Resend configuration and try again.',
+        wakeError: 'Could not start the wake workflow. Try again.',
         progressLead:
           'The stack is starting. It usually takes 8–12 minutes; this window updates when the state becomes awake.',
         alreadyLead: 'The stack was already online. No workflow was run.',
@@ -155,6 +161,8 @@ const copy =
   data-gate-error={copy.gateError}
   data-rate-error={copy.rateError}
   data-config-error={copy.configError}
+  data-email-error={copy.emailError}
+  data-wake-error={copy.wakeError}
   data-gate-submit={copy.gateSubmit}
   data-gate-submitting={copy.gateSubmitting}
   data-already-lead={copy.alreadyLead}
@@ -619,6 +627,8 @@ const copy =
     const gateError = modal.dataset.gateError ?? 'Could not verify the request. Try again.';
     const rateError = modal.dataset.rateError ?? 'Too many requests. Try again later.';
     const configError = modal.dataset.configError ?? 'Deploy is not configured yet.';
+    const emailError = modal.dataset.emailError ?? 'Could not send the email notification.';
+    const wakeError = modal.dataset.wakeError ?? 'Could not start the wake workflow.';
     const gateSubmitLabel = modal.dataset.gateSubmit ?? 'Request deploy';
     const gateSubmittingLabel = modal.dataset.gateSubmitting ?? 'Checking…';
 
@@ -959,6 +969,8 @@ const copy =
             invalid_name: nameError,
             rate_limited: rateError,
             not_configured: configError,
+            email_failed: emailError,
+            wake_failed: wakeError,
           };
           const errorKey = data.error ?? '';
           showFormError(Object.hasOwn(messages, errorKey) ? messages[errorKey] : gateError);
