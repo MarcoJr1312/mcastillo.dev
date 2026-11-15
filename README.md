@@ -159,14 +159,16 @@ El botón de deploy del caso de estudio no dispara el workflow directamente. Pri
 
 El endpoint, en orden:
 
-1. Valida origen, campos, honeypot y rate limit básico por IP. La IP solo se usa en memoria para limitar abuso; no se guarda ni se envía por email.
-2. Consulta el estado real del control plane (`/status`).
-3. Envía un email con Resend al dueño del sitio con los datos de quien solicita el deploy.
-4. Si el stack está `asleep` o `error`, el email incluye botones para **aprobar o rechazar**. El wake **no se ejecuta** hasta que el dueño confirme en `api/deploy-approval.js`; el enlace de email solo abre una página de confirmación y no dispara nada por sí solo.
-5. Si el stack ya está `awake` o `waking`, no se pide aprobación ni se ejecuta otro workflow.
-6. El modal muestra el estado `pending` y permite comprobar si ya fue aprobado; el progreso solo aparece cuando el stack empieza a despertar.
+1. Valida origen, campos, honeypot y rate limit: 3 solicitudes por IP cada 10 minutos. La IP solo se usa en memoria para limitar abuso; no se guarda ni se envía por email.
+2. Si el navegador ya tiene una solicitud pendiente (cookie firmada, 30 minutos por defecto), responde `approval_pending` y **no envía otro email**.
+3. Consulta el estado real del control plane (`/status`).
+4. Si el stack ya está `awake` o `waking`, no envía email ni ejecuta el workflow.
+5. Si el stack está `asleep`, `error` o desconocido, envía un email con Resend al dueño del sitio y deja la solicitud `pending`.
+6. El email incluye botones para **aprobar o rechazar**. El wake **no se ejecuta** hasta que el dueño confirme en `api/deploy-approval.js`; el enlace del email solo abre una página de confirmación y no dispara nada por sí solo.
+7. El botón de deploy cambia a **Esperando aprobación** con un spinner y un enlace a `triplanner.mcastillo.dev`. El estado se mantiene aunque se recargue la página.
+8. El modal muestra el estado `pending` y permite comprobar si ya fue aprobado; el progreso solo aparece cuando el stack empieza a despertar.
 
-El token de aprobación se firma con HMAC y expira en 48 horas por defecto. `DEPLOY_APPROVAL_SECRET` es opcional: si no existe, se usa `RESEND_API_KEY` como fallback.
+El token de aprobación se firma con HMAC y expira en 48 horas por defecto. `DEPLOY_APPROVAL_SECRET` es opcional: si no existe, se usa `RESEND_API_KEY` como fallback. `DEPLOY_PENDING_TTL_SECONDS` controla cuánto dura el bloqueo de nuevas solicitudes desde el mismo navegador.
 
 Configura las variables de `.env.example` en **Vercel → Project → Settings → Environment Variables**. `RESEND_FROM` debe usar un dominio verificado en Resend. Sin `RESEND_API_KEY` el endpoint falla cerrado: no envía email y no despierta el stack.
 

@@ -1,10 +1,16 @@
 import { readStackStatus } from '../lib/deploy.js';
-import { createApprovalToken, getApprovalTtlSeconds } from '../lib/approval.js';
+import {
+  createApprovalToken,
+  createRequestCookie,
+  getApprovalTtlSeconds,
+  getPendingTtlSeconds,
+  verifyRequestCookie,
+} from '../lib/approval.js';
 
 const DEFAULT_ALLOWED_ORIGINS =
   'https://mcastillo.dev,https://www.mcastillo.dev,http://localhost:4321';
 const DEFAULT_NOTIFY_TO = 'macd.chicho@gmail.com';
-const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_WINDOW_MS = 10 * 60_000;
 const RATE_LIMIT_MAX = 3;
 
 const POSITION_LABELS = {
@@ -87,6 +93,29 @@ function getIp(req) {
   const forwarded = req.headers['x-forwarded-for'];
   const raw = Array.isArray(forwarded) ? forwarded[0] : forwarded || '';
   return raw.split(',')[0].trim() || String(req.headers['x-real-ip'] || '').trim() || 'unknown';
+}
+
+function getCookie(req, name) {
+  const header = req.headers.cookie;
+  if (!header) return '';
+
+  for (const part of String(header).split(';')) {
+    const [key, ...rest] = part.trim().split('=');
+    if (key === name) return rest.join('=');
+  }
+
+  return '';
+}
+
+function setPendingCookie(req, res, token, ttlSeconds) {
+  const proto = String(req.headers['x-forwarded-proto'] || '')
+    .split(',')[0]
+    .trim();
+  const secure = proto === 'https' ? '; Secure' : '';
+  res.setHeader(
+    'Set-Cookie',
+    `deploy_request=${token}; Path=/; Max-Age=${ttlSeconds}; HttpOnly; SameSite=Lax${secure}`,
+  );
 }
 
 function checkRateLimit(ip) {
@@ -239,6 +268,13 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, stack: 'online', suppressed: true });
   }
 
+  const pendingCookie = verifyRequestCookie(getCookie(req, 'deploy_request'));
+  if (pendingCookie) {
+    const retryAfter = Math.max(1, pendingCookie.x - Math.floor(Date.now() / 1000));
+    res.setHeader('Retry-After', String(retryAfter));
+    return res.status(429).json({ error: 'approval_pending', retryAfterSeconds: retryAfter });
+  }
+
   const ip = getIp(req);
   if (!checkRateLimit(ip)) {
     return res.status(429).json({ error: 'rate_limited' });
@@ -261,29 +297,33 @@ export default async function handler(req, res) {
   const { state } = await readStackStatus();
   const alreadyUp = state === 'awake';
   const alreadyWaking = state === 'waking';
-  const needsApproval = !alreadyUp && !alreadyWaking;
 
-  let approval = null;
-  if (needsApproval) {
-    const token = createApprovalToken({ name });
-    if (!token) {
-      console.error('deploy-request: approval secret is not configured');
-      return res.status(503).json({ error: 'not_configured' });
-    }
-
-    const base = (process.env.DEPLOY_SITE_URL || origin || 'https://mcastillo.dev').replace(
-      /\/+$/,
-      '',
-    );
-    const query = new URLSearchParams({ token }).toString();
-    const ttlHours = Math.max(1, Math.round(getApprovalTtlSeconds() / 3600));
-
-    approval = {
-      approveUrl: `${base}/api/deploy-approval?${query}&action=approve`,
-      rejectUrl: `${base}/api/deploy-approval?${query}&action=reject`,
-      ttlHours,
-    };
+  if (alreadyUp || alreadyWaking) {
+    return res.status(200).json({
+      ok: true,
+      stack: alreadyUp ? 'online' : 'waking',
+      approvalRequired: false,
+      emailSent: false,
+    });
   }
+
+  const token = createApprovalToken({ name });
+  if (!token) {
+    console.error('deploy-request: approval secret is not configured');
+    return res.status(503).json({ error: 'not_configured' });
+  }
+
+  const base = (process.env.DEPLOY_SITE_URL || origin || 'https://mcastillo.dev').replace(
+    /\/+$/,
+    '',
+  );
+  const query = new URLSearchParams({ token }).toString();
+  const ttlHours = Math.max(1, Math.round(getApprovalTtlSeconds() / 3600));
+  const approval = {
+    approveUrl: `${base}/api/deploy-approval?${query}&action=approve`,
+    rejectUrl: `${base}/api/deploy-approval?${query}&action=reject`,
+    ttlHours,
+  };
 
   const companyLabel =
     company === 'freelancer'
@@ -294,11 +334,6 @@ export default async function handler(req, res) {
   const positionLabel = Object.hasOwn(POSITION_LABELS, position)
     ? POSITION_LABELS[position]
     : position || 'No especificada';
-  const actionLabel = needsApproval
-    ? 'Pendiente de aprobación'
-    : alreadyUp
-      ? 'Stack ya despierto · sin workflow'
-      : 'Wake ya en progreso · sin nuevo workflow';
 
   try {
     await sendEmail({
@@ -307,7 +342,7 @@ export default async function handler(req, res) {
       company: companyLabel,
       linkedin,
       state,
-      action: actionLabel,
+      action: 'Pendiente de aprobación',
       approval,
     });
   } catch (error) {
@@ -319,10 +354,14 @@ export default async function handler(req, res) {
     });
   }
 
+  const pendingTtl = getPendingTtlSeconds();
+  const cookie = createRequestCookie({ ttlSeconds: pendingTtl });
+  if (cookie) setPendingCookie(req, res, cookie, pendingTtl);
+
   return res.status(200).json({
     ok: true,
-    stack: alreadyUp ? 'online' : alreadyWaking ? 'waking' : 'pending',
-    approvalRequired: needsApproval,
+    stack: 'pending',
+    approvalRequired: true,
     emailSent: true,
   });
 }

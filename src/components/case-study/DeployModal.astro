@@ -45,7 +45,7 @@ const copy =
         emailNote: 'Se envía una solicitud de aprobación por email.',
         nameError: 'Escribe tu nombre para continuar.',
         gateError: 'No se pudo verificar la solicitud. Intenta de nuevo.',
-        rateError: 'Demasiadas solicitudes. Espera un minuto e intenta de nuevo.',
+        rateError: 'Demasiadas solicitudes. Espera unos minutos e intenta de nuevo.',
         configError: 'El deploy no está configurado todavía. Intenta más tarde.',
         emailError:
           'No se pudo enviar la notificación por email. Revisa la configuración de Resend e intenta de nuevo.',
@@ -61,6 +61,7 @@ const copy =
         pendingCheck: 'Comprobar estado',
         pendingStill: 'Aún pendiente de aprobación. No se despertó el stack.',
         pendingClose: 'Entendido',
+        pendingAppLink: 'Mientras esperas, revisa',
         close: 'Cerrar',
         progress: 'Progreso del despliegue',
         elapsed: 'Tiempo',
@@ -118,7 +119,7 @@ const copy =
         emailNote: 'An approval request is sent by email.',
         nameError: 'Enter your name to continue.',
         gateError: 'Could not verify the request. Try again.',
-        rateError: 'Too many requests. Wait a minute and try again.',
+        rateError: 'Too many requests. Wait a few minutes and try again.',
         configError: 'Deploy is not configured yet. Try again later.',
         emailError:
           'Could not send the email notification. Check the Resend configuration and try again.',
@@ -134,6 +135,7 @@ const copy =
         pendingCheck: 'Check status',
         pendingStill: 'Still pending approval. The stack was not woken.',
         pendingClose: 'Got it',
+        pendingAppLink: 'While you wait, check',
         close: 'Close',
         progress: 'Deployment progress',
         elapsed: 'Elapsed',
@@ -464,12 +466,27 @@ const copy =
 
     <div data-deploy-pending-view hidden>
       <div class="px-5 py-6 md:px-6">
-        <p class="label text-accent">{copy.pendingEyebrow}</p>
+        <p class="label flex items-center gap-2 text-accent">
+          <span class="deploy-spinner" aria-hidden="true"></span>
+          {copy.pendingEyebrow}
+        </p>
         <p class="mt-3 max-w-2xl text-sm leading-relaxed text-fg-soft">{copy.pendingLead}</p>
 
         <div class="mt-5 border border-line bg-surface px-3 py-2.5 text-xs leading-relaxed text-muted">
           <p>{copy.pendingNote}</p>
         </div>
+
+        <p class="mt-4 text-xs leading-relaxed text-muted">
+          {copy.pendingAppLink}{' '}
+          <a
+            href={appUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="link-underline text-fg-soft transition-colors hover:text-accent"
+          >
+            triplanner.mcastillo.dev ↗
+          </a>
+        </p>
 
         <p
           class="mt-3 hidden font-mono text-[0.625rem] uppercase tracking-[0.12em] text-muted"
@@ -715,6 +732,12 @@ const copy =
     const retryButton = modal.querySelector<HTMLButtonElement>('[data-deploy-retry]');
     const closeButton = modal.querySelector<HTMLButtonElement>('[data-deploy-close]');
     const deployButtons = document.querySelectorAll<HTMLButtonElement>('[data-repo-deploy]');
+    const ctaLabel = document.querySelector<HTMLElement>('[data-deploy-cta-label]');
+    const ctaSpinner = document.querySelector<HTMLElement>('[data-deploy-cta-spinner]');
+    const ctaArrow = document.querySelector<HTMLElement>('[data-deploy-cta-arrow]');
+    const ctaNote = document.querySelector<HTMLElement>('[data-deploy-cta-note]');
+    const deployLabel = ctaLabel?.textContent ?? 'Deploy';
+    const waitingLabel = deployButtons[0]?.dataset.waitingLabel ?? 'Waiting for approval';
 
     const expectedSeconds = 600;
     const pollMs = 5000;
@@ -728,6 +751,7 @@ const copy =
     let started = false;
     let submitting = false;
     let polling = false;
+    let waitingForApproval = false;
     let session = 0;
     let timeoutSeconds = Number(modal.dataset.timeoutSeconds ?? 900);
     let tickId: number | undefined;
@@ -992,6 +1016,40 @@ const copy =
       if (companyOtherWrap && companySelect?.value !== 'other') companyOtherWrap.hidden = true;
     }
 
+    function showPendingView() {
+      if (gate) gate.hidden = true;
+      if (progressView) progressView.hidden = true;
+      if (pendingView) pendingView.hidden = false;
+      if (pendingStatus) {
+        pendingStatus.hidden = true;
+        pendingStatus.textContent = '';
+      }
+      setPhase('pending');
+    }
+
+    function setWaitingState(waiting: boolean) {
+      waitingForApproval = waiting;
+      if (ctaLabel) ctaLabel.textContent = waiting ? waitingLabel : deployLabel;
+      if (ctaSpinner) ctaSpinner.hidden = !waiting;
+      if (ctaArrow) ctaArrow.hidden = waiting;
+      if (ctaNote) ctaNote.hidden = !waiting;
+    }
+
+    function openPending() {
+      if (typeof modal.showModal !== 'function') {
+        if (appUrl) window.open(appUrl, '_blank', 'noopener');
+        return;
+      }
+
+      stopTimers();
+      session += 1;
+      started = false;
+      showPendingView();
+      if (!modal.open) modal.showModal();
+      document.documentElement.classList.add('deploy-open');
+      pendingCheck?.focus();
+    }
+
     function openModal() {
       if (typeof modal.showModal !== 'function') {
         if (appUrl) window.open(appUrl, '_blank', 'noopener');
@@ -1053,6 +1111,12 @@ const copy =
         };
 
         if (!response.ok) {
+          if (response.status === 429 && data.error === 'approval_pending') {
+            setWaitingState(true);
+            showPendingView();
+            return;
+          }
+
           const messages: Record<string, string> = {
             invalid_name: nameError,
             rate_limited: rateError,
@@ -1076,8 +1140,8 @@ const copy =
           if (progressView) progressView.hidden = false;
           startProgress();
         } else {
-          if (pendingView) pendingView.hidden = false;
-          setPhase('pending');
+          setWaitingState(true);
+          showPendingView();
         }
       } catch {
         showFormError(gateError);
@@ -1090,6 +1154,10 @@ const copy =
       button.addEventListener('click', (event) => {
         event.preventDefault();
         event.stopPropagation();
+        if (waitingForApproval) {
+          openPending();
+          return;
+        }
         openModal();
       });
     });
@@ -1113,5 +1181,18 @@ const copy =
       stopTimers();
       document.documentElement.classList.remove('deploy-open');
     });
+
+    void fetch('/api/deploy-session', {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { accept: 'application/json' },
+    })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: { pending?: boolean } | null) => {
+        if (data?.pending) setWaitingState(true);
+      })
+      .catch(() => {
+        // The session endpoint is only available on the deployed site.
+      });
   }
 </script>

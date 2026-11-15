@@ -200,6 +200,32 @@
     color: var(--color-fg);
   }
 
+  .deploy-spinner {
+    display: inline-block;
+    width: 0.875rem;
+    height: 0.875rem;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 999px;
+    animation: deploy-spin 800ms linear infinite;
+  }
+
+  .deploy-spinner[hidden] {
+    display: none;
+  }
+
+  @keyframes deploy-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .deploy-spinner {
+      animation-duration: 2.4s;
+    }
+  }
+
   .link-underline {
     position: relative;
     display: inline-block;

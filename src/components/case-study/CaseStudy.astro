@@ -24,12 +24,16 @@ const copy =
         contact: 'Hablemos',
         backToWork: study.labels.backToWork,
         deploy: 'Desplegar',
+        waitingCta: 'Esperando aprobación',
+        pendingCtaNote: 'Solicitud pendiente. Revisa',
       }
     : {
         summary: 'Summary',
         contact: "Let's talk",
         backToWork: study.labels.backToWork,
         deploy: 'Deploy',
+        waitingCta: 'Waiting for approval',
+        pendingCtaNote: 'Request pending. Check',
       };
 ---
 
@@ -271,11 +275,34 @@ const copy =
 
       <WorkflowExplorer lang={lang} study={study} />
 
-      <div class="mt-10 md:mt-12">
-        <button type="button" class="btn btn-primary" data-repo-deploy>
-          {copy.deploy}
-          <span aria-hidden="true">→</span>
+      <div class="mt-10 md:mt-12" data-deploy-cta>
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-repo-deploy
+          data-waiting-label={copy.waitingCta}
+        >
+          <span class="deploy-spinner" data-deploy-cta-spinner hidden aria-hidden="true"></span>
+          <span data-deploy-cta-label>{copy.deploy}</span>
+          <span data-deploy-cta-arrow aria-hidden="true">
+            →
+          </span>
         </button>
+        <p
+          class="mt-3 font-mono text-[0.625rem] uppercase tracking-[0.12em] text-muted"
+          data-deploy-cta-note
+          hidden
+        >
+          {copy.pendingCtaNote}{' '}
+          <a
+            href={triplannerUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="link-underline text-fg-soft transition-colors hover:text-accent"
+          >
+            triplanner.mcastillo.dev ↗
+          </a>
+        </p>
       </div>
 
       <div class="mt-6 md:mt-8">
