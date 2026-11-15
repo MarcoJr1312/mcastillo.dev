@@ -2,7 +2,7 @@ export type Lang = 'es' | 'en';
 
 export const site = {
   name: 'Marco Castillo',
-  role: 'Software Engineer',
+  role: 'Junior DevOps',
   email: 'macd.chicho@gmail.com',
   github: 'https://github.com/MarcoJr1312',
   linkedin: 'https://www.linkedin.com/in/marco-castillo-036b21382',
@@ -83,6 +83,8 @@ export interface SiteContent {
     intro: string;
     primaryCta: string;
     secondaryCta: string;
+    cvCta: string;
+    cvHref: string;
     cardLabel: string;
     cardVersion: string;
     rows: { label: string; value: string }[];
@@ -153,17 +155,17 @@ export interface SiteContent {
 export const content: Record<Lang, SiteContent> = {
   es: {
     meta: {
-      title: 'Marco Castillo — Software Engineer',
+      title: 'Marco Castillo — Junior DevOps',
       description:
-        'Portafolio y manifiesto de Marco Castillo, software engineer en Barrie, Canadá. Sistemas, APIs e infraestructura en la era de la IA.',
+        'Portafolio y manifiesto de Marco Castillo, Junior DevOps en Barrie, Canadá. Sistemas, APIs e infraestructura en la era de la IA.',
     },
     header: {
       nav: [
-        { label: 'Filosofía', href: '#philosophy' },
+        { label: 'Trayectoria', href: '#experience' },
         { label: 'Proyectos', href: '#work' },
         { label: 'Perfil', href: '#about' },
         { label: 'Stack', href: '#stack' },
-        { label: 'Trayectoria', href: '#experience' },
+        { label: 'Filosofía', href: '#philosophy' },
         { label: 'Contacto', href: '#contact' },
       ],
       menu: 'Menú',
@@ -172,17 +174,19 @@ export const content: Record<Lang, SiteContent> = {
       cta: 'Hablemos',
     },
     hero: {
-      eyebrow: 'Software Engineer · Barrie, ON',
-      availability: 'Abierto a colaboraciones',
+      eyebrow: 'Junior DevOps · Barrie, ON',
+      availability: 'Abierto a roles junior de DevOps y cloud',
       titleLines: ['Sistemas que', 'llegan a', 'producción.'],
       intro:
         'Soy Marco Castillo. Construyo infraestructura, APIs y productos que se despliegan solos y se mantienen de pie.',
-      primaryCta: 'Leer el manifiesto',
+      primaryCta: 'Ver experiencia',
       secondaryCta: 'Ver proyectos',
+      cvCta: 'Descargar CV · PDF',
+      cvHref: '/resume-marco-castillo.pdf',
       cardLabel: 'Actualmente',
       cardVersion: 'v.2026',
       rows: [
-        { label: 'Rol', value: 'Software Engineer' },
+        { label: 'Rol', value: 'Junior DevOps' },
         { label: 'Producto', value: 'Woky · implementación de pilotos' },
         { label: 'Base', value: 'Barrie, ON · Canadá' },
         { label: 'Estudiando', value: 'Computer System Technician' },
@@ -201,7 +205,7 @@ export const content: Record<Lang, SiteContent> = {
       'Terraform',
     ],
     philosophy: {
-      index: '01',
+      index: '05',
       label: 'Filosofía',
       meta: 'Notas de ingeniería · Manifiesto v1',
       readingTime: '4 min de lectura',
@@ -209,7 +213,7 @@ export const content: Record<Lang, SiteContent> = {
       deck: 'Estudiar software hoy es fácil y difícil al mismo tiempo. La IA escribe cada vez mejor; eso no vuelve menos importante el criterio de quien diseña el sistema.',
       authorLabel: 'Escrito por',
       author: 'Marco Castillo',
-      role: 'Software Engineer',
+      role: 'Junior DevOps',
       dateLabel: 'Publicado',
       date: 'Nov 2026',
       tagsLabel: 'Temas',
@@ -290,7 +294,7 @@ export const content: Record<Lang, SiteContent> = {
         { label: 'Educación', value: 'Georgian College · 2026' },
         { label: 'Certificación', value: 'Google Data Analytics · 2026' },
       ],
-      portraitCaption: 'Marco Castillo / Software Engineer',
+      portraitCaption: 'Marco Castillo / Junior DevOps',
       portraitMeta: 'Barrie, ON · 44.3894° N',
     },
     stack: {
@@ -311,7 +315,7 @@ export const content: Record<Lang, SiteContent> = {
       ],
     },
     experience: {
-      index: '05',
+      index: '01',
       label: 'Trayectoria',
       title: 'Dónde he construido.',
       note: 'Experiencia y formación.',
@@ -367,7 +371,7 @@ export const content: Record<Lang, SiteContent> = {
       socialLabel: 'En otros lugares',
       locationLabel: 'Base',
       timeLabel: 'Hora local',
-      availability: 'Abierto a colaboraciones',
+      availability: 'Abierto a roles junior de DevOps y cloud',
     },
     footer: {
       builtBy: 'Diseñado y construido por Marco Castillo.',
@@ -378,17 +382,17 @@ export const content: Record<Lang, SiteContent> = {
   },
   en: {
     meta: {
-      title: 'Marco Castillo — Software Engineer',
+      title: 'Marco Castillo — Junior DevOps',
       description:
-        'Portfolio and manifesto of Marco Castillo, a software engineer based in Barrie, Canada. Systems, APIs, and infrastructure in the age of AI.',
+        'Portfolio and manifesto of Marco Castillo, a junior DevOps engineer based in Barrie, Canada. Systems, APIs, and infrastructure in the age of AI.',
     },
     header: {
       nav: [
-        { label: 'Philosophy', href: '#philosophy' },
+        { label: 'Experience', href: '#experience' },
         { label: 'Work', href: '#work' },
         { label: 'About', href: '#about' },
         { label: 'Stack', href: '#stack' },
-        { label: 'Experience', href: '#experience' },
+        { label: 'Philosophy', href: '#philosophy' },
         { label: 'Contact', href: '#contact' },
       ],
       menu: 'Menu',
@@ -397,17 +401,19 @@ export const content: Record<Lang, SiteContent> = {
       cta: "Let's talk",
     },
     hero: {
-      eyebrow: 'Software Engineer · Barrie, ON',
-      availability: 'Open to collaborations',
+      eyebrow: 'Junior DevOps · Barrie, ON',
+      availability: 'Open to junior DevOps and cloud roles',
       titleLines: ['Systems that', 'make it to', 'production.'],
       intro:
         "I'm Marco Castillo. I build infrastructure, APIs, and products that deploy themselves and stay up.",
-      primaryCta: 'Read the manifesto',
+      primaryCta: 'View experience',
       secondaryCta: 'See selected work',
+      cvCta: 'Download CV · PDF',
+      cvHref: '/resume-marco-castillo.pdf',
       cardLabel: 'Currently',
       cardVersion: 'v.2026',
       rows: [
-        { label: 'Role', value: 'Software Engineer' },
+        { label: 'Role', value: 'Junior DevOps' },
         { label: 'Product', value: 'Woky · pilot implementation' },
         { label: 'Based in', value: 'Barrie, ON · Canada' },
         { label: 'Studying', value: 'Computer System Technician' },
@@ -426,7 +432,7 @@ export const content: Record<Lang, SiteContent> = {
       'Terraform',
     ],
     philosophy: {
-      index: '01',
+      index: '05',
       label: 'Philosophy',
       meta: 'Engineering notes · Manifesto v1',
       readingTime: '4 min read',
@@ -434,7 +440,7 @@ export const content: Record<Lang, SiteContent> = {
       deck: 'Learning software today is easy and hard at the same time. AI writes better code every day; that does not make the judgment of the person designing the system less important.',
       authorLabel: 'Written by',
       author: 'Marco Castillo',
-      role: 'Software Engineer',
+      role: 'Junior DevOps',
       dateLabel: 'Published',
       date: 'Nov 2026',
       tagsLabel: 'Topics',
@@ -515,7 +521,7 @@ export const content: Record<Lang, SiteContent> = {
         { label: 'Education', value: 'Georgian College · 2026' },
         { label: 'Certification', value: 'Google Data Analytics · 2026' },
       ],
-      portraitCaption: 'Marco Castillo / Software Engineer',
+      portraitCaption: 'Marco Castillo / Junior DevOps',
       portraitMeta: 'Barrie, ON · 44.3894° N',
     },
     stack: {
@@ -536,7 +542,7 @@ export const content: Record<Lang, SiteContent> = {
       ],
     },
     experience: {
-      index: '05',
+      index: '01',
       label: 'Experience',
       title: "Where I've built.",
       note: 'Experience and education.',
@@ -592,7 +598,7 @@ export const content: Record<Lang, SiteContent> = {
       socialLabel: 'Elsewhere',
       locationLabel: 'Based in',
       timeLabel: 'Local time',
-      availability: 'Open to collaborations',
+      availability: 'Open to junior DevOps and cloud roles',
     },
     footer: {
       builtBy: 'Designed and built by Marco Castillo.',

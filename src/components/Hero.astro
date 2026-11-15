@@ -37,13 +37,17 @@ const t = content[lang];
         <p class="mt-8 max-w-xl text-lg leading-relaxed text-fg-soft md:text-xl">{t.hero.intro}</p>
 
         <div class="mt-10 flex flex-wrap gap-3">
-          <a href="#philosophy" class="btn btn-primary">
+          <a href="#experience" class="btn btn-primary">
             {t.hero.primaryCta}
             <span aria-hidden="true">↓</span>
           </a>
           <a href="#work" class="btn">
             {t.hero.secondaryCta}
             <span aria-hidden="true">→</span>
+          </a>
+          <a href={t.hero.cvHref} download class="btn">
+            {t.hero.cvCta}
+            <span aria-hidden="true">↓</span>
           </a>
         </div>
       </div>

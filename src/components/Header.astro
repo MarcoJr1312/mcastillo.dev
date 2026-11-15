@@ -1,5 +1,5 @@
 ---
-import { content, type Lang } from '../i18n/content';
+import { content, site, type Lang } from '../i18n/content';
 
 interface Props {
   lang: Lang;
@@ -28,7 +28,7 @@ const anchor = (hash: string) => (isHome ? hash : `${home}${hash}`);
       </span>
       <span class="hidden sm:block">
         <span class="block font-serif text-lg leading-none tracking-tight">Marco Castillo</span>
-        <span class="label mt-1 block text-muted">Software Engineer</span>
+        <span class="label mt-1 block text-muted">{site.role}</span>
       </span>
       <span class="sr-only">
         {lang === 'es' ? 'Marco Castillo — inicio' : 'Marco Castillo — home'}
