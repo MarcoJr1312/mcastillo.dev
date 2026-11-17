@@ -335,25 +335,28 @@ const triplannerEs: ProjectCaseStudy = {
     label: 'Infraestructura',
     title: 'Lo que se puede destruir no se diseña igual.',
     body: [
-      'El stack efímero separa dos mundos. El control plane es pequeño y permanente: recibe la orden de despertar, comprueba si hay tráfico y guarda el estado de Terraform. El stack de aplicación es desechable: VPC, RDS, DynamoDB, S3, ALB con WAF y tres servicios en ECS Fargate.',
-      'El ciclo es explícito: se aplica Terraform con desired_count=1, se corren migraciones y seed, se actualiza el CNAME de Cloudflare al nuevo ALB y se marca el estado como awake. Cuando la Lambda deja de ver tráfico durante 30 minutos, dispara destroy y el estado vuelve a asleep.',
+      'El stack efímero separa dos mundos. El control plane es pequeño y permanente: recibe la orden de despertar, comprueba si hay tráfico, guarda el estado de Terraform y sirve la página que se ve mientras el stack duerme. El stack de aplicación es desechable: VPC, RDS, DynamoDB, S3, ALB con WAF y tres servicios en ECS Fargate.',
+      'El ciclo es explícito: se aplica Terraform con desired_count=1, se corren migraciones y seed, se actualiza el CNAME de Cloudflare al nuevo ALB y se marca el estado como awake. Cuando la Lambda deja de ver tráfico durante 30 minutos, dispara destroy, el hostname vuelve a Cloudflare Pages y el estado regresa a asleep.',
     ],
     lifecycle: [
       {
         label: 'Despertar',
-        detail: 'POST /wake → repository_dispatch → terraform apply + migraciones + seed.',
+        detail:
+          'POST /wake → repository_dispatch → terraform apply + migraciones + seed → DNS al ALB.',
       },
       {
         label: 'Servir',
-        detail: 'Cloudflare apunta al ALB; WAF filtra; ECS corre web, API y agente.',
+        detail:
+          'Cloudflare apunta al ALB; WAF filtra; ECS corre web, API y agente. Solo entran IPs de Cloudflare.',
       },
       {
         label: 'Dormir',
-        detail: 'Sleep-check ve 30 minutos sin tráfico y dispara terraform destroy.',
+        detail: 'Sleep-check ve 30 minutos sin tráfico, dispara destroy y el DNS vuelve a Pages.',
       },
       {
         label: 'Sobrevivir',
-        detail: 'Estado, Lambdas, ECR, ACM y el secreto de GitHub siguen en pie.',
+        detail:
+          'Estado, Lambdas, ECR, ACM, el token de GitHub y la página en Cloudflare Pages siguen en pie.',
       },
     ],
     terraform: {
@@ -446,11 +449,11 @@ const triplannerEs: ProjectCaseStudy = {
       ],
     },
     caption:
-      'Fig. 02 — Stack efímero. Arriba, lo que nunca se destruye; abajo, lo que se reconstruye en cada despertar.',
-    note: 'RDS es Single-AZ a propósito: menos tiempo de arranque, sin garantía de alta disponibilidad. El DNS del ALB cambia en cada apply, así que el workflow actualiza Cloudflare.',
+      'Fig. 02 — Stack efímero. Arriba, lo que nunca se destruye; abajo, lo que se reconstruye en cada despertar. El DNS de Cloudflare alterna entre el ALB y la página de estado.',
+    note: 'RDS es Single-AZ a propósito: menos tiempo de arranque, sin garantía de alta disponibilidad. El DNS del ALB cambia en cada apply, así que wake y sleep mueven el hostname entre el ALB y Cloudflare Pages; el ALB solo acepta tráfico desde los rangos de Cloudflare.',
     diagramTitle: 'Diagrama del stack AWS efímero',
     diagramDesc:
-      'El control plane siempre activo contiene GitHub Actions, la API de wake, EventBridge con la Lambda de sleep-check y el estado en S3 con ECR y ACM. El stack efímero contiene Cloudflare, el ALB con WAF, ECS Fargate con web, API y agente, y RDS, DynamoDB y S3, que se destruyen al dormir.',
+      'El control plane siempre activo contiene GitHub Actions con los workflows de wake, sleep y status page, la API de control con /wake y /status, EventBridge con la Lambda de sleep-check, la página de estado en Cloudflare Pages y el estado persistente en DynamoDB, S3, ECR y ACM. El stack efímero contiene Cloudflare con el DNS que alterna entre el ALB y la página de estado, el ALB con WAF que solo acepta tráfico de Cloudflare, ECS Fargate con web, API y agente, y RDS, DynamoDB y S3, que se destruyen al dormir.',
   },
   localRepo: {
     label: 'Demo local',
@@ -728,25 +731,29 @@ const triplannerEn: ProjectCaseStudy = {
     label: 'Infrastructure',
     title: 'What can be destroyed is not designed the same way.',
     body: [
-      'The ephemeral stack separates two worlds. The control plane is small and permanent: it receives the wake command, checks for traffic, and stores Terraform state. The application stack is disposable: VPC, RDS, DynamoDB, S3, an ALB with WAF, and three services on ECS Fargate.',
-      'The cycle is explicit: Terraform applies with desired_count=1, migrations and seed run, the Cloudflare CNAME is updated to the new ALB, and the state is marked awake. When the Lambda sees no traffic for 30 minutes, it triggers destroy and the state returns to asleep.',
+      'The ephemeral stack separates two worlds. The control plane is small and permanent: it receives the wake command, checks for traffic, stores Terraform state, and serves the page people see while the stack sleeps. The application stack is disposable: VPC, RDS, DynamoDB, S3, an ALB with WAF, and three services on ECS Fargate.',
+      'The cycle is explicit: Terraform applies with desired_count=1, migrations and seed run, the Cloudflare CNAME is updated to the new ALB, and the state is marked awake. When the Lambda sees no traffic for 30 minutes, it triggers destroy, the hostname returns to Cloudflare Pages, and the state goes back to asleep.',
     ],
     lifecycle: [
       {
         label: 'Wake',
-        detail: 'POST /wake → repository_dispatch → terraform apply + migrations + seed.',
+        detail:
+          'POST /wake → repository_dispatch → terraform apply + migrations + seed → DNS to the ALB.',
       },
       {
         label: 'Serve',
-        detail: 'Cloudflare points to the ALB; WAF filters; ECS runs web, API, and agent.',
+        detail:
+          'Cloudflare points to the ALB; WAF filters; ECS runs web, API, and agent. Only Cloudflare IPs get in.',
       },
       {
         label: 'Sleep',
-        detail: 'Sleep-check sees 30 minutes without traffic and triggers terraform destroy.',
+        detail:
+          'Sleep-check sees 30 minutes without traffic, triggers destroy, and DNS returns to Pages.',
       },
       {
         label: 'Survive',
-        detail: 'State, Lambdas, ECR, ACM, and the GitHub secret stay up.',
+        detail:
+          'State, Lambdas, ECR, ACM, the GitHub token, and the Cloudflare Pages status page stay up.',
       },
     ],
     terraform: {
@@ -839,11 +846,11 @@ const triplannerEn: ProjectCaseStudy = {
       ],
     },
     caption:
-      'Fig. 02 — Ephemeral stack. Above, what is never destroyed; below, what is rebuilt on every wake.',
-    note: 'RDS is Single-AZ on purpose: shorter start time, no high-availability guarantee. The ALB DNS name changes on every apply, so the workflow updates Cloudflare.',
+      'Fig. 02 — Ephemeral stack. Above, what is never destroyed; below, what is rebuilt on every wake. Cloudflare DNS switches between the ALB and the status page.',
+    note: 'RDS is Single-AZ on purpose: shorter start time, no high-availability guarantee. The ALB DNS name changes on every apply, so wake and sleep move the hostname between the ALB and Cloudflare Pages; the ALB only accepts traffic from Cloudflare ranges.',
     diagramTitle: 'Ephemeral AWS stack diagram',
     diagramDesc:
-      'The always-on control plane contains GitHub Actions, the wake API, EventBridge with the sleep-check Lambda, and the state in S3 with ECR and ACM. The ephemeral stack contains Cloudflare, the ALB with WAF, ECS Fargate with web, API, and agent, and RDS, DynamoDB, and S3, which are destroyed on sleep.',
+      'The always-on control plane contains GitHub Actions with the wake, sleep, and status-page workflows, the control API with /wake and /status, EventBridge with the sleep-check Lambda, the status page on Cloudflare Pages, and persistent state in DynamoDB, S3, ECR, and ACM. The ephemeral stack contains Cloudflare with DNS that switches between the ALB and the status page, the ALB with WAF that only accepts Cloudflare traffic, ECS Fargate with web, API, and agent, and RDS, DynamoDB, and S3, which are destroyed on sleep.',
   },
   localRepo: {
     label: 'Local demo',
