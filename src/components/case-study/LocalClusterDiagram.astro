@@ -99,7 +99,7 @@ const t =
     aria-label={study.architecture.diagramTitle}
   >
     <svg
-      viewBox="0 0 1040 690"
+      viewBox="0 0 1040 790"
       class="h-auto w-full min-w-[820px]"
       role="img"
       aria-labelledby={`cluster-title-${lang}`}
@@ -204,7 +204,7 @@ const t =
       </defs>
 
       <!-- Cluster boundary and headers -->
-      <rect class="cl-boundary" x="8" y="8" width="1024" height="664"></rect>
+      <rect class="cl-boundary" x="8" y="8" width="1024" height="774"></rect>
       <text class="cl-head" x="22" y="30">
         {t.cluster}
       </text>
@@ -464,14 +464,14 @@ const t =
       </g>
 
       <g>
-        <rect class="cl-box" x="800" y="510" width="150" height="62"></rect>
-        <text class="cl-title" x="814" y="532">
+        <rect class="cl-box" x="800" y="590" width="150" height="62"></rect>
+        <text class="cl-title" x="814" y="612">
           RESEND / SINK
         </text>
-        <text class="cl-sub" x="814" y="547">
+        <text class="cl-sub" x="814" y="627">
           {lang === 'es' ? 'externo' : 'external'}
         </text>
-        <text class="cl-label" x="814" y="563">
+        <text class="cl-label" x="814" y="643">
           {t.external[0]}
         </text>
       </g>
@@ -519,13 +519,13 @@ const t =
         {t.labels.poll}
       </text>
 
-      <path class="cl-arrow" d="M760,541 H800" marker-end="url(#cl-arrow)"></path>
-      <text class="cl-label" x="780" y="530" text-anchor="middle">
+      <path class="cl-arrow" d="M760,541 H790 V621 H800" marker-end="url(#cl-arrow)"></path>
+      <text class="cl-label" x="796" y="580">
         {t.labels.send}
       </text>
 
       <path class="cl-arrow" d="M480,445 H780 V528 H830" marker-end="url(#cl-arrow)"></path>
-      <text class="cl-label" x="788" y="490">
+      <text class="cl-label" x="786" y="480">
         {t.labels.pgvector}
       </text>
 
@@ -539,37 +539,37 @@ const t =
       <path class="cl-arrow" d="M760,320 H830" marker-end="url(#cl-arrow)"></path>
 
       <!-- Control band -->
-      <line class="cl-line" x1="22" y1="590" x2="1018" y2="590"></line>
-      <text class="cl-head" x="22" y="606">
+      <line class="cl-line" x1="22" y1="680" x2="1018" y2="680"></line>
+      <text class="cl-head" x="22" y="696">
         {t.control}
       </text>
 
       <g>
-        <rect class="cl-box-inner" x="22" y="616" width="320" height="46"></rect>
-        <text class="cl-title" x="36" y="636">
+        <rect class="cl-box-inner" x="22" y="706" width="320" height="46"></rect>
+        <text class="cl-title" x="36" y="726">
           PROMETHEUS + GRAFANA
         </text>
-        <text class="cl-sub" x="36" y="652">
+        <text class="cl-sub" x="36" y="742">
           {t.prometheus}
         </text>
       </g>
 
       <g>
-        <rect class="cl-box-inner" x="360" y="616" width="300" height="46"></rect>
-        <text class="cl-title" x="374" y="636">
+        <rect class="cl-box-inner" x="360" y="706" width="300" height="46"></rect>
+        <text class="cl-title" x="374" y="726">
           EXPORTERS
         </text>
-        <text class="cl-sub" x="374" y="652">
+        <text class="cl-sub" x="374" y="742">
           {t.exporters}
         </text>
       </g>
 
       <g>
-        <rect class="cl-box-inner" x="680" y="616" width="340" height="46"></rect>
-        <text class="cl-title" x="694" y="636">
+        <rect class="cl-box-inner" x="680" y="706" width="340" height="46"></rect>
+        <text class="cl-title" x="694" y="726">
           ARGO CD · triplanner-agrocd
         </text>
-        <text class="cl-sub" x="694" y="652">
+        <text class="cl-sub" x="694" y="742">
           {t.argocd}
         </text>
       </g>
