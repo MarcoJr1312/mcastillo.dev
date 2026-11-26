@@ -51,6 +51,17 @@ export interface LocalCaseStudy {
   learnings: CaseStudySection & {
     items: { title: string; body: string }[];
   };
+  next: CaseStudySection & {
+    intro: string;
+    items: {
+      label: string;
+      tool: string;
+      title: string;
+      body: string;
+      points: string[];
+    }[];
+    note: string;
+  };
   repo: {
     label: string;
     title: string;
@@ -102,6 +113,7 @@ const localEs: LocalCaseStudy = {
     { label: 'Decisiones', href: '#decisiones' },
     { label: 'Observabilidad', href: '#observabilidad' },
     { label: 'Aprendizajes', href: '#aprendizajes' },
+    { label: 'Próximos pasos', href: '#siguiente' },
     { label: 'Repo', href: '#repo' },
   ],
   baseline: {
@@ -482,6 +494,39 @@ const localEs: LocalCaseStudy = {
       },
     ],
   },
+  next: {
+    id: 'siguiente',
+    index: '07',
+    label: 'Próximos pasos',
+    title: 'Lo que falta para cerrar la observabilidad.',
+    intro:
+      'Las métricas responden qué está pasando y cuánto, pero no siempre por qué. El siguiente paso es completar los tres pilares con logs y trazas, usando el mismo Grafana como punto de entrada.',
+    items: [
+      {
+        label: 'Logs',
+        tool: 'Loki',
+        title: 'Un solo lugar para los logs.',
+        body: 'Hoy los logs viven en los pods y se consultan con kubectl. Loki los centraliza con etiquetas por servicio, namespace y nivel, y permite saltar de una métrica o una traza al log exacto sin cambiar de herramienta.',
+        points: [
+          'LogQL para filtrar por servicio, nivel y trace ID.',
+          'Retención y costo bajo control: indexa etiquetas, no el contenido.',
+          'Correlación con Grafana: del panel al log en un clic.',
+        ],
+      },
+      {
+        label: 'Tracing',
+        tool: 'Tempo',
+        title: 'Ver el recorrido completo.',
+        body: 'Tempo recibe trazas OpenTelemetry y reconstruye el recorrido entre la web, el API facade, users, trips y locations. Sirve para explicar por qué subió un p95 y en qué salto se fue el tiempo.',
+        points: [
+          'Propagación de trace ID por HTTP y gRPC.',
+          'Un span por servicio y por consulta a la base.',
+          'Muestreo para no pagar el costo de trazas que nadie va a mirar.',
+        ],
+      },
+    ],
+    note: 'El orden importa: primero instrumentar los runtimes con OpenTelemetry y añadir un collector; después Loki y Tempo en el namespace de observabilidad. Grafana sigue siendo la única entrada, ahora con métricas, logs y trazas correlacionados.',
+  },
   repo: {
     label: 'El repositorio',
     title: 'Todo el viaje está en local_triplanner.',
@@ -533,6 +578,7 @@ const localEn: LocalCaseStudy = {
     { label: 'Decisions', href: '#decisiones' },
     { label: 'Observability', href: '#observabilidad' },
     { label: 'Learnings', href: '#aprendizajes' },
+    { label: 'Next steps', href: '#next' },
     { label: 'Repo', href: '#repo' },
   ],
   baseline: {
@@ -911,6 +957,39 @@ const localEn: LocalCaseStudy = {
         body: 'The goal was learning where to cut. Some things stay together on purpose: the agent speaks HTTP, broker and email keep local images, and the demo is still one Compose command.',
       },
     ],
+  },
+  next: {
+    id: 'next',
+    index: '07',
+    label: 'Next steps',
+    title: 'What is still missing to close observability.',
+    intro:
+      'Metrics answer what is happening and how much, but not always why. The next step is to complete the three pillars with logs and traces, using the same Grafana as the entry point.',
+    items: [
+      {
+        label: 'Logs',
+        tool: 'Loki',
+        title: 'One place for logs.',
+        body: 'Today logs live in the pods and are read with kubectl. Loki centralizes them with labels for service, namespace, and level, and lets you jump from a metric or a trace to the exact log without switching tools.',
+        points: [
+          'LogQL to filter by service, level, and trace ID.',
+          'Retention and cost under control: it indexes labels, not content.',
+          'Grafana correlation: from panel to log in one click.',
+        ],
+      },
+      {
+        label: 'Tracing',
+        tool: 'Tempo',
+        title: 'See the full path of a request.',
+        body: 'Tempo receives OpenTelemetry traces and reconstructs the path across the web app, the API facade, users, trips, and locations. It explains why a p95 went up and which hop spent the time.',
+        points: [
+          'Trace ID propagation over HTTP and gRPC.',
+          'One span per service and per database query.',
+          'Sampling so you do not pay for traces nobody will read.',
+        ],
+      },
+    ],
+    note: 'Order matters: instrument the runtimes with OpenTelemetry and add a collector first; then Loki and Tempo in the observability namespace. Grafana stays the single entry point, now with correlated metrics, logs, and traces.',
   },
   repo: {
     label: 'The repository',
