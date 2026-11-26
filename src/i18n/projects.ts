@@ -81,7 +81,7 @@ export interface ProjectCaseStudy {
     diagramTitle: string;
     diagramDesc: string;
   };
-  localRepo: {
+  localRepo?: {
     label: string;
     title: string;
     body: string;
@@ -92,6 +92,13 @@ export interface ProjectCaseStudy {
     note: string;
     repoLabel: string;
     repoUrl: string;
+  };
+  relatedStudy?: {
+    label: string;
+    title: string;
+    body: string;
+    href: string;
+    linkLabel: string;
   };
   learnings: CaseStudySection & {
     items: { title: string; body: string }[];
@@ -108,12 +115,12 @@ export interface ProjectCaseStudy {
 
 const triplannerEs: ProjectCaseStudy = {
   slug: 'triplanner',
-  seoTitle: 'Triplanner — Caso de estudio',
+  seoTitle: 'AWS Trip Planner — Caso de estudio',
   kicker: 'Caso de estudio · 01',
-  name: 'Triplanner',
+  name: 'AWS Trip Planner',
   year: '2026',
   title: 'Planear un viaje es un problema de estado compartido.',
-  lead: 'Triplanner nació de una frustración concreta: cuando cuatro personas planean el mismo viaje, la información se reparte entre chats, hojas de cálculo y capturas. Construí una app que mantiene el itinerario, el presupuesto y los documentos en un solo lugar, con permisos explícitos y sugerencias de IA que no deciden por nadie.',
+  lead: 'AWS Trip Planner nació de una frustración concreta: cuando cuatro personas planean el mismo viaje, la información se reparte entre chats, hojas de cálculo y capturas. Construí una app que mantiene el itinerario, el presupuesto y los documentos en un solo lugar, con permisos explícitos y sugerencias de IA que no deciden por nadie. Este caso cubre su despliegue efímero en AWS.',
   meta: [
     { label: 'Rol', value: 'Producto, frontend, backend e infraestructura' },
     { label: 'Año', value: '2026' },
@@ -121,10 +128,10 @@ const triplannerEs: ProjectCaseStudy = {
       label: 'Stack',
       value: 'Next.js · GraphQL · Postgres · MongoDB · Python · Docker · Terraform',
     },
-    { label: 'Repo', value: 'Público · MarcoJr1312/local_triplanner' },
+    { label: 'Repo', value: 'Privado · aws_triplanner' },
   ],
   abstract:
-    'La versión actual corre entera en localhost: tres procesos, dos bases de datos y un agente. La infraestructura AWS existe como stack efímero: se levanta bajo demanda y se destruye tras 30 minutos sin tráfico. Elegí esa forma porque el problema interesante no era desplegar, sino decidir qué merece persistir, qué se puede reconstruir y dónde vive cada verdad.',
+    'La versión AWS vive en un stack efímero: se levanta bajo demanda y se destruye tras 30 minutos sin tráfico. Elegí esa forma porque el problema interesante no era desplegar, sino decidir qué merece persistir, qué se puede reconstruir y dónde vive cada verdad. La versión local y su migración a microservicios son un proyecto aparte: Local Trip Planner.',
   toc: [
     { label: 'El problema', href: '#problema' },
     { label: 'Proceso', href: '#proceso' },
@@ -455,17 +462,12 @@ const triplannerEs: ProjectCaseStudy = {
     diagramDesc:
       'El control plane siempre activo contiene GitHub Actions con los workflows de wake, sleep y status page, la API de control con /wake y /status, EventBridge con la Lambda de sleep-check, la página de estado en Cloudflare Pages y el estado persistente en DynamoDB, S3, ECR y ACM. El stack efímero contiene Cloudflare con el DNS que alterna entre el ALB y la página de estado, el ALB con WAF que solo acepta tráfico de Cloudflare, ECS Fargate con web, API y agente, y RDS, DynamoDB y S3, que se destruyen al dormir.',
   },
-  localRepo: {
-    label: 'Demo local',
-    title: 'También puedes correrlo en tu máquina.',
-    body: 'El stack AWS efímero tarda entre 8 y 12 minutos en despertar. Si no quieres esperar, local_triplanner empaqueta la misma app con Docker Compose: Next.js, GraphQL sobre Bun, el agente en Python, Postgres y MongoDB, con datos sembrados y sin cuentas externas.',
-    cloneLabel: 'Clona el repositorio',
-    cloneCommand: 'git clone https://github.com/MarcoJr1312/local_triplanner.git',
-    copyLabel: 'Copiar',
-    copiedLabel: 'Copiado',
-    note: 'Después entra en la carpeta, corre docker compose up --build y abre localhost:3000/login. Elige Demo o Demo Friend.',
-    repoLabel: 'Abrir local_triplanner en GitHub',
-    repoUrl: 'https://github.com/MarcoJr1312/local_triplanner',
+  relatedStudy: {
+    label: 'Proyecto relacionado',
+    title: '¿Buscas la migración a microservicios?',
+    body: 'Local Trip Planner es el laboratorio local donde el mismo producto se convirtió en ocho servicios sobre Kubernetes, con Helm, Cilium, gRPC, Prometheus, Grafana y Argo CD. Tiene su propio caso de estudio y su propio repositorio.',
+    href: '/es/proyectos/local-triplanner/',
+    linkLabel: 'Ver Local Trip Planner',
   },
   learnings: {
     id: 'aprendizajes',
@@ -474,16 +476,16 @@ const triplannerEs: ProjectCaseStudy = {
     title: 'Lo que me costó y lo que haría distinto.',
     items: [
       {
-        title: 'Migrar el motor no es cambiar una cadena de conexión',
-        body: 'Pasar de SQLite con FTS5 a Postgres + DynamoDB obligó a reescribir repositorios, migraciones y pruebas. Lo hice por partes, con la suite en verde en cada paso.',
+        title: 'El cold start es una decisión de producto',
+        body: 'Despertar tarda entre 8 y 12 minutos. No es solo espera: es la primera impresión. La página de estado y el botón de despertar existen para hacer explícito ese costo, no para esconderlo.',
       },
       {
-        title: 'El entorno de desarrollo también tiene arquitectura',
-        body: 'Correr next build mientras next dev sirve el mismo .next rompe los chunks. Separar artefactos y limpiar al cambiar de runtime se volvió parte del flujo.',
+        title: 'El DNS es parte del ciclo de vida',
+        body: 'El ALB cambia de hostname en cada apply. Mover el CNAME entre el ALB y Cloudflare Pages convirtió el DNS en una pieza del estado, no en un detalle de configuración.',
       },
       {
-        title: 'La infraestructura efímera tiene un costo escondido',
-        body: 'El cold start no es solo espera: es una experiencia de producto. Si el demo tarda diez minutos en despertar, la primera impresión ya está decidida.',
+        title: 'Lo que sobrevive hay que diseñarlo aparte',
+        body: 'El control plane (Lambdas, EventBridge, estado, ECR, ACM) es pequeño pero permanente. La aplicación se puede destruir sin drama porque él no.',
       },
       {
         title: 'Los permisos se diseñan en el dato',
@@ -503,12 +505,12 @@ const triplannerEs: ProjectCaseStudy = {
 
 const triplannerEn: ProjectCaseStudy = {
   slug: 'triplanner',
-  seoTitle: 'Triplanner — Case study',
+  seoTitle: 'AWS Trip Planner — Case study',
   kicker: 'Case study · 01',
-  name: 'Triplanner',
+  name: 'AWS Trip Planner',
   year: '2026',
   title: 'Planning a trip is a shared-state problem.',
-  lead: 'Triplanner started from a concrete frustration: when four people plan the same trip, the information scatters across chats, spreadsheets, and screenshots. I built an app that keeps the itinerary, the budget, and the documents in one place, with explicit permissions and AI suggestions that never make decisions for anyone.',
+  lead: 'AWS Trip Planner started from a concrete frustration: when four people plan the same trip, the information scatters across chats, spreadsheets, and screenshots. I built an app that keeps the itinerary, the budget, and the documents in one place, with explicit permissions and AI suggestions that never make decisions for anyone. This case covers its ephemeral AWS deployment.',
   meta: [
     { label: 'Role', value: 'Product, frontend, backend, and infrastructure' },
     { label: 'Year', value: '2026' },
@@ -516,10 +518,10 @@ const triplannerEn: ProjectCaseStudy = {
       label: 'Stack',
       value: 'Next.js · GraphQL · Postgres · MongoDB · Python · Docker · Terraform',
     },
-    { label: 'Repo', value: 'Public · MarcoJr1312/local_triplanner' },
+    { label: 'Repo', value: 'Private · aws_triplanner' },
   ],
   abstract:
-    'The current version runs entirely on localhost: three processes, two databases, and one agent. The AWS infrastructure exists as an ephemeral stack: it wakes on demand and is destroyed after 30 minutes without traffic. I chose that shape because the interesting problem was not deploying, but deciding what deserves to persist, what can be rebuilt, and where each truth lives.',
+    'The AWS version lives in an ephemeral stack: it wakes on demand and is destroyed after 30 minutes without traffic. I chose that shape because the interesting problem was not deploying, but deciding what deserves to persist, what can be rebuilt, and where each truth lives. The local version and its microservices migration are a separate project: Local Trip Planner.',
   toc: [
     { label: 'The problem', href: '#problema' },
     { label: 'Process', href: '#proceso' },
@@ -852,17 +854,12 @@ const triplannerEn: ProjectCaseStudy = {
     diagramDesc:
       'The always-on control plane contains GitHub Actions with the wake, sleep, and status-page workflows, the control API with /wake and /status, EventBridge with the sleep-check Lambda, the status page on Cloudflare Pages, and persistent state in DynamoDB, S3, ECR, and ACM. The ephemeral stack contains Cloudflare with DNS that switches between the ALB and the status page, the ALB with WAF that only accepts Cloudflare traffic, ECS Fargate with web, API, and agent, and RDS, DynamoDB, and S3, which are destroyed on sleep.',
   },
-  localRepo: {
-    label: 'Local demo',
-    title: 'You can also run it on your machine.',
-    body: 'The ephemeral AWS stack takes 8–12 minutes to wake. If you do not want to wait, local_triplanner packages the same app with Docker Compose: Next.js, GraphQL on Bun, the Python agent, Postgres, and MongoDB, with seeded data and no external accounts.',
-    cloneLabel: 'Clone the repository',
-    cloneCommand: 'git clone https://github.com/MarcoJr1312/local_triplanner.git',
-    copyLabel: 'Copy',
-    copiedLabel: 'Copied',
-    note: 'Then enter the folder, run docker compose up --build, and open localhost:3000/login. Pick Demo or Demo Friend.',
-    repoLabel: 'Open local_triplanner on GitHub',
-    repoUrl: 'https://github.com/MarcoJr1312/local_triplanner',
+  relatedStudy: {
+    label: 'Related project',
+    title: 'Looking for the microservices migration?',
+    body: 'Local Trip Planner is the local lab where the same product became eight services on Kubernetes, with Helm, Cilium, gRPC, Prometheus, Grafana, and Argo CD. It has its own case study and its own repository.',
+    href: '/projects/local-triplanner/',
+    linkLabel: 'View Local Trip Planner',
   },
   learnings: {
     id: 'aprendizajes',
@@ -871,16 +868,16 @@ const triplannerEn: ProjectCaseStudy = {
     title: 'What was hard and what I would do differently.',
     items: [
       {
-        title: 'Migrating the engine is not changing a connection string',
-        body: 'Moving from SQLite with FTS5 to Postgres + DynamoDB meant rewriting repositories, migrations, and tests. I did it in slices, with the suite green at every step.',
+        title: 'Cold start is a product decision',
+        body: 'Waking up takes 8–12 minutes. It is not just waiting: it is the first impression. The status page and the wake button exist to make that cost explicit, not to hide it.',
       },
       {
-        title: 'The development environment also has architecture',
-        body: 'Running next build while next dev serves the same .next breaks chunks. Separating artifacts and cleaning up when switching runtimes became part of the workflow.',
+        title: 'DNS is part of the lifecycle',
+        body: 'The ALB hostname changes on every apply. Moving the CNAME between the ALB and Cloudflare Pages turned DNS into a piece of state, not a configuration detail.',
       },
       {
-        title: 'Ephemeral infrastructure has a hidden cost',
-        body: 'Cold start is not just waiting: it is a product experience. If the demo takes ten minutes to wake, the first impression is already decided.',
+        title: 'What survives has to be designed separately',
+        body: 'The control plane (Lambdas, EventBridge, state, ECR, ACM) is small but permanent. The application can be destroyed without drama because it is not.',
       },
       {
         title: 'Permissions are designed into the data',

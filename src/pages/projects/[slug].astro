@@ -1,29 +1,39 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CaseStudy from '../../components/case-study/CaseStudy.astro';
+import LocalCaseStudy from '../../components/case-study/LocalCaseStudy.astro';
 import { caseStudies } from '../../i18n/projects';
+import { localCaseStudies, localCaseStudySlugs } from '../../i18n/localTripPlanner';
 
 export function getStaticPaths() {
-  return Object.keys(caseStudies).map((slug) => ({ params: { slug } }));
+  return [...Object.keys(caseStudies), ...localCaseStudySlugs].map((slug) => ({
+    params: { slug },
+  }));
 }
 
 const { slug } = Astro.params;
+const localStudy = slug ? localCaseStudies[slug]?.en : undefined;
 const study = slug ? caseStudies[slug]?.en : undefined;
+const pageStudy = localStudy ?? study;
 
-if (!study) {
+if (!pageStudy) {
   throw new Error(`Unknown case study: ${slug}`);
 }
 
-const path = `/projects/${study.slug}/`;
-const alternateEs = `/es/proyectos/${study.slug}/`;
+const path = `/projects/${pageStudy.slug}/`;
+const alternateEs = `/es/proyectos/${pageStudy.slug}/`;
 ---
 
 <BaseLayout
   lang="en"
-  title={`${study.seoTitle} · Marco Castillo`}
-  description={study.lead}
+  title={`${pageStudy.seoTitle} · Marco Castillo`}
+  description={pageStudy.lead}
   alternateEs={alternateEs}
   alternateEn={path}
 >
-  <CaseStudy lang="en" study={study} />
+  {localStudy ? (
+    <LocalCaseStudy lang="en" study={localStudy} />
+  ) : study ? (
+    <CaseStudy lang="en" study={study} />
+  ) : null}
 </BaseLayout>

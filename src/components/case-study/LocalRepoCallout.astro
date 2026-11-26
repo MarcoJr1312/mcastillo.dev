@@ -2,11 +2,10 @@
 import type { ProjectCaseStudy } from '../../i18n/projects';
 
 interface Props {
-  study: ProjectCaseStudy;
+  repo: NonNullable<ProjectCaseStudy['localRepo']>;
 }
 
-const { study } = Astro.props;
-const localRepo = study.localRepo;
+const { repo: localRepo } = Astro.props;
 const lastSlash = localRepo.cloneCommand.lastIndexOf('/');
 const clonePrefix = localRepo.cloneCommand.slice(0, lastSlash + 1);
 const cloneSuffix = localRepo.cloneCommand.slice(lastSlash + 1);

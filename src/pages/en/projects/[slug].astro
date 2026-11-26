@@ -1,9 +1,12 @@
 ---
 // English case studies moved to the root: /en/projects/<slug>/ -> /projects/<slug>/
 import { caseStudies } from '../../../i18n/projects';
+import { localCaseStudySlugs } from '../../../i18n/localTripPlanner';
 
 export function getStaticPaths() {
-  return Object.keys(caseStudies).map((slug) => ({ params: { slug } }));
+  return [...Object.keys(caseStudies), ...localCaseStudySlugs].map((slug) => ({
+    params: { slug },
+  }));
 }
 
 const { slug } = Astro.params;

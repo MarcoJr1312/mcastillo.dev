@@ -75,8 +75,6 @@ const copy =
         timeoutStatus: 'El stack no respondió en 15 minutos.',
         open: 'Abrir Triplanner',
         retry: 'Reintentar',
-        localLead: '¿No quieres esperar?',
-        localLink: 'Corre Triplanner localmente',
         steps: [
           { label: 'DNS', detail: 'Resolviendo el DNS y el certificado TLS' },
           { label: 'VPC', detail: 'Creando VPC, subredes y security groups' },
@@ -149,8 +147,6 @@ const copy =
         timeoutStatus: 'The stack did not respond within 15 minutes.',
         open: 'Open Triplanner',
         retry: 'Retry',
-        localLead: "Don't want to wait?",
-        localLink: 'Run Triplanner locally',
         steps: [
           { label: 'DNS', detail: 'Resolving DNS and the TLS certificate' },
           { label: 'VPC', detail: 'Creating the VPC, subnets, and security groups' },
@@ -503,20 +499,6 @@ const copy =
           </button>
         </div>
       </div>
-    </div>
-
-    <div class="border-t border-line px-5 py-4 md:px-6">
-      <p class="text-xs leading-relaxed text-muted">
-        {copy.localLead}{' '}
-        <a
-          href="https://github.com/MarcoJr1312/local_triplanner"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="link-underline text-fg-soft transition-colors hover:text-accent"
-        >
-          {copy.localLink}
-        </a>
-      </p>
     </div>
   </div>
 </dialog>
