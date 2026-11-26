@@ -275,7 +275,7 @@ export const content: Record<Lang, SiteContent> = {
           domain: 'localhost:3000',
           tagline: 'De monolito modular a microservicios',
           description:
-            'La versión local de Triplanner y el laboratorio de migración: ocho servicios sobre Kubernetes con Helm, Cilium, gRPC, PostgreSQL y MongoDB por dominio, Prometheus, Grafana y Argo CD. El recorrido completo está documentado en 29 hitos y 35 notas.',
+            'La versión local de Triplanner y el laboratorio de migración: ocho servicios sobre Kubernetes con Helm, Cilium, gRPC, PostgreSQL y MongoDB por dominio, Prometheus, Grafana y Argo CD. El recorrido completo está documentado corte a corte.',
           tags: ['Kubernetes', 'Helm', 'Cilium', 'gRPC', 'Prometheus', 'Argo CD'],
           href: '/es/proyectos/local-triplanner/',
           linkLabel: 'Ver caso de estudio',
@@ -516,7 +516,7 @@ export const content: Record<Lang, SiteContent> = {
           domain: 'localhost:3000',
           tagline: 'From modular monolith to microservices',
           description:
-            'The local version of Triplanner and the migration lab: eight services on Kubernetes with Helm, Cilium, gRPC, one PostgreSQL or MongoDB per domain, Prometheus, Grafana, and Argo CD. The full journey is documented across 29 milestones and 35 notes.',
+            'The local version of Triplanner and the migration lab: eight services on Kubernetes with Helm, Cilium, gRPC, one PostgreSQL or MongoDB per domain, Prometheus, Grafana, and Argo CD. The full journey is documented slice by slice.',
           tags: ['Kubernetes', 'Helm', 'Cilium', 'gRPC', 'Prometheus', 'Argo CD'],
           href: '/projects/local-triplanner/',
           linkLabel: 'Read the case study',

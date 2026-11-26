@@ -24,7 +24,7 @@ export interface LocalCaseStudy {
     gatesLabel: string;
     gates: { id: string; title: string; body: string }[];
     timelineLabel: string;
-    timeline: { milestone: string; title: string; body: string }[];
+    timeline: { phase: string; title: string; body: string }[];
   };
   architecture: CaseStudySection & {
     body: string[];
@@ -81,7 +81,7 @@ const localEs: LocalCaseStudy = {
   kicker: 'Caso de estudio · 02',
   name: 'Local Trip Planner',
   year: '2026',
-  status: 'Migración local completada · M29',
+  status: 'Migración local completada',
   title: 'Migrar un monolito también es aprender dónde están los límites.',
   lead: 'Local Trip Planner es la versión local de Triplanner y el laboratorio donde convertí un monolito modular en ocho servicios sobre Kubernetes. No lo hice por escala: lo hice para aprender a mover datos, contratos y confianza sin romper el producto.',
   meta: [
@@ -94,7 +94,7 @@ const localEs: LocalCaseStudy = {
     { label: 'Repo', value: 'Público · MarcoJr1312/local_triplanner' },
   ],
   abstract:
-    'Durante seis días y 29 hitos, el backend pasó de un solo proceso GraphQL con una base compartida a ocho runtimes con bases separadas, contratos gRPC, un broker de email, Helm, Cilium, Prometheus/Grafana y Argo CD. La regla fue simple: cada corte debía dejar el demo funcionando y un rollback que fuera una bandera, no un redeploy. Este caso cuenta el método, las decisiones y lo que las gráficas del clúster terminaron enseñándome.',
+    'Durante la migración, el backend pasó de un solo proceso GraphQL con una base compartida a ocho runtimes con bases separadas, contratos gRPC, un broker de email, Helm, Cilium, Prometheus/Grafana y Argo CD. La regla fue simple: cada corte debía dejar el demo funcionando y un rollback que fuera una bandera, no un redeploy. Este caso cuenta el método, las decisiones y lo que las gráficas del clúster terminaron enseñándome.',
   toc: [
     { label: 'Punto de partida', href: '#inicio' },
     { label: 'Método', href: '#metodo' },
@@ -121,8 +121,8 @@ const localEs: LocalCaseStudy = {
         note: 'web, API, users, trips, locations, agent, broker, email',
       },
       { value: '5', label: 'bases', note: 'cuatro PostgreSQL y un MongoDB' },
-      { value: '29', label: 'hitos', note: 'M1–M29 planificados en Orkai' },
-      { value: '35', label: 'docs', note: 'decisiones y evidencia por corte' },
+      { value: 'PLAN', label: 'Orkai', note: 'secuenciado corte a corte' },
+      { value: 'DOCS', label: 'por corte', note: 'decisiones y evidencia junto al código' },
     ],
     constraintsLabel: 'Reglas que no quería romper',
     constraints: [
@@ -196,42 +196,42 @@ const localEs: LocalCaseStudy = {
     timelineLabel: 'La ruta de extracción',
     timeline: [
       {
-        milestone: 'M1–M5 · Nov 20',
+        phase: 'EMAIL',
         title: 'Email fuera del request',
         body: 'Servicio de email, outbox en Postgres y un broker Go con topic/offset/ack. La invitación se escribe en la misma transacción que el evento; el consumidor puede fallar sin perder el correo.',
       },
       {
-        milestone: 'M6 · Nov 21',
+        phase: 'CATÁLOGO',
         title: 'Locations y MongoDB',
         body: 'El catálogo de lugares salió primero porque era el límite más claro: lectura intensiva, datos externos y un contrato interno pequeño. El API conservó GraphQL y delegó con LOCATIONS_MODE=remote|local.',
       },
       {
-        milestone: 'M9 · Nov 22',
+        phase: 'VIAJES',
         title: 'Trips y su PostgreSQL',
         body: 'Viajes, miembros, ítems e invitaciones pasaron a un servicio con base propia. El cutover usó UUIDs fijos para que las referencias del demo sobrevivieran.',
       },
       {
-        milestone: 'M10 · Nov 22',
+        phase: 'USUARIOS',
         title: 'Users, login y notificaciones',
         body: 'Cuentas, Argon2id, invitaciones locales y la bandeja de notificaciones se mudaron a users. El frontend no cambió de contrato.',
       },
       {
-        milestone: 'M11–M14 · Nov 22–23',
+        phase: 'WEB + AGENTE',
         title: 'Frontend, favoritos, recordatorios y agente',
         body: 'La web entró a Helm, favoritos y recordatorios encontraron dueño, y el agente empezó a sincronizar embeddings con pgvector a partir de eventos del catálogo.',
       },
       {
-        milestone: 'M15–M18 · Nov 23–24',
+        phase: 'gRPC + CILIUM',
         title: 'gRPC, Cilium y el API facade',
         body: 'Los contratos internos pasaron de HTTP a gRPC h2c con .proto versionados. Cilium Gateway reemplazó el ingress y las CiliumNetworkPolicy hicieron explícito el tráfico permitido. El API facade se volvió un workload más del chart.',
       },
       {
-        milestone: 'M19–M27 · Nov 25–26',
+        phase: 'OBSERVABILIDAD',
         title: 'Medir antes de creer',
-        body: '/metrics en cada runtime, ServiceMonitors, 11 dashboards, kube-rbac-proxy, métricas gRPC, p50/p95 y cinco exporters de base de datos. La carga de QA reveló que gRPC no estaba instrumentado; eso se volvió un hito propio.',
+        body: '/metrics en cada runtime, ServiceMonitors, 11 dashboards, kube-rbac-proxy, métricas gRPC, p50/p95 y cinco exporters de base de datos. La carga de QA reveló que gRPC no estaba instrumentado; eso se volvió una etapa propia.',
       },
       {
-        milestone: 'M28–M29 · Nov 26',
+        phase: 'GITOPS',
         title: 'GitOps y trazabilidad',
         body: 'Argo CD adoptó el release de Helm, sincronizó desde Git y demostró self-heal. CI publica imágenes sha-* y actualiza values; el clúster converge a HEAD sin upgrades manuales.',
       },
@@ -387,7 +387,7 @@ const localEs: LocalCaseStudy = {
     title: 'La migración se termina cuando puedes verla.',
     body: [
       'Un microservicio sin métricas es solo un monolito distribuido con más formas de fallar. La instrumentación empezó con un contrato simple: GET /metrics en cada runtime, sin tocar la base de datos, y un ServiceMonitor por servicio.',
-      'Las gráficas cambiaron la conversación. El overview muestra los ocho servicios UP y el tráfico por servicio; los dashboards de users y trips separan gRPC por método, estado y latencia p50/p95; los exporters muestran conexiones, cache hit ratio y transacciones por instancia. Cuando una prueba de carga mostró llamadas gRPC sin métricas, se convirtió en el hito M25, no en una nota al pie.',
+      'Las gráficas cambiaron la conversación. El overview muestra los ocho servicios UP y el tráfico por servicio; los dashboards de users y trips separan gRPC por método, estado y latencia p50/p95; los exporters muestran conexiones, cache hit ratio y transacciones por instancia. Cuando una prueba de carga mostró llamadas gRPC sin métricas, se convirtió en una etapa propia, no en una nota al pie.',
     ],
     stats: [
       {
@@ -485,7 +485,7 @@ const localEs: LocalCaseStudy = {
   repo: {
     label: 'El repositorio',
     title: 'Todo el viaje está en local_triplanner.',
-    body: 'El código, el chart de Helm, los values de kind, los dashboards y las 35 notas de migración viven en el mismo repositorio. Si quieres ver cómo se tomó cada decisión, empieza por docs/migrations; si quieres correr el producto, usa Docker Compose.',
+    body: 'El código, el chart de Helm, los values de kind, los dashboards y las notas de migración viven en el mismo repositorio. Si quieres ver cómo se tomó cada decisión, empieza por docs/migrations; si quieres correr el producto, usa Docker Compose.',
     cloneLabel: 'Clona el repositorio',
     cloneCommand: 'git clone https://github.com/MarcoJr1312/local_triplanner.git',
     copyLabel: 'Copiar',
@@ -512,7 +512,7 @@ const localEn: LocalCaseStudy = {
   kicker: 'Case study · 02',
   name: 'Local Trip Planner',
   year: '2026',
-  status: 'Local migration complete · M29',
+  status: 'Local migration complete',
   title: 'Migrating a monolith is also learning where the boundaries are.',
   lead: 'Local Trip Planner is the local version of Triplanner and the lab where I turned a modular monolith into eight services on Kubernetes. I did not do it for scale: I did it to learn how to move data, contracts, and trust without breaking the product.',
   meta: [
@@ -525,7 +525,7 @@ const localEn: LocalCaseStudy = {
     { label: 'Repo', value: 'Public · MarcoJr1312/local_triplanner' },
   ],
   abstract:
-    'Over six days and 29 milestones, the backend went from a single GraphQL process with a shared database to eight runtimes with separate databases, gRPC contracts, an email broker, Helm, Cilium, Prometheus/Grafana, and Argo CD. The rule was simple: every slice had to leave the demo working and a rollback that was a flag, not a redeploy. This case covers the method, the decisions, and what the cluster graphs ended up teaching me.',
+    'During the migration, the backend went from a single GraphQL process with a shared database to eight runtimes with separate databases, gRPC contracts, an email broker, Helm, Cilium, Prometheus/Grafana, and Argo CD. The rule was simple: every slice had to leave the demo working and a rollback that was a flag, not a redeploy. This case covers the method, the decisions, and what the cluster graphs ended up teaching me.',
   toc: [
     { label: 'Starting point', href: '#inicio' },
     { label: 'Method', href: '#metodo' },
@@ -552,8 +552,8 @@ const localEn: LocalCaseStudy = {
         note: 'web, API, users, trips, locations, agent, broker, email',
       },
       { value: '5', label: 'databases', note: 'four PostgreSQL and one MongoDB' },
-      { value: '29', label: 'milestones', note: 'M1–M29 planned in Orkai' },
-      { value: '35', label: 'docs', note: 'decisions and evidence per slice' },
+      { value: 'PLAN', label: 'Orkai', note: 'sequenced slice by slice' },
+      { value: 'DOCS', label: 'per slice', note: 'decisions and evidence next to the code' },
     ],
     constraintsLabel: 'Rules I did not want to break',
     constraints: [
@@ -627,42 +627,42 @@ const localEn: LocalCaseStudy = {
     timelineLabel: 'The extraction route',
     timeline: [
       {
-        milestone: 'M1–M5 · Nov 20',
+        phase: 'EMAIL',
         title: 'Email out of the request',
         body: 'Email service, Postgres outbox, and a Go broker with topic/offset/ack. The invitation is written in the same transaction as the event; the consumer can fail without losing the email.',
       },
       {
-        milestone: 'M6 · Nov 21',
+        phase: 'CATALOGUE',
         title: 'Locations and MongoDB',
         body: 'The place catalogue went first because it had the clearest boundary: read-heavy, external data, and a small internal contract. The API kept GraphQL and delegated with LOCATIONS_MODE=remote|local.',
       },
       {
-        milestone: 'M9 · Nov 22',
+        phase: 'TRIPS',
         title: 'Trips and its PostgreSQL',
         body: 'Trips, members, items, and invitations moved to a service with its own database. The cutover used fixed UUIDs so demo references survived.',
       },
       {
-        milestone: 'M10 · Nov 22',
+        phase: 'USERS',
         title: 'Users, login, and notifications',
         body: 'Accounts, Argon2id, local invites, and the notification inbox moved to users. The frontend contract did not change.',
       },
       {
-        milestone: 'M11–M14 · Nov 22–23',
+        phase: 'WEB + AGENT',
         title: 'Frontend, favorites, reminders, and agent',
         body: 'The web app entered Helm, favorites and reminders found an owner, and the agent started syncing pgvector embeddings from catalogue events.',
       },
       {
-        milestone: 'M15–M18 · Nov 23–24',
+        phase: 'gRPC + CILIUM',
         title: 'gRPC, Cilium, and the API facade',
         body: 'Internal contracts moved from HTTP to gRPC h2c with versioned .proto files. Cilium Gateway replaced ingress and CiliumNetworkPolicy made allowed traffic explicit. The API facade became just another chart workload.',
       },
       {
-        milestone: 'M19–M27 · Nov 25–26',
+        phase: 'OBSERVABILITY',
         title: 'Measure before believing',
-        body: '/metrics on every runtime, ServiceMonitors, 11 dashboards, kube-rbac-proxy, gRPC metrics, p50/p95, and five database exporters. The QA load revealed gRPC was not instrumented; that became its own milestone.',
+        body: '/metrics on every runtime, ServiceMonitors, 11 dashboards, kube-rbac-proxy, gRPC metrics, p50/p95, and five database exporters. The QA load revealed gRPC was not instrumented; that became its own stage.',
       },
       {
-        milestone: 'M28–M29 · Nov 26',
+        phase: 'GITOPS',
         title: 'GitOps and traceability',
         body: 'Argo CD adopted the Helm release, synced from Git, and proved self-heal. CI publishes sha-* images and updates values; the cluster converges to HEAD without manual upgrades.',
       },
@@ -818,7 +818,7 @@ const localEn: LocalCaseStudy = {
     title: 'The migration is finished when you can see it.',
     body: [
       'A microservice without metrics is just a distributed monolith with more ways to fail. Instrumentation started with a simple contract: GET /metrics on every runtime, no database queries, and one ServiceMonitor per service.',
-      'The graphs changed the conversation. The overview shows all eight services UP and traffic by service; the users and trips dashboards split gRPC by method, status, and p50/p95 latency; the exporters show connections, cache hit ratio, and transactions per instance. When a load test showed gRPC calls without metrics, it became milestone M25, not a footnote.',
+      'The graphs changed the conversation. The overview shows all eight services UP and traffic by service; the users and trips dashboards split gRPC by method, status, and p50/p95 latency; the exporters show connections, cache hit ratio, and transactions per instance. When a load test showed gRPC calls without metrics, it became its own stage, not a footnote.',
     ],
     stats: [
       {
@@ -915,7 +915,7 @@ const localEn: LocalCaseStudy = {
   repo: {
     label: 'The repository',
     title: 'The whole journey lives in local_triplanner.',
-    body: 'The code, Helm chart, kind values, dashboards, and 35 migration notes live in the same repository. If you want to see how each decision was made, start with docs/migrations; if you want to run the product, use Docker Compose.',
+    body: 'The code, Helm chart, kind values, dashboards, and migration notes live in the same repository. If you want to see how each decision was made, start with docs/migrations; if you want to run the product, use Docker Compose.',
     cloneLabel: 'Clone the repository',
     cloneCommand: 'git clone https://github.com/MarcoJr1312/local_triplanner.git',
     copyLabel: 'Copy',
