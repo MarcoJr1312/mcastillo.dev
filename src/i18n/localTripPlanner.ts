@@ -105,15 +105,11 @@ const localEs: LocalCaseStudy = {
     { label: 'Repo', value: 'Público · MarcoJr1312/local_triplanner' },
   ],
   abstract:
-    'Durante la migración, el backend pasó de un solo proceso GraphQL con una base compartida a ocho runtimes con bases separadas, contratos gRPC, un broker de email, Helm, Cilium, Prometheus/Grafana y Argo CD. La regla fue simple: cada corte debía dejar el demo funcionando y un rollback que fuera una bandera, no un redeploy. Este caso cuenta el método, las decisiones y lo que las gráficas del clúster terminaron enseñándome.',
+    'Convertí un monolito modular en ocho servicios sobre Kubernetes para aprender dónde están los límites reales. Cada corte mantuvo el demo funcionando y un rollback que era una bandera, no un redeploy. Este caso cuenta el método, las decisiones y lo que las gráficas del clúster me enseñaron.',
   toc: [
     { label: 'Punto de partida', href: '#inicio' },
     { label: 'Método', href: '#metodo' },
-    { label: 'Clúster', href: '#arquitectura' },
-    { label: 'Decisiones', href: '#decisiones' },
-    { label: 'Observabilidad', href: '#observabilidad' },
-    { label: 'Aprendizajes', href: '#aprendizajes' },
-    { label: 'Próximos pasos', href: '#siguiente' },
+    { label: 'Clúster y observabilidad', href: '#arquitectura' },
     { label: 'Repo', href: '#repo' },
   ],
   baseline: {
@@ -123,7 +119,6 @@ const localEs: LocalCaseStudy = {
     title: 'Un monolito que funcionaba demasiado bien.',
     body: [
       'La versión original era un monolito modular: Next.js como único origen público, una API GraphQL en Bun, un Postgres para el viaje, MongoDB para el catálogo de lugares y un agente en Python. Todo vivía en un docker compose, todo compartía el mismo proceso de despliegue y casi cualquier resolver podía leer casi cualquier tabla.',
-      'Ese diseño fue correcto para construir el producto. El problema apareció cuando quise aprender microservicios de verdad: no hay forma de entender los límites de un servicio si nunca lo separas, nunca lo despliegas solo y nunca lo ves fallar por su cuenta.',
       'La migración no buscaba escala. Buscaba responder preguntas concretas: ¿quién es dueño de cada dato?, ¿qué pasa cuando el consumidor de email se cae?, ¿cómo cambio un contrato sin tocar el frontend?, ¿cómo sé que el nuevo camino es más lento?',
     ],
     facts: [
@@ -160,8 +155,8 @@ const localEs: LocalCaseStudy = {
     id: 'metodo',
     index: '02',
     label: 'Método',
-    title: 'Ocho puertas antes de borrar el código viejo.',
-    body: 'El playbook de migración definió ocho gates. Ninguno se saltaba: baseline, contrato, esqueleto, productor, consumidor, e2e local, Helm y cutover. La extracción avanzó en el orden en que los datos podían separarse sin mentir: primero el email, luego el catálogo, después viajes y usuarios. Cada servicio nuevo nació con health/ready, suite propia, imagen y valores de Helm.',
+    title: 'Cortar por dominio, probar cada corte.',
+    body: 'La regla fue simple: cada corte debía dejar el demo funcionando y un rollback que fuera una bandera, no un redeploy. Moví primero el email, después el catálogo, trips, users, el frontend y gRPC/Cilium; la observabilidad y GitOps cerraron el recorrido. Cada servicio salió con health/ready, pruebas, imagen y values de Helm. El demo no se rompe, cada servicio es dueño de sus datos, cada corte tiene bandera y los secretos viven fuera de values.',
     gatesLabel: 'Las ocho puertas',
     gates: [
       {
@@ -252,7 +247,7 @@ const localEs: LocalCaseStudy = {
   architecture: {
     id: 'arquitectura',
     index: '03',
-    label: 'Clúster',
+    label: 'Clúster y observabilidad',
     title: 'Ocho runtimes, cinco bases y un solo origen público.',
     body: [
       'En el clúster, el navegador sigue hablando solo con Next.js. Cilium Gateway publica la web; la web proxya /api/graphql hacia el API facade y /api/agent/* hacia el agente. El facade es el único que conoce a users, trips y locations, ahora por gRPC sobre la red interna.',
@@ -326,19 +321,19 @@ const localEs: LocalCaseStudy = {
         context:
           'El demo tenía que seguir funcionando en cada corte. Una migración big-bang habría dejado el producto roto justo cuando necesitaba comparar el antes y el después.',
         decision:
-          'Cada servicio nuevo convivió con el camino anterior. LOCATIONS_MODE=remote|local, flags de transporte HTTP/gRPC y rutas internas de respaldo se quitaron solo después del Gate 2.',
+          'Cada servicio nuevo convivió con el camino anterior. LOCATIONS_MODE=remote|local, flags de transporte HTTP/gRPC y rutas internas de respaldo se quitaron solo después de probar el nuevo camino.',
         tradeoff:
           'Código duplicado temporal y dos caminos que probar. A cambio, el rollback era una variable de entorno, no un redeploy de la versión anterior.',
       },
       {
         id: 'D3',
-        title: 'Outbox transaccional y un broker Go en vez de Kafka',
+        title: 'Outbox transaccional y un broker Go propio',
         context:
-          'El envío de invitaciones ocurría dentro del request. Kafka resolvía el desacoplamiento, pero añadía Zookeeper, operación y una dependencia que no cabía en un demo de un solo nodo.',
+          'El envío de invitaciones ocurría dentro del request. Podría haber usado Kafka, pero quería construir el broker yo mismo para aprender las semánticas de topic/offset/ack, retries y dead letters. Era un objetivo de aprendizaje, no una comparación operativa.',
         decision:
-          'La invitación y su evento se escriben en la misma transacción de Postgres. Un relay publica al broker Go (topic/offset/ack); el servicio de email hace long-poll, reintenta y manda a DLQ.',
+          'La invitación y su evento se escriben en la misma transacción de Postgres. Un relay publica al broker Go que construí para aprender las semánticas de topic/offset/ack; el servicio de email hace long-poll, reintenta y manda a DLQ.',
         tradeoff:
-          'Un broker propio con semántica que hay que documentar y probar. A cambio, no hay doble escritura, el demo no arrastra Kafka y el DLQ se puede inspeccionar y reproducir.',
+          'Un broker propio con semántica que hay que documentar y probar. A cambio, aprendí las reglas de entrega de primera mano y el demo mantiene una superficie operativa pequeña.',
       },
       {
         id: 'D4',
@@ -398,8 +393,7 @@ const localEs: LocalCaseStudy = {
     label: 'Observabilidad',
     title: 'La migración se termina cuando puedes verla.',
     body: [
-      'Un microservicio sin métricas es solo un monolito distribuido con más formas de fallar. La instrumentación empezó con un contrato simple: GET /metrics en cada runtime, sin tocar la base de datos, y un ServiceMonitor por servicio.',
-      'Las gráficas cambiaron la conversación. El overview muestra los ocho servicios UP y el tráfico por servicio; los dashboards de users y trips separan gRPC por método, estado y latencia p50/p95; los exporters muestran conexiones, cache hit ratio y transacciones por instancia. Cuando una prueba de carga mostró llamadas gRPC sin métricas, se convirtió en una etapa propia, no en una nota al pie.',
+      'Un microservicio sin métricas es solo un monolito distribuido con más formas de fallar. El overview muestra los ocho runtimes UP, los dashboards de users y trips separan gRPC por método y latencia, y los exporters muestran la salud de las bases. Cuando una prueba de carga mostró llamadas gRPC sin métricas, instrumentar se volvió parte del siguiente corte.',
     ],
     stats: [
       {
@@ -570,15 +564,11 @@ const localEn: LocalCaseStudy = {
     { label: 'Repo', value: 'Public · MarcoJr1312/local_triplanner' },
   ],
   abstract:
-    'During the migration, the backend went from a single GraphQL process with a shared database to eight runtimes with separate databases, gRPC contracts, an email broker, Helm, Cilium, Prometheus/Grafana, and Argo CD. The rule was simple: every slice had to leave the demo working and a rollback that was a flag, not a redeploy. This case covers the method, the decisions, and what the cluster graphs ended up teaching me.',
+    'I turned a modular monolith into eight services on Kubernetes to learn where the real boundaries are. Every slice kept the demo working and a rollback that was a flag, not a redeploy. This case covers the method, the decisions, and what the cluster graphs taught me.',
   toc: [
     { label: 'Starting point', href: '#inicio' },
     { label: 'Method', href: '#metodo' },
-    { label: 'Cluster', href: '#arquitectura' },
-    { label: 'Decisions', href: '#decisiones' },
-    { label: 'Observability', href: '#observabilidad' },
-    { label: 'Learnings', href: '#aprendizajes' },
-    { label: 'Next steps', href: '#next' },
+    { label: 'Cluster & observability', href: '#arquitectura' },
     { label: 'Repo', href: '#repo' },
   ],
   baseline: {
@@ -588,7 +578,6 @@ const localEn: LocalCaseStudy = {
     title: 'A monolith that worked too well.',
     body: [
       'The original version was a modular monolith: Next.js as the only public origin, a GraphQL API on Bun, Postgres for the trip, MongoDB for the place catalogue, and a Python agent. Everything lived in one docker compose, everything shared the same deployment process, and almost any resolver could read almost any table.',
-      'That design was right for building the product. The problem appeared when I wanted to learn microservices for real: there is no way to understand a service boundary if you never separate it, never deploy it alone, and never watch it fail on its own.',
       'The migration was not about scale. It was about answering concrete questions: who owns each piece of data? What happens when the email consumer goes down? How do I change a contract without touching the frontend? How do I know the new path is slower?',
     ],
     facts: [
@@ -625,8 +614,8 @@ const localEn: LocalCaseStudy = {
     id: 'metodo',
     index: '02',
     label: 'Method',
-    title: 'Eight gates before deleting the old code.',
-    body: 'The migration playbook defined eight gates. None was skipped: baseline, contract, skeleton, producer, consumer, local e2e, Helm, and cutover. Extraction followed the order in which data could be separated honestly: email first, then the catalogue, then trips and users. Every new service shipped with health/ready, its own test suite, an image, and Helm values.',
+    title: 'Cut by ownership, prove every slice.',
+    body: 'The rule was simple: every slice had to leave the demo working and a rollback that was a flag, not a redeploy. I moved email first, then the catalogue, trips, users, the frontend, and gRPC/Cilium; observability and GitOps closed the loop. Every service shipped with health/ready, tests, an image, and Helm values. The demo does not break, each service owns its data, every slice has a flag, and secrets live outside values.',
     gatesLabel: 'The eight gates',
     gates: [
       {
@@ -717,7 +706,7 @@ const localEn: LocalCaseStudy = {
   architecture: {
     id: 'arquitectura',
     index: '03',
-    label: 'Cluster',
+    label: 'Cluster & observability',
     title: 'Eight runtimes, five databases, one public origin.',
     body: [
       'In the cluster, the browser still talks only to Next.js. Cilium Gateway publishes the web app; the web app proxies /api/graphql to the API facade and /api/agent/* to the agent. The facade is the only thing that knows users, trips, and locations, now over gRPC on the internal network.',
@@ -791,19 +780,19 @@ const localEn: LocalCaseStudy = {
         context:
           'The demo had to keep working on every slice. A big-bang migration would have broken the product exactly when I needed to compare before and after.',
         decision:
-          'Every new service coexisted with the old path. LOCATIONS_MODE=remote|local, HTTP/gRPC transport flags, and fallback internal routes were removed only after Gate 2.',
+          'Every new service coexisted with the old path. LOCATIONS_MODE=remote|local, HTTP/gRPC transport flags, and fallback internal routes were removed only after the new path was proven.',
         tradeoff:
           'Temporary duplicated code and two paths to test. In exchange, rollback was an environment variable, not a redeploy of the previous version.',
       },
       {
         id: 'D3',
-        title: 'Transactional outbox and a Go broker instead of Kafka',
+        title: 'Transactional outbox and a small Go broker',
         context:
-          'Invitations were sent inside the request. Kafka solved decoupling but added Zookeeper, operations, and a dependency that did not fit a single-node demo.',
+          'Invitations were sent inside the request. I could have used Kafka, but I wanted to build the broker myself to learn the semantics of topic/offset/ack, retries, and dead letters. The goal was learning, not an operational comparison.',
         decision:
-          'The invitation and its event are written in the same Postgres transaction. A relay publishes to the Go broker (topic/offset/ack); the email service long-polls, retries, and dead-letters.',
+          'The invitation and its event are written in the same Postgres transaction. A relay publishes to the Go broker I built to learn topic/offset/ack semantics; the email service long-polls, retries, and dead-letters.',
         tradeoff:
-          'A custom broker with semantics to document and test. In exchange, there are no dual writes, the demo does not carry Kafka, and the DLQ can be inspected and replayed.',
+          'A custom broker with semantics to document and test. In exchange, I learned the delivery rules first-hand and the demo keeps a small operational surface.',
       },
       {
         id: 'D4',
@@ -863,8 +852,7 @@ const localEn: LocalCaseStudy = {
     label: 'Observability',
     title: 'The migration is finished when you can see it.',
     body: [
-      'A microservice without metrics is just a distributed monolith with more ways to fail. Instrumentation started with a simple contract: GET /metrics on every runtime, no database queries, and one ServiceMonitor per service.',
-      'The graphs changed the conversation. The overview shows all eight services UP and traffic by service; the users and trips dashboards split gRPC by method, status, and p50/p95 latency; the exporters show connections, cache hit ratio, and transactions per instance. When a load test showed gRPC calls without metrics, it became its own stage, not a footnote.',
+      'A microservice without metrics is just a distributed monolith with more ways to fail. The overview shows the eight runtimes UP, the users and trips dashboards split gRPC by method and latency, and the exporters show database health. When a load test showed gRPC calls without metrics, instrumentation became part of the next slice.',
     ],
     stats: [
       {

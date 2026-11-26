@@ -19,6 +19,8 @@ const copy =
         clonePrefix: 'Clona el repositorio',
         docs: 'Documentación',
         fullSize: 'Ver a tamaño completo',
+        decisionLabel: 'Decisión',
+        fullDecisionLog: 'Ver el registro completo de decisiones',
       }
     : {
         summary: 'Summary',
@@ -26,11 +28,17 @@ const copy =
         clonePrefix: 'Clone the repository',
         docs: 'Documentation',
         fullSize: 'View full size',
+        decisionLabel: 'Decision',
+        fullDecisionLog: 'Read the full decision log',
       };
 
 const lastSlash = study.repo.cloneCommand.lastIndexOf('/');
 const clonePrefix = study.repo.cloneCommand.slice(0, lastSlash + 1);
 const cloneSuffix = study.repo.cloneCommand.slice(lastSlash + 1);
+const keyDecisions = study.decisions.items.slice(0, 4);
+const featuredScreenshots = study.observability.screenshots.filter((_, index) =>
+  [0, 1, 3].includes(index),
+);
 ---
 
 <article>
@@ -130,20 +138,6 @@ const cloneSuffix = study.repo.cloneCommand.slice(lastSlash + 1);
         </div>
       ))}
     </dl>
-
-    <div class="mt-12">
-      <p class="label text-muted">{study.baseline.constraintsLabel}</p>
-
-      <ul class="mt-5 grid gap-px border border-line bg-line sm:grid-cols-2">
-        {study.baseline.constraints.map((item, index) => (
-          <li class="bg-surface p-5 md:p-6" data-reveal style={`--reveal-delay:${index * 60}ms`}>
-            <span class="label text-accent">{String(index + 1).padStart(2, '0')}</span>
-            <h3 class="mt-3 font-serif text-xl leading-snug">{item.title}</h3>
-            <p class="mt-2 text-sm leading-relaxed text-muted">{item.body}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
   </CaseSection>
 
   <CaseSection
@@ -154,39 +148,30 @@ const cloneSuffix = study.repo.cloneCommand.slice(lastSlash + 1);
   >
     <p class="max-w-3xl text-base leading-relaxed text-fg-soft">{study.method.body}</p>
 
-    <div class="mt-10">
-      <p class="label text-muted">{study.method.gatesLabel}</p>
-
-      <ol class="mt-5 grid gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
-        {study.method.gates.map((gate, index) => (
-          <li class="bg-surface p-4 md:p-5" data-reveal style={`--reveal-delay:${index * 45}ms`}>
-            <span class="label text-accent">G{gate.id}</span>
-            <h3 class="mt-2 font-serif text-lg leading-none">{gate.title}</h3>
-            <p class="mt-3 text-xs leading-relaxed text-muted">{gate.body}</p>
-          </li>
-        ))}
-      </ol>
+    <div class="mt-10 grid gap-px border border-line bg-line md:grid-cols-2">
+      {keyDecisions.map((decision, index) => (
+        <article class="bg-surface p-6 md:p-8" data-reveal style={`--reveal-delay:${index * 60}ms`}>
+          <div class="flex items-center justify-between gap-4">
+            <span class="label text-accent">{String(index + 1).padStart(2, '0')}</span>
+            <span class="label text-muted">{copy.decisionLabel}</span>
+          </div>
+          <h3 class="mt-3 font-serif text-xl leading-snug">{decision.title}</h3>
+          <p class="mt-3 text-sm leading-relaxed text-muted">{decision.decision}</p>
+        </article>
+      ))}
     </div>
 
-    <div class="mt-12">
-      <p class="label text-muted">{study.method.timelineLabel}</p>
-
-      <ol class="mt-5 divide-y divide-line border-y border-line">
-        {study.method.timeline.map((step, index) => (
-          <li
-            class="grid gap-2 py-5 md:grid-cols-12 md:gap-8"
-            data-reveal
-            style={`--reveal-delay:${index * 40}ms`}
-          >
-            <p class="label text-accent md:col-span-3">{step.phase}</p>
-            <div class="md:col-span-9">
-              <h3 class="font-serif text-xl leading-snug">{step.title}</h3>
-              <p class="mt-2 text-sm leading-relaxed text-muted">{step.body}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
-    </div>
+    <p class="mt-6">
+      <a
+        href={study.repo.docsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="label link-underline inline-flex items-center gap-2 text-accent-soft transition-colors hover:text-accent"
+      >
+        {copy.fullDecisionLog}
+        <span aria-hidden="true">↗</span>
+      </a>
+    </p>
   </CaseSection>
 
   <CaseSection
@@ -199,18 +184,6 @@ const cloneSuffix = study.repo.cloneCommand.slice(lastSlash + 1);
       {study.architecture.body.map((paragraph) => (
         <p>{paragraph}</p>
       ))}
-    </div>
-
-    <div class="mt-10">
-      <ol class="grid gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
-        {study.architecture.flow.map((step, index) => (
-          <li class="bg-surface p-5" data-reveal style={`--reveal-delay:${index * 60}ms`}>
-            <span class="label text-accent">{String(index + 1).padStart(2, '0')}</span>
-            <h3 class="mt-3 font-serif text-lg leading-none">{step.label}</h3>
-            <p class="mt-3 text-xs leading-relaxed text-muted">{step.detail}</p>
-          </li>
-        ))}
-      </ol>
     </div>
 
     <Fragment slot="wide">
@@ -229,81 +202,48 @@ const cloneSuffix = study.repo.cloneCommand.slice(lastSlash + 1);
           ))}
         </ul>
       </div>
-    </Fragment>
-  </CaseSection>
 
-  <CaseSection
-    id={study.decisions.id}
-    index={study.decisions.index}
-    label={study.decisions.label}
-    title={study.decisions.title}
-  >
-    <p class="max-w-3xl text-base leading-relaxed text-fg-soft">{study.decisions.intro}</p>
-
-    <div class="mt-10 space-y-4">
-      {study.decisions.items.map((decision) => (
-        <article class="border border-line bg-surface/60 p-6 md:p-8" data-reveal>
-          <div class="flex items-center justify-between gap-4">
-            <span class="label text-accent">{decision.id}</span>
-            <span class="label text-muted">{lang === 'es' ? 'Registro' : 'Record'}</span>
+      <div id={study.observability.id} class="mt-16 scroll-mt-28 border-t border-line pt-12">
+        <div class="grid gap-8 md:grid-cols-12">
+          <div class="md:col-span-3">
+            <p class="label text-accent">{study.observability.label}</p>
           </div>
 
-          <h3 class="mt-4 font-serif text-2xl leading-snug md:text-[1.75rem]">{decision.title}</h3>
+          <div class="min-w-0 md:col-span-9">
+            <h3 class="max-w-3xl font-serif text-3xl leading-[1.05] tracking-[-0.03em] md:text-[2.9rem]">
+              {study.observability.title}
+            </h3>
 
-          <dl class="mt-6 grid gap-5 md:grid-cols-3 md:gap-6">
-            <div>
-              <dt class="label text-muted">{study.decisions.labels.context}</dt>
-              <dd class="mt-2 text-sm leading-relaxed text-fg-soft">{decision.context}</dd>
+            <div class="mt-5 max-w-3xl space-y-4 text-base leading-relaxed text-fg-soft">
+              {study.observability.body.map((paragraph) => (
+                <p>{paragraph}</p>
+              ))}
             </div>
-            <div>
-              <dt class="label text-accent">{study.decisions.labels.decision}</dt>
-              <dd class="mt-2 text-sm leading-relaxed text-fg-soft">{decision.decision}</dd>
-            </div>
-            <div>
-              <dt class="label text-muted">{study.decisions.labels.tradeoff}</dt>
-              <dd class="mt-2 text-sm leading-relaxed text-muted">{decision.tradeoff}</dd>
-            </div>
-          </dl>
-        </article>
-      ))}
-    </div>
-  </CaseSection>
 
-  <CaseSection
-    id={study.observability.id}
-    index={study.observability.index}
-    label={study.observability.label}
-    title={study.observability.title}
-  >
-    <div class="max-w-3xl space-y-5 text-base leading-relaxed text-fg-soft">
-      {study.observability.body.map((paragraph) => (
-        <p>{paragraph}</p>
-      ))}
-    </div>
-
-    <dl class="mt-10 grid gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
-      {study.observability.stats.map((stat, index) => (
-        <div class="bg-surface p-5 md:p-6" data-reveal style={`--reveal-delay:${index * 60}ms`}>
-          <dt class="font-serif text-3xl leading-none text-fg md:text-4xl">{stat.value}</dt>
-          <dd class="mt-2">
-            <span class="label text-accent">{stat.label}</span>
-            <span class="mt-2 block text-xs leading-relaxed text-muted">{stat.note}</span>
-          </dd>
+            <dl class="mt-8 grid gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+              {study.observability.stats.map((stat, index) => (
+                <div
+                  class="bg-surface p-5 md:p-6"
+                  data-reveal
+                  style={`--reveal-delay:${index * 60}ms`}
+                >
+                  <dt class="font-serif text-3xl leading-none text-fg md:text-4xl">{stat.value}</dt>
+                  <dd class="mt-2">
+                    <span class="label text-accent">{stat.label}</span>
+                    <span class="mt-2 block text-xs leading-relaxed text-muted">{stat.note}</span>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
         </div>
-      ))}
-    </dl>
 
-    <Fragment slot="wide">
-      <div class="mt-10 md:mt-12">
-        <div class="grid gap-4 lg:grid-cols-2">
-          {study.observability.screenshots.map((shot, index) => (
+        <div class="mt-8 grid gap-4 lg:grid-cols-2">
+          {featuredScreenshots.map((shot, index) => (
             <figure
               class:list={[
                 'overflow-hidden border border-line bg-elevated',
                 index === 0 ? 'lg:col-span-2' : '',
-                index === study.observability.screenshots.length - 1
-                  ? 'lg:col-span-2 lg:mx-auto lg:w-[calc(50%_-_0.5rem)]'
-                  : '',
               ]}
               data-reveal
               style={`--reveal-delay:${index * 50}ms`}
@@ -352,65 +292,42 @@ const cloneSuffix = study.repo.cloneCommand.slice(lastSlash + 1);
           <p class="mt-2">{study.observability.note}</p>
         </div>
       </div>
-    </Fragment>
-  </CaseSection>
 
-  <CaseSection
-    id={study.learnings.id}
-    index={study.learnings.index}
-    label={study.learnings.label}
-    title={study.learnings.title}
-  >
-    <ul class="grid gap-px border border-line bg-line sm:grid-cols-2">
-      {study.learnings.items.map((item, index) => (
-        <li
-          class:list={[
-            'bg-surface p-6',
-            index === study.learnings.items.length - 1 ? 'sm:col-span-2' : '',
-          ]}
-          data-reveal
-          style={`--reveal-delay:${index * 60}ms`}
-        >
-          <span class="label text-accent">{String(index + 1).padStart(2, '0')}</span>
-          <h3 class="mt-3 font-serif text-xl leading-snug">{item.title}</h3>
-          <p class="mt-3 text-sm leading-relaxed text-muted">{item.body}</p>
-        </li>
-      ))}
-    </ul>
-  </CaseSection>
-
-  <CaseSection
-    id={study.next.id}
-    index={study.next.index}
-    label={study.next.label}
-    title={study.next.title}
-  >
-    <p class="max-w-3xl text-base leading-relaxed text-fg-soft">{study.next.intro}</p>
-
-    <div class="mt-10 grid gap-px border border-line bg-line md:grid-cols-2">
-      {study.next.items.map((item, index) => (
-        <article class="bg-surface p-6 md:p-8" data-reveal style={`--reveal-delay:${index * 60}ms`}>
-          <div class="flex items-center justify-between gap-4">
-            <span class="label text-accent">{item.label}</span>
-            <span class="label text-muted">{item.tool}</span>
+      <div id={study.next.id} class="mt-16 scroll-mt-28 border-t border-line pt-12">
+        <div class="grid gap-8 md:grid-cols-12">
+          <div class="md:col-span-3">
+            <p class="label text-accent">{study.next.label}</p>
           </div>
-          <h3 class="mt-4 font-serif text-2xl leading-snug">{item.title}</h3>
-          <p class="mt-3 text-sm leading-relaxed text-muted">{item.body}</p>
-          <ul class="mt-5 space-y-2">
-            {item.points.map((point) => (
-              <li class="flex gap-2 text-sm leading-relaxed text-fg-soft">
-                <span class="mt-[0.15em] text-accent" aria-hidden="true">
-                  →
-                </span>
-                <span>{point}</span>
-              </li>
-            ))}
-          </ul>
-        </article>
-      ))}
-    </div>
 
-    <p class="mt-6 max-w-4xl text-sm leading-relaxed text-muted">{study.next.note}</p>
+          <div class="min-w-0 md:col-span-9">
+            <h3 class="max-w-3xl font-serif text-3xl leading-[1.05] tracking-[-0.03em] md:text-[2.9rem]">
+              {study.next.title}
+            </h3>
+
+            <p class="mt-5 max-w-3xl text-base leading-relaxed text-fg-soft">{study.next.intro}</p>
+
+            <div class="mt-6 grid gap-px border border-line bg-line md:grid-cols-2">
+              {study.next.items.map((item, index) => (
+                <article
+                  class="bg-surface p-6"
+                  data-reveal
+                  style={`--reveal-delay:${index * 60}ms`}
+                >
+                  <div class="flex items-center justify-between gap-4">
+                    <span class="label text-accent">{item.label}</span>
+                    <span class="label text-muted">{item.tool}</span>
+                  </div>
+                  <h4 class="mt-3 font-serif text-xl leading-snug">{item.title}</h4>
+                  <p class="mt-2 text-sm leading-relaxed text-muted">{item.body}</p>
+                </article>
+              ))}
+            </div>
+
+            <p class="mt-4 max-w-3xl text-xs leading-relaxed text-muted">{study.next.note}</p>
+          </div>
+        </div>
+      </div>
+    </Fragment>
   </CaseSection>
 
   <section id="repo" class="scroll-mt-28 border-t border-line">
